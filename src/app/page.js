@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Image from "next/image";
-import Login from './login/page';
+import Login from './Login/page';
 import Dashboard from './dashboard/page';
 
 export default function Home() {
@@ -19,14 +19,7 @@ export default function Home() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <Image
-              className="mx-auto dark:invert mb-8"
-              src="/next.svg"
-              alt="Next.js logo"
-              width={180}
-              height={38}
-              priority
-            />
+         <h1 className='font-bold text-4xl'>Bienvenido</h1>
           </div>
           <Login />
         </div>

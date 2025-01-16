@@ -7,10 +7,10 @@ export default function Dashboard() {
 
     useEffect(() => {
         api.get('/dashboard')
-            .then(response => {
+            .then((response) => {
                 setData(response.data);
             })
-            .catch(error => {
+            .catch((error) => {
                 console.error('Error fetching dashboard data:', error);
             });
     }, []);
@@ -18,7 +18,7 @@ export default function Dashboard() {
     return (
         <div>
             <h1>Dashboard</h1>
-            <h1>esto es una pruebaaaa</h1>
+            <h1>Esto es una prueba</h1>
             <p>{JSON.stringify(data)}</p>
         </div>
     );

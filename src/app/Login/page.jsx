@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '../api/axios';
+import Cookies from 'js-cookie'; // Importamos Cookies
 
 export default function Login() {
     const [formData, setFormData] = useState({ email: '', password: '' });
@@ -23,8 +24,8 @@ export default function Login() {
             // Enviar la solicitud de inicio de sesión
             const response = await api.post('/login', formData);
             console.log('API Response:', response);
-            localStorage.setItem('token', response.data.token);
-            router.push('/'); // Redirigir al dashboard
+            Cookies.set('token', response.data.token); 
+        router.push('/dashboard'); 
         } catch (err) {
             console.error('API Error:', err);
             setError('Credenciales inválidas, intenta de nuevo.');
@@ -38,7 +39,7 @@ export default function Login() {
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Correo:</label>
-                    <input
+                    <input className='border-2 border-gray-300 p-2 rounded-lg'
                         type="email"
                         name="email"
                         value={formData.email}
@@ -49,6 +50,7 @@ export default function Login() {
                 <div>
                     <label>Contraseña:</label>
                     <input
+                    className='border-2 border-gray-300 p-2 rounded-lg'
                         type="password"
                         name="password"
                         value={formData.password}
@@ -56,7 +58,7 @@ export default function Login() {
                         required
                     />
                 </div>
-                <button type="submit">Iniciar Sesión</button>
+                <button className="border-1 border-blue-100 rounded-sm" type="submit">Iniciar Sesión</button>
             </form>
         </div>
     );
