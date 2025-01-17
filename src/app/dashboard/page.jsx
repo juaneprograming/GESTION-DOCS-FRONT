@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation'; // Importar useRouter
 import Image from "next/image";
 import api from '../api/axios';
-import Login from '../Login/page';
+import Login from '../login/page';
 
 export default function Dashboard() {
   const [data, setData] = useState({});
