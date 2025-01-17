@@ -45,7 +45,12 @@ export default function Usuarios() {
   })
 
   return (
+    
     <div className="container mx-auto py-6">
+      <div>
+        <h2 className="text-xl font-bold">Usuario</h2>
+        <p>Esta es la vista de Usuario.</p>
+      </div>
       <div className="mb-4 flex justify-end">
         <Button variant="ghost" size="icon" className="h-8 w-8">
           <Plus className="h-4 w-4" />
