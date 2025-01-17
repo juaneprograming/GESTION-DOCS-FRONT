@@ -1,70 +1,108 @@
-'use client';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import api from '../api/axios';
-import Cookies from 'js-cookie';
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card } from "@/components/ui/card"
+import { LogIn, Lock, Mail } from 'lucide-react'
+import api from '../api/axios'
+import Cookies from 'js-cookie'
 
 export default function Login() {
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
-  const router = useRouter();
+  const [formData, setFormData] = useState({ email: '', password: '' })
+  const [error, setError] = useState('')
+  const router = useRouter()
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
+    const { name, value } = e.target
+    setFormData({ ...formData, [name]: value })
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     try {
-      await api.get('/sanctum/csrf-cookie');
-      const response = await api.post('/login', formData);
-      console.log('API Response:', response);
-      Cookies.set('token', response.data.token); 
-      router.push('/dashboard'); 
+      await api.get('/sanctum/csrf-cookie')
+      const response = await api.post('/login', formData)
+      console.log('API Response:', response)
+      Cookies.set('token', response.data.token)
+      router.push('/dashboard')
     } catch (err) {
+<<<<<<< Updated upstream
       console.error('API Error:', err);
+      if (err.response && err.response.data && err.response.data.message) {
+      setError(err.response.data.message);
+      } else {
       setError('Credenciales inválidas, intenta de nuevo.');
+      }
+=======
+      console.error('API Error:', err)
+      setError('Credenciales inválidas, intenta de nuevo.')
+>>>>>>> Stashed changes
     }
-  };
+  }
 
   return (
-    <div className="flex items-center justify-center min-h-scree">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Iniciar Sesión</h1>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700">Correo:</label>
-            <input
-              className="border-2 border-gray-300 p-2 rounded-lg w-full"
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div className="mb-6">
-            <label className="block text-gray-700">Contraseña:</label>
-            <input
-              className="border-2 border-gray-300 p-2 rounded-lg w-full"
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <button
-            className="bg-blue-500 text-white p-2 rounded-lg w-full hover:bg-blue-600 transition duration-200"
-            type="submit"
-          >
-            Iniciar Sesión
-          </button>
-        </form>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-100 to-blue-200">
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 bg-cover bg-center opacity-50" />
       </div>
+      
+      <Card className="w-full max-w-md p-8 space-y-6 bg-white/80 backdrop-blur-sm shadow-lg rounded-3xl">
+        <div className="space-y-2 text-center">
+          <div className="inline-block p-3 rounded-full bg-gray-100">
+            <LogIn className="w-6 h-6 text-gray-600" />
+          </div>
+          <h1 className="text-2xl font-semibold tracking-tight">Iniciar Sesión</h1>
+          <p className="text-sm text-muted-foreground">
+            Ingresa tus credenciales para acceder a tu cuenta
+          </p>
+        </div>
+
+        {error && (
+          <div className="p-3 text-sm text-red-500 bg-red-50 rounded-lg">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <div className="relative">
+              <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                type="email"
+                name="email"
+                placeholder="Correo"
+                className="pl-10"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <div className="relative">
+              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                type="password"
+                name="password"
+                placeholder="Contraseña"
+                className="pl-10"
+                value={formData.password}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+          </div>
+
+          <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-600">
+            Iniciar Sesión
+          </Button>
+        </form>
+      </Card>
     </div>
-  );
+  )
 }
+
