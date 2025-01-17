@@ -25,7 +25,11 @@ export default function Login() {
       router.push('/dashboard'); 
     } catch (err) {
       console.error('API Error:', err);
+      if (err.response && err.response.data && err.response.data.message) {
+      setError(err.response.data.message);
+      } else {
       setError('Credenciales inválidas, intenta de nuevo.');
+      }
     }
   };
 
