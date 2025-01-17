@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation'; // Importar useRouter
 import Image from "next/image";
 import api from '../api/axios';
 import Login from '../Login/page';
@@ -7,6 +8,7 @@ import Login from '../Login/page';
 export default function Dashboard() {
   const [data, setData] = useState({});
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const router = useRouter(); // Inicializar el router para redirecciones
 
   useEffect(() => {
     // Verificar si existe el token al cargar el componente
@@ -47,21 +49,11 @@ export default function Dashboard() {
     if (api.defaults.headers.common['Authorization']) {
       delete api.defaults.headers.common['Authorization'];
     }
+
+    // Redirigir al login
+    router.push('/login');
   };
-
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <h1 className='font-bold text-4xl'>Bienvenido</h1>
-          </div>
-          <Login />
-        </div>
-      </div>
-    );
-  }
-
+  
   return (
     <div className="min-h-screen bg-green-100 p-8">
       <header className="bg-white shadow dark:bg-gray-800 p-4">
