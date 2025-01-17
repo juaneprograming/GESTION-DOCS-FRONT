@@ -29,17 +29,12 @@ export default function Login() {
       Cookies.set('token', response.data.token)
       router.push('/dashboard')
     } catch (err) {
-<<<<<<< Updated upstream
       console.error('API Error:', err);
       if (err.response && err.response.data && err.response.data.message) {
       setError(err.response.data.message);
       } else {
       setError('Credenciales inválidas, intenta de nuevo.');
       }
-=======
-      console.error('API Error:', err)
-      setError('Credenciales inválidas, intenta de nuevo.')
->>>>>>> Stashed changes
     }
   }
 
