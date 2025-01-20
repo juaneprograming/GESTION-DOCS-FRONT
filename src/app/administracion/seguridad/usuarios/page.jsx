@@ -66,7 +66,7 @@ const Users = () => {
                 <TableCell>{user.username}</TableCell>
                 <TableCell>{user.person}</TableCell>
                 <TableCell>{user.email}</TableCell>
-                <TableCell>{user.createdAt}</TableCell>
+                <TableCell>{user.created_at}</TableCell>
                 <TableCell>{user.expiresAt || 'Sin fecha'}</TableCell>
                 <TableCell>
                   <Badge variant={user.estado ? "default" : "secondary"}>
