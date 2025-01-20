@@ -7,12 +7,15 @@ import { Table, TableBody, TableCell, TableHead, TableRow, TableHeader } from "@
 import { Badge } from "@/components/ui/badge"
 import { Edit2, Plus } from 'lucide-react'
 import axios from 'axios'
+// import { Plus } from 'lucide-react';
+import { CreateEmpleado } from './create/page'
 
 
 const Empleados = () => {
   const [empleados, setEmpleados] = useState([]);
   const [loading, setLoading] = useState(true); // Agregamos el estado loading
   const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false); 
 
   useEffect(() => {
     const fetchEmpleados = async () => {
@@ -37,54 +40,40 @@ const Empleados = () => {
     fetchEmpleados();
   }, []);
 
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
 
   return (
     <div className="container mx-auto py-6">
-      <h1>Empleados</h1>
+      <h1 className="text-4xl font-bold">Empleados</h1>
       <div className="mb-4 flex justify-end">
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <Plus className="h-4 w-4" />
-          <span className="sr-only">Crear Usuario</span>
-        </Button>
+      <CreateEmpleado open={isModalOpen} onOpenChange={setIsModalOpen} />
       </div>
+     
       <div className="rounded-lg border bg-card shadow-md">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Usuario</TableHead>
-              <TableHead>Persona</TableHead>
-              <TableHead>Correo electrónico</TableHead>
-              <TableHead>Fecha Creación</TableHead>
-              <TableHead>Fecha Expiración</TableHead>
-              <TableHead>Administrador</TableHead>
-              <TableHead>Activo</TableHead>
-              <TableHead>Acciones</TableHead>
+              <TableHead className="text-center">Tipo de identificación</TableHead>
+              <TableHead>Numero de identificación</TableHead>
+              <TableHead>Nombre Completo</TableHead>
+              <TableHead>Correo</TableHead>
+              <TableHead>Cargo</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {empleados.map((empleado) => (
               <TableRow key={empleado.id}>
-                <TableCell>{empleado.nombre_1}</TableCell>
-                <TableCell>{empleado.nombre_2}</TableCell>
-                <TableCell>{empleado.correo}</TableCell>
-                <TableCell>{empleado.apellidp_1}</TableCell>
-                <TableCell>{empleado.apellido_2}</TableCell>
-                <TableCell>{empleado.tipo_identificacion}</TableCell>
+                <TableCell className="text-center">{empleado.tipo_identificacion}</TableCell>
                 <TableCell>{empleado.numero_identificacion}</TableCell>
-                <TableCell>{empleado.expiresAt || 'Sin fecha'}</TableCell>
                 <TableCell>
-                  <Badge variant={empleado.estado ? "default" : "secondary"}>
-                    {empleado.isAdmin ? "Sí" : "No"}
-                  </Badge>
+                  {`${empleado.nombre_1} ${empleado.nombre_2 || ''} ${empleado.apellido_1 || ''} ${empleado.apellido_2 || ''}`.trim()}
                 </TableCell>
-                <TableCell>
-                  <Badge variant={empleado.isActive ? "success" : "destructive"}>
-                    {empleado.isActive ? "Activo" : "Inactivo"}
-                  </Badge>
-                </TableCell>
+                <TableCell>{empleado.correo}</TableCell>
+                <TableCell>{empleado.cargo?.nombre || 'Sin asignar'}</TableCell>
                 <TableCell>
                   <Button variant="ghost" size="icon">
                     <Edit2 className="h-4 w-4" />
@@ -93,6 +82,7 @@ const Empleados = () => {
               </TableRow>
             ))}
           </TableBody>
+
         </Table>
       </div>
     </div>
