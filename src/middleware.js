@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const protectedRoutes = ['/dashboard'];
+const protectedRoutes = ['/dashboard', '/administracion/users'];
 const publicRoutes = ['/login'];
 
 export function middleware(request) {

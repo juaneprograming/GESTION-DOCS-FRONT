@@ -1,48 +1,45 @@
 'use client'
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableRow, TableHeader } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Edit2, Plus } from 'lucide-react'
+import axios from 'axios'
 
-const users = [
-  {
-    id: "1",
-    username: "johndoe",
-    person: "John Doe",
-    email: "john@example.com",
-    createdAt: "2024-02-15",
-    expiresAt: "2025-02-15",
-    isAdmin: true,
-    isActive: true,
-  },
-  // Agrega más usuarios según sea necesario
-];
 
 export default function Empleados() {
-  const [filters, setFilters] = useState({
-    username: "",
-    person: "",
-    email: "",
-    createdAt: "",
-    expiresAt: "",
-    isAdmin: "",
-    isActive: "",
-  })
+   const [empleados, setEmpleados] = useState([]);
+   const [loading, setLoading] = useState(true); // Agregamos el estado loading
+    const [error, setError] = useState(null);
 
-  const filteredUsers = users.filter(user => {
-    return (
-      user.username.toLowerCase().includes(filters.username.toLowerCase()) &&
-      user.person.toLowerCase().includes(filters.person.toLowerCase()) &&
-      user.email.toLowerCase().includes(filters.email.toLowerCase()) &&
-      user.createdAt.includes(filters.createdAt) &&
-      user.expiresAt.includes(filters.expiresAt) &&
-      (filters.isAdmin === "" || user.isAdmin.toString() === filters.isAdmin) &&
-      (filters.isActive === "" || user.isActive.toString() === filters.isActive)
-    )
-  })
+    useEffect(() => {
+      const fetcEmpleados = async () => {
+        try {
+          const token = localStorage.getItem('authToken'); // Obtén el token de localStorage
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/empleados`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          console.log('API Response:', response.data); // Verificar la respuesta de la API
+          setEmpleados(response.data.empleados || []); // Asegúrate de que sea un array
+          console.log('Updated empleados State:', response.data.empleados); // Verificar el estado de usuarios
+        } catch (err) {
+          console.error("Error fetching empleados:", err); // Imprimir error en la consola
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+    
+      fetcEmpleados();
+    }, []);
+    
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
 
   return (
     <div className="container mx-auto py-6">
@@ -55,102 +52,45 @@ export default function Empleados() {
       </div>
       <div className="rounded-lg border bg-card shadow-md">
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>
-                <Input
-                  placeholder="Usuario"
-                  value={filters.username}
-                  onChange={(e) => setFilters({ ...filters, username: e.target.value })}
-                  className="max-w-[150px]"
-                />
-              </TableHead>
-              <TableHead>
-                <Input
-                  placeholder="Persona"
-                  value={filters.person}
-                  onChange={(e) => setFilters({ ...filters, person: e.target.value })}
-                  className="max-w-[150px]"
-                />
-              </TableHead>
-              <TableHead>
-                <Input
-                  placeholder="Correo electrónico"
-                  value={filters.email}
-                  onChange={(e) => setFilters({ ...filters, email: e.target.value })}
-                  className="max-w-[200px]"
-                />
-              </TableHead>
-              <TableHead>
-                <Input
-                  placeholder="Fecha Creación"
-                  type="date"
-                  value={filters.createdAt}
-                  onChange={(e) => setFilters({ ...filters, createdAt: e.target.value })}
-                  className="max-w-[150px]"
-                />
-              </TableHead>
-              <TableHead>
-                <Input
-                  placeholder="Fecha Expiración"
-                  type="date"
-                  value={filters.expiresAt}
-                  onChange={(e) => setFilters({ ...filters, expiresAt: e.target.value })}
-                  className="max-w-[150px]"
-                />
-              </TableHead>
-              <TableHead>
-                <select
-                  className="w-full max-w-[150px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-                  value={filters.isAdmin}
-                  onChange={(e) => setFilters({ ...filters, isAdmin: e.target.value })}
-                >
-                  <option value="">Administrador</option>
-                  <option value="true">Sí</option>
-                  <option value="false">No</option>
-                </select>
-              </TableHead>
-              <TableHead>
-                <select
-                  className="w-full max-w-[150px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-                  value={filters.isActive}
-                  onChange={(e) => setFilters({ ...filters, isActive: e.target.value })}
-                >
-                  <option value="">Activo</option>
-                  <option value="true">Activo</option>
-                  <option value="false">Inactivo</option>
-                </select>
-              </TableHead>
-              <TableHead>Acciones</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredUsers.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell>{user.username}</TableCell>
-                <TableCell>{user.person}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.createdAt}</TableCell>
-                <TableCell>{user.expiresAt}</TableCell>
-                <TableCell>
-                  <Badge variant={user.isAdmin ? "default" : "secondary"}>
-                    {user.isAdmin ? "Sí" : "No"}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <Badge variant={user.isActive ? "success" : "secondary"}>
-                    {user.isActive ? "Activo" : "Inactivo"}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <Button variant="ghost" size="icon">
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                 <TableHeader>
+                   <TableRow>
+                     <TableHead>Usuario</TableHead>
+                     <TableHead>Persona</TableHead>
+                     <TableHead>Correo electrónico</TableHead>
+                     <TableHead>Fecha Creación</TableHead>
+                     <TableHead>Fecha Expiración</TableHead>
+                     <TableHead>Administrador</TableHead>
+                     <TableHead>Activo</TableHead>
+                     <TableHead>Acciones</TableHead>
+                   </TableRow>
+                 </TableHeader>
+                 <TableBody>
+                   {empleados.map((empleados) => (
+                     <TableRow key={empleados.id}>
+                       <TableCell>{empleados.nombre_1}</TableCell>
+                       <TableCell>{empleados.nombre_2}</TableCell>
+                       <TableCell>{empleados.email}</TableCell>
+                       <TableCell>{empleados.createdAt}</TableCell>
+                       <TableCell>{empleados.expiresAt || 'Sin fecha'}</TableCell>
+                       <TableCell>
+                         <Badge variant={empleados.estado ? "default" : "secondary"}>
+                           {empleados.isAdmin ? "Sí" : "No"}
+                         </Badge>
+                       </TableCell>
+                       <TableCell>
+                         <Badge variant={empleados.isActive ? "success" : "destructive"}>
+                           {empleados.isActive ? "Activo" : "Inactivo"}
+                         </Badge>
+                       </TableCell>
+                       <TableCell>
+                         <Button variant="ghost" size="icon">
+                           <Edit2 className="h-4 w-4" />
+                         </Button>
+                       </TableCell>
+                     </TableRow>
+                   ))}
+                 </TableBody>
+               </Table>
       </div>
     </div>
   )
