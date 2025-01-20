@@ -1,49 +1,48 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card } from "@/components/ui/card"
-import { LogIn, Lock, Mail } from 'lucide-react'
-import api from '../api/axios'
-import Cookies from 'js-cookie'
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { LogIn, Lock, Mail } from 'lucide-react';
+import api from '../api/axios';
 
 export default function Login() {
-  const [formData, setFormData] = useState({ email: '', password: '' })
-  const [error, setError] = useState('')
-  const router = useRouter()
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [error, setError] = useState('');
+  const router = useRouter();
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target
-    setFormData({ ...formData, [name]: value })
-  }
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     try {
-      await api.get('/sanctum/csrf-cookie')
-      const response = await api.post('/login', formData)
-      console.log('API Response:', response)
-      Cookies.set('token', response.data.token)
-      router.push('/dashboard')
+      await api.get('/sanctum/csrf-cookie');
+      const response = await api.post('/login', formData);
+      console.log('API Response:', response);
+      localStorage.setItem('authToken', response.data.token); // Almacena el token en localStorage
+      router.push('/dashboard');
     } catch (err) {
       console.error('API Error:', err);
       if (err.response && err.response.data && err.response.data.message) {
-      setError(err.response.data.message);
+        setError(err.response.data.message);
       } else {
-      setError('Credenciales inválidas, intenta de nuevo.');
+        setError('Credenciales inválidas, intenta de nuevo.');
       }
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-100 to-blue-200">
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-cover bg-center opacity-50" />
       </div>
-      
+
       <Card className="w-full max-w-md p-8 space-y-6 bg-white/80 backdrop-blur-sm shadow-lg rounded-3xl">
         <div className="space-y-2 text-center">
           <div className="inline-block p-3 rounded-full bg-gray-100">
@@ -76,7 +75,7 @@ export default function Login() {
               />
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <div className="relative">
               <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -98,6 +97,5 @@ export default function Login() {
         </form>
       </Card>
     </div>
-  )
+  );
 }
-

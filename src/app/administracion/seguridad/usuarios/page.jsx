@@ -10,12 +10,18 @@ const Users = () => {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      
       try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users`);
-        setUsers(Array.isArray(response.data) ? response.data : []);
-        console.log(response.data);
+        const token = localStorage.getItem('authToken'); // Obtén el token de localStorage
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/users`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log('API Response:', response.data); // Verificar la respuesta de la API
+        setUsers(response.data.usuarios); // Accede a la propiedad 'usuarios' del objeto de respuesta
+        console.log('Updated Users State:', response.data.usuarios); // Verificar el estado de usuarios
       } catch (err) {
+        console.error("Error fetching users:", err); // Imprimir error en la consola
         setError(err.message);
       } finally {
         setLoading(false);
