@@ -1,46 +1,147 @@
-import Link from "next/link"
-import { LayoutDashboard, Activity, CreditCard, FileText, Bell, Receipt, HelpCircle, Settings } from 'lucide-react'
+import { ChevronDown } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
 
+// Define the menu items
 const menuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", href: "/" },
-  { icon: Activity, label: "Activities", href: "/activities" },
-  { icon: CreditCard, label: "Card", href: "/card" },
-  { icon: FileText, label: "Report", href: "/report" },
-  { icon: Bell, label: "Notifications", href: "/notifications", badge: 4 },
-  { icon: Receipt, label: "Billing", href: "/billing" },
-  { icon: FileText, label: "Invoices", href: "/invoices" },
-  { icon: HelpCircle, label: "Help Center", href: "/help" },
-  { icon: Settings, label: "Settings", href: "/settings" },
-]
+  {
+    name: "Dashboard",
+    url: "/dashboard",
+    icon: "M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5", // Optional icon
+  },
+  
+  {
+    name: "PQRSD",
+    icon: "M19 4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2zM16 2v4M8 2v4M3 10h18",
+    subItems: [
+      { name: "Consulta de PQRSD", url: "/pqr/consulta" },
+      { name: "Nueva PQRSD", url: "/pqr/nueva" },
+      { name: "Gestion de PQRSD", url: "/pqr/gestion" },
+      { name: "Gestion Archivo", url: "/pqr/archivo" },
+      { name: "Informe de PQRSD", url: "/pqr/informe" },
+      { name: "Analisis Individual", url: "/pqr/analisis" },
+      { name: "Administrar PQRSD", url: "/pqr/administrar" },
+      {
+        name: "Parametricas",
+        subItems: [
+          { name: "Motivos de Solicitud", url: "/pqr/parametricas/motivos" },
+        ],
+      },
+    ],
+  },
+  {
+    name: "Administracion",
+    icon: "M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2z",
+    subItems: [
+      {
+        name: "Organizacional",
+        subItems: [
+          { name: "Organizacion", url: "/administracion/organizacional/organizacion" },
+          { name: "Organigrama Organizacional", url: "/administracion/organizacional/organigrama" },
+          { name: "Cargos", url: "/administracion/organizacional/cargo" },
+          { name: "Empleados", url: "/administracion/organizacional/empleados" },
+        ],
+      },
+      {
+        name: "Configuracion",
+        url: "/administracion/configuracion"
+      },
+      {
+        name: "Seguridad",
+        subItems: [
+          { name: "Usuarios", url: "/administracion/seguridad/usuarios" },
+          { name: "Perfiles", url: "/administracion/seguridad/perfiles" },
+          { name: "Cambiar Contraseña", url: "/administracion/seguridad/cambiar-contrasena" },
+          { name: "Gestion de Menu", url: "/administracion/seguridad/gestion-menu" },
+          { name: "Gestion de Firmas", url: "/administracion/seguridad/gestion-firmas" },
+        ],
+      },
+    ],
+  },
+];
 
+// MenuItem component
+const MenuItem = ({ item, level = 0 }) => {
+  return (
+    <Collapsible>
+      {item.url ? (
+        <Link
+          href={item.url}
+          className={cn(
+            "flex w-full items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+            level === 0 ? "hover:bg-primary/10" : "hover:bg-primary/5",
+            level > 0 && "pl-[calc(0.75rem*1.5)]"
+          )}
+        >
+          {level === 0 && (
+            <svg
+              className="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d={item.icon} />
+            </svg>
+          )}
+          <span className="flex-1 text-left">{item.name}</span>
+        </Link>
+      ) : (
+        <CollapsibleTrigger
+          className={cn(
+            "flex w-full items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+            level === 0 ? "hover:bg-primary/10" : "hover:bg-primary/5",
+            level > 0 && "pl-[calc(0.75rem*1.5)]"
+          )}
+        >
+          {level === 0 && (
+            <svg
+              className="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d={item.icon} />
+            </svg>
+          )}
+          <span className="flex-1 text-left">{item.name}</span>
+          {item.subItems && <ChevronDown className="w-4 h-4" />}
+        </CollapsibleTrigger>
+      )}
+      {item.subItems && (
+        <CollapsibleContent className="pl-4">
+          {item.subItems.map((subItem) => (
+            <MenuItem key={subItem.name} item={subItem} level={level + 1} />
+          ))}
+        </CollapsibleContent>
+      )}
+    </Collapsible>
+  );
+};
+
+// Sidebar component
 export function Sidebar() {
   return (
-    <div className="w-64 min-h-screen bg-gray-50 border-r p-4">
-      <div className="flex items-center gap-2 mb-8">
-        <div className="w-10 h-10 bg-blue-500 rounded-lg" />
-        <div>
-          <h2 className="font-semibold">Ficecorp</h2>
-          <p className="text-sm text-muted-foreground">Finance Apps</p>
+    <aside className="w-64 border-r bg-card p-6 space-y-6 overflow-y-auto">
+      <div className="flex items-center gap-2 text-xl font-poppins font-bold">
+        <div className="w-8 h-8">
+          <svg viewBox="0 0 24 24" className="fill-current">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+          </svg>
         </div>
+        DOCUMENT
       </div>
-      <nav className="space-y-2">
-        {menuItems.map((item) => (
-          <Link
-            key={item.label}
-            href={item.href}
-            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 text-gray-700"
-          >
-            <item.icon className="w-5 h-5" />
-            <span>{item.label}</span>
-            {item.badge && (
-              <span className="ml-auto bg-primary text-primary-foreground w-5 h-5 rounded-full flex items-center justify-center text-xs">
-                {item.badge}
-              </span>
-            )}
-          </Link>
-        ))}
-      </nav>
-    </div>
-  )
-}
 
+      <nav className="space-y-2">
+        <div className="text-sm text-muted-foreground uppercase tracking-wide">Overview</div>
+        <div className="space-y-1">
+          {menuItems.map((item) => (
+            <MenuItem key={item.name} item={item} />
+          ))}
+        </div>
+      </nav>
+    </aside>
+  );
+}

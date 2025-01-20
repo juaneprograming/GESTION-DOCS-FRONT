@@ -46,6 +46,7 @@ export default function Empleados() {
 
   return (
     <div className="container mx-auto py-6">
+      <h1>Empleados</h1>
       <div className="mb-4 flex justify-end">
         <Button variant="ghost" size="icon" className="h-8 w-8">
           <Plus className="h-4 w-4" />
