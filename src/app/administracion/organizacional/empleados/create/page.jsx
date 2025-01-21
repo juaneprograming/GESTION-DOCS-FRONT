@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,9 +13,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import axios from "axios";
 
 export function CreateEmpleado() {
   const [open, setOpen] = useState(false);
+  const [areas, setAreas] = useState([]);
+  // const [sedes, setSedes] = useState([]);
+  const [cargos, setCargos] = useState([]);
 
   // Estados para los campos del formulario
   const [formData, setFormData] = useState({
@@ -31,6 +35,66 @@ export function CreateEmpleado() {
     area: "",
     cargo: "",
   });
+
+  useEffect(() => {
+    const fetchAreas = async () => {
+      try {
+        const token = localStorage.getItem('authToken'); // Obtén el token de localStorage
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/areas`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log('API Response:', response.data); // Verificar la respuesta de la API
+        setAreas(response.data.data || []); // Asegúrate de que sea un array
+        console.log('Updated empleados State:', response.data.data); // Verificar el estado de usuarios
+      } catch (err) {
+        console.error("Error fetching empleados:", err); // Imprimir error en la consola
+        setError(err.message);
+      }
+    };
+
+    fetchAreas();
+  }, []);
+
+  // useEffect(() => {
+  //   const fetchSedes = async () => {
+  //     try {
+  //       const token = localStorage.getItem('authToken'); // Obtén el token de localStorage
+  //       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/sedes`, {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       });
+  //       console.log('API Response:', response.data); // Verificar la respuesta de la API
+  //       setAreas(response.data.data || []); // Asegúrate de que sea un array
+  //       console.log('Updated sedes State:', response.data.data); // Verificar el estado de usuarios
+  //     } catch (err) {
+  //       console.error("Error fetching empleados:", err); // Imprimir error en la consola
+  //       setError(err.message);
+  //     }
+  //   };
+
+  //   fetchSedes();
+  // }, []);
+
+  useEffect(() => {
+    const fetchCargos = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/cargos`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setCargos(response.data.data || []);
+      } catch (err) {
+        console.error("Error fetching cargos:", err);
+      }
+    };
+
+    fetchCargos();
+  }, []);
 
   // Función para manejar los cambios en los inputs
   const handleChange = (field, value) => {
@@ -55,6 +119,7 @@ export function CreateEmpleado() {
             <Label htmlFor="nombre1">Nombre 1</Label>
             <Input
               id="nombre1"
+              name="nombre_1"
               value={formData.nombre1}
               onChange={(e) => handleChange("nombre1", e.target.value)}
             />
@@ -64,6 +129,7 @@ export function CreateEmpleado() {
             <Label htmlFor="nombre2">Nombre 2</Label>
             <Input
               id="nombre2"
+              name="nombre_2"
               value={formData.nombre2}
               onChange={(e) => handleChange("nombre2", e.target.value)}
             />
@@ -73,6 +139,7 @@ export function CreateEmpleado() {
             <Label htmlFor="apellido1">Apellido 1</Label>
             <Input
               id="apellido1"
+              name="apellido_1"
               value={formData.apellido1}
               onChange={(e) => handleChange("apellido1", e.target.value)}
             />
@@ -82,6 +149,7 @@ export function CreateEmpleado() {
             <Label htmlFor="apellido2">Apellido 2</Label>
             <Input
               id="apellido2"
+              name="apellido_2"
               value={formData.apellido2}
               onChange={(e) => handleChange("apellido2", e.target.value)}
             />
@@ -90,6 +158,7 @@ export function CreateEmpleado() {
           <div className="grid items-center gap-4">
             <Label htmlFor="tipoIdentificacion">Tipo de Identificación</Label>
             <Select
+              name="tipo_identificacion"
               onValueChange={(value) => handleChange("tipoIdentificacion", value)}
             >
               <SelectTrigger>
@@ -106,6 +175,7 @@ export function CreateEmpleado() {
             <Label htmlFor="numeroIdentificacion">Número de Identificación</Label>
             <Input
               id="numeroIdentificacion"
+              name="numero_identificacion"
               value={formData.numeroIdentificacion}
               onChange={(e) => handleChange("numeroIdentificacion", e.target.value)}
             />
@@ -115,6 +185,7 @@ export function CreateEmpleado() {
             <Label htmlFor="correo">Correo Electrónico</Label>
             <Input
               id="correo"
+              name="correo"
               type="email"
               value={formData.correo}
               onChange={(e) => handleChange("correo", e.target.value)}
@@ -125,6 +196,7 @@ export function CreateEmpleado() {
             <Label htmlFor="telefono">Teléfono</Label>
             <Input
               id="telefono"
+              name="telefono"
               value={formData.telefono}
               onChange={(e) => handleChange("telefono", e.target.value)}
             />
@@ -132,7 +204,7 @@ export function CreateEmpleado() {
           {/* Sede */}
           <div className="grid items-center gap-4">
             <Label htmlFor="sede">Sede</Label>
-            <Select onValueChange={(value) => handleChange("sede", value)}>
+            <Select name="sede_id" onValueChange={(value) => handleChange("sedes", value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Seleccione una sede" />
               </SelectTrigger>
@@ -145,26 +217,30 @@ export function CreateEmpleado() {
           {/* Área */}
           <div className="grid items-center gap-4">
             <Label htmlFor="area">Área</Label>
-            <Select onValueChange={(value) => handleChange("area", value)}>
+            <Select name="area_id" onValueChange={(value) => handleChange("area", value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Seleccione un área" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="area1">Área 1</SelectItem>
-                <SelectItem value="area2">Área 2</SelectItem>
+                {areas.map((area) => (
+                  <SelectItem key={area.id} value={area.id}>{area.nombre}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
           {/* Cargo */}
           <div className="grid items-center gap-4">
             <Label htmlFor="cargo">Cargo</Label>
-            <Select onValueChange={(value) => handleChange("cargo", value)}>
+            <Select name="cargo_id" onValueChange={(value) => handleChange("cargo", value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Seleccione un cargo" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="cargo1">Cargo 1</SelectItem>
-                <SelectItem value="cargo2">Cargo 2</SelectItem>
+                {cargos.map((cargo) => (
+                  <SelectItem key={cargo.id} value={cargo.id}>
+                    {cargo.nombre}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -174,13 +250,21 @@ export function CreateEmpleado() {
             Cancelar
           </Button>
           <Button
-            onClick={() => {
-              console.log("Datos enviados:", formData);
-              setOpen(false);
+            onClick={async () => {
+              try {
+                const response = await axios.post("/api/empleados", formData);
+                console.log("Empleado creado:", response.data);
+                alert("Empleado creado con éxito");
+                setOpen(false); // Cierra el modal
+              } catch (error) {
+                console.error("Error al crear el empleado:", error.response?.data || error.message);
+                alert("Ocurrió un error al guardar el empleado.");
+              }
             }}
           >
             Guardar
           </Button>
+
         </div>
       </DialogContent>
     </Dialog>
