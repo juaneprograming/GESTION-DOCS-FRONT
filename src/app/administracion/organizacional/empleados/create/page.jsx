@@ -37,64 +37,39 @@ export function CreateEmpleado() {
   });
 
   useEffect(() => {
-    const fetchAreas = async () => {
+    const fetchData = async () => {
       try {
-        const token = localStorage.getItem('authToken'); // Obtén el token de localStorage
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/areas`, {
+        const token = localStorage.getItem('authToken');
+
+        // Fetch areas
+        const areasResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/areas`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log('API Response:', response.data); // Verificar la respuesta de la API
-        setAreas(response.data.data || []); // Asegúrate de que sea un array
-        console.log('Updated empleados State:', response.data.data); // Verificar el estado de usuarios
+        console.log('API Response (Areas):', areasResponse.data);
+        setAreas(areasResponse.data.data || []);
+        console.log('Updated areas State:', areasResponse.data.data);
+
+        // Fetch cargos
+        const cargosResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/cargos`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log('API Response (Cargos):', cargosResponse.data);
+        setCargos(cargosResponse.data.data || []);
+        console.log('Updated cargos State:', cargosResponse.data.data);
+
       } catch (err) {
-        console.error("Error fetching empleados:", err); // Imprimir error en la consola
+        console.error("Error fetching data:", err);
         setError(err.message);
       }
     };
 
-    fetchAreas();
+    fetchData();
   }, []);
 
-  // useEffect(() => {
-  //   const fetchSedes = async () => {
-  //     try {
-  //       const token = localStorage.getItem('authToken'); // Obtén el token de localStorage
-  //       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/sedes`, {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       });
-  //       console.log('API Response:', response.data); // Verificar la respuesta de la API
-  //       setAreas(response.data.data || []); // Asegúrate de que sea un array
-  //       console.log('Updated sedes State:', response.data.data); // Verificar el estado de usuarios
-  //     } catch (err) {
-  //       console.error("Error fetching empleados:", err); // Imprimir error en la consola
-  //       setError(err.message);
-  //     }
-  //   };
-
-  //   fetchSedes();
-  // }, []);
-
-  useEffect(() => {
-    const fetchCargos = async () => {
-      try {
-        const token = localStorage.getItem('authToken');
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/cargos`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setCargos(response.data.data || []);
-      } catch (err) {
-        console.error("Error fetching cargos:", err);
-      }
-    };
-
-    fetchCargos();
-  }, []);
 
   // Función para manejar los cambios en los inputs
   const handleChange = (field, value) => {
