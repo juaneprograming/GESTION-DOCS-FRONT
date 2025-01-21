@@ -1,7 +1,7 @@
 // app/layout.js
 import { Geist, Poppins } from "next/font/google";
-import { Sidebar } from "@/app/sidebar";
-import { Navbar } from "@/app/navbar";
+import { Sidebar } from "@/app/componentes/sidebar";
+import { Navbar } from "@/app/componentes/navbar";
 
 import LoginPage from "@/app/login/page";
 
