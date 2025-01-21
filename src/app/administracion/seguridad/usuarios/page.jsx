@@ -5,18 +5,32 @@ import axios from "axios"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableRow, TableHeader } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Edit2, Plus, CalendarIcon } from "lucide-react"
-import { Dialog, DialogContent, DialogTrigger , DialogTitle} from "@/components/ui/dialog"
+import { Edit2, Plus, Download, CalendarIcon } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import  DashboardLayout  from "@/app/dashboard/layout";
+import DashboardLayout from "@/app/dashboard/layout"
+// import {
+//   Breadcrumb,
+//   BreadcrumbItem,
+//   BreadcrumbLink,
+//   BreadcrumbList,
+//   BreadcrumbSeparator,
+// } from "@/components/ui/breadcrumb"
+import { Breadcrumb } from "@/app/componentes/breadcrumb"
 
 const Users = () => {
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -39,173 +53,171 @@ const Users = () => {
     fetchUsers()
   }, [])
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    // Aquí iría la lógica para crear el usuario
-  }
-
-  // if (loading) return <p>Loading...</p>
-  // if (error) return <p>Error: {error}</p>
+  const filteredUsers = users.filter(
+    (user) =>
+      user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()),
+  )
 
   return (
     <DashboardLayout>
-  
-    <div className="container mx-auto py-6">
-      <div className="mb-4 flex justify-end">
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogTrigger asChild>
-            <Button variant="default" size="sm" className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              Crear Usuario
+      <div className="p-6 space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-semibold tracking-tight">Usuarios</h2>
+            <Breadcrumb>
+              {/* <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="#">Administración</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="#">Cargos</BreadcrumbLink>
+                </BreadcrumbItem>
+              </BreadcrumbList> */}
+            </Breadcrumb>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" className="gap-2">
+              <Download className="h-4 w-4" />
+              Exportar
             </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px] p-0">
-            <div className="p-6">
-              <DialogTitle className="text-xl font-bold mb-6">CREAR USUARIO</DialogTitle>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="username">Usuario</Label>
-                    <Input id="username" name="username" placeholder="Usuario" className="border-gray-200" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="employeeName">Nombre del empleado</Label>
-                    <Input
-                      id="employeeName"
-                      name="employeeName"
-                      placeholder="Nombre del empleado"
-                      className="border-gray-200"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="employeeWithoutUser">Empleado sin usuario</Label>
-                    <Select name="employeeWithoutUser">
-                      <SelectTrigger className="border-gray-200">
-                        <SelectValue placeholder="Seleccionar" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="option1">Opción 1</SelectItem>
-                        <SelectItem value="option2">Opción 2</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">E-mail</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="correo@ejemplo.com"
-                      className="border-gray-200"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Contraseña</Label>
-                    <Input
-                      id="password"
-                      name="password"
-                      type="password"
-                      placeholder="contraseña"
-                      className="border-gray-200"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="expirationDate">Fecha Expiración</Label>
-                    <div className="relative">
-                      <Input
-                        id="expirationDate"
-                        name="expirationDate"
-                        type="date"
-                        placeholder="dd/mm/aaaa"
-                        className="border-gray-200"
-                      />
-                      <CalendarIcon className="absolute right-3 top-2.5 h-4 w-4 text-gray-500" />
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Nuevo Usuario
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Crear Usuario</DialogTitle>
+                </DialogHeader>
+                <form className="space-y-4 mt-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Usuario</Label>
+                      <Input placeholder="Nombre de usuario" />
+                    </div>
+                    <div>
+                      <Label>Nombre</Label>
+                      <Input placeholder="Nombre del empleado" />
+                    </div>
+                    <div>
+                      <Label>Correo</Label>
+                      <Input type="email" placeholder="correo@ejemplo.com" />
+                    </div>
+                    <div>
+                      <Label>Contraseña</Label>
+                      <Input type="password" placeholder="Contraseña" />
+                    </div>
+                    <div>
+                      <Label>Administrador</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccionar" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="yes">Sí</SelectItem>
+                          <SelectItem value="no">No</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Estado</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccionar" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="active">Activo</SelectItem>
+                          <SelectItem value="inactive">Inactivo</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="admin">Administrador</Label>
-                    <Select name="admin">
-                      <SelectTrigger className="border-gray-200">
-                        <SelectValue placeholder="Seleccionar" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="yes">Sí</SelectItem>
-                        <SelectItem value="no">No</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="status">Estado</Label>
-                    <Select name="status">
-                      <SelectTrigger className="border-gray-200">
-                        <SelectValue placeholder="Seleccionar" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="active">Activo</SelectItem>
-                        <SelectItem value="inactive">Inactivo</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="pt-4">
-                  <Button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white">
-                    Crear usuario
+                  <Button type="submit" className="w-full">
+                    Guardar Usuario
                   </Button>
-                </div>
-              </form>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
 
-      <div className="rounded-lg border bg-card shadow-md">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Usuario</TableHead>
-              <TableHead>Persona</TableHead>
-              <TableHead>Correo electrónico</TableHead>
-              <TableHead>Fecha Creación</TableHead>
-              <TableHead>Fecha Expiración</TableHead>
-              <TableHead>Administrador</TableHead>
-              <TableHead>Activo</TableHead>
-              <TableHead>Acciones</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell>{user.username}</TableCell>
-                <TableCell>{user.person}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.created_at}</TableCell>
-                <TableCell>{user.expiresAt || "Sin fecha"}</TableCell>
-                <TableCell>
-                  <Badge variant={user.estado ? "default" : "secondary"}>{user.isAdmin ? "Sí" : "No"}</Badge>
-                </TableCell>
-                <TableCell>
-                  <Badge variant={user.isActive ? "success" : "destructive"}>
-                    {user.isActive ? "Activo" : "Inactivo"}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <Button variant="ghost" size="icon">
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                </TableCell>
+        {/* Search */}
+        <div className="flex justify-between gap-4">
+          <div className="relative flex-1">
+            <Input
+              placeholder="Buscar por usuario o correo..."
+              className="pl-10"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="rounded-lg border bg-card">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Usuario</TableHead>
+                <TableHead>Correo</TableHead>
+                <TableHead>Administrador</TableHead>
+                <TableHead>Estado</TableHead>
+                <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-4">
+                    Cargando...
+                  </TableCell>
+                </TableRow>
+              ) : error ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-4 text-red-500">
+                    Error: {error}
+                  </TableCell>
+                </TableRow>
+              ) : filteredUsers.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-4 text-muted-foreground">
+                    No se encontraron usuarios
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredUsers.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>{user.username}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      <Badge variant={user.isAdmin ? "success" : "secondary"}>
+                        {user.isAdmin ? "Sí" : "No"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={user.isActive ? "success" : "destructive"}>
+                        {user.isActive ? "Activo" : "Inactivo"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="icon">
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
-    </div>
     </DashboardLayout>
   )
 }
 
 export default Users
-

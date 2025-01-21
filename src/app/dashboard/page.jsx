@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowDown, ArrowUp } from "lucide-react"
-// import { Breadcrumb } from "@/app/componentes/breadcrumb"
+import { Breadcrumb } from "@/app/componentes/breadcrumb"
 
 // Helper function to format GB values
 function formatGB(value) {
@@ -62,7 +62,15 @@ export default function Dashboard() {
 
   return (
     <div className="p-6">
-      {/* <Breadcrumb /> */}
+      <div className="p-2 space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-semibold tracking-tight">Dashboard</h2>
+          </div>
+          
+        </div>
+      </div>
 
       <div className="space-y-6">
         {/* Metric Cards */}

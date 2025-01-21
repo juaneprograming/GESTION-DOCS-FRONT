@@ -1,14 +1,11 @@
-'use client'
-import  DashboardLayout  from "@/app/dashboard/layout";
+"use client"
 
-
+import DashboardLayout from "@/app/dashboard/layout"
 import { useState, useEffect } from "react"
+import { Search, Filter, Plus, Edit2, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableRow, TableHeader } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Edit2, Plus } from 'lucide-react'
-import axios from 'axios'
 import {
   Dialog,
   DialogContent,
@@ -17,91 +14,195 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+// import {
+//   Breadcrumb,
+//   BreadcrumbItem,
+//   BreadcrumbLink,
+//   BreadcrumbList,
+//   BreadcrumbSeparator,
+// } from "@/components/ui/breadcrumb"
+import { Breadcrumb } from "@/app/componentes/breadcrumb"
+import axios from "axios"
 
 const Cargos = () => {
-  const [cargos, setCargos] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [cargos, setCargos] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [searchTerm, setSearchTerm] = useState("")
 
   useEffect(() => {
     const fetchCargos = async () => {
       try {
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem("authToken")
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/cargos`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        });
-        console.log('API Response:', response.data);
-        setCargos(response.data.data || []);
-        console.log('Updated empleados State:', response.data.data);
+        })
+        setCargos(response.data.data || [])
       } catch (err) {
-        console.error("Error fetching empleados:", err);
-        setError(err.message);
+        console.error("Error fetching cargos:", err)
+        setError(err.message)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
-    
-    fetchCargos();
-  }, []);
-  
-  
-  // if (loading) return <p>Loading...</p>;
-  // if (error) return <p>Error: {error}</p>;
-  
+    }
+
+    fetchCargos()
+  }, [])
+
+  const filteredCargos = cargos.filter(
+    (cargo) =>
+      cargo.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      cargo.descripcion.toLowerCase().includes(searchTerm.toLowerCase()),
+  )
+
   return (
-      <DashboardLayout>
+    <DashboardLayout>
+      <div className="p-6 space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-semibold tracking-tight">Cargos</h2>
+            
+            <Breadcrumb/>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" className="gap-2">
+              <Download className="h-4 w-4" />
+              Exportar
+            </Button>
+            <Button className="gap-2">
+              <Plus className="h-4 w-4" />
+              Nuevo Cargo
+            </Button>
+          </div>
+        </div>
 
-    <div className="container mx-auto py-6">
-      <h1 className="text-2xl font-bold mb-4">Cargos</h1>
-      <div className="mb-4 flex justify-end">
-        <Button variant="ghost" size="icon" className="h-8 w-8 bg-blue-500 text-white hover:bg-blue-600">
-          <Plus className="h-4 w-4" />
-          <span className="sr-only">Crear Usuario</span>
-        </Button>
-      </div>
-      <div className="rounded-lg border bg-white shadow-md p-4">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="font-semibold text-left">Nombre</TableHead>
-              <TableHead className="font-semibold text-left">Descripcion</TableHead>
-              <TableHead className="font-semibold text-left">Acciones</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {cargos.map((cargo) => (
-              <TableRow key={cargo.id} className="hover:bg-gray-100">
-                <TableCell className="py-2">{cargo.nombre}</TableCell>
-                <TableCell className="py-2">{cargo.descripcion}</TableCell>
-                <TableCell className="py-2">
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <Edit2 className="h-4 w-4" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-lg">
-                      <DialogHeader>
-                        <DialogTitle className="text-lg font-bold">EDITAR CARGO</DialogTitle>
-                        <DialogDescription className="space-y-4">
-                          <Input placeholder="Nombre" className="w-full" />
-                          <Input placeholder="Descripcion" className="w-full" />
-                          <Button variant="blue" className="w-full">Guardar</Button>
-                        </DialogDescription>
-                      </DialogHeader>
-                    </DialogContent>
-                  </Dialog>
-                </TableCell>
+        {/* Search and Filters */}
+        <div className="flex justify-between gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por nombre o descripción..."
+              className="pl-10"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <Button variant="outline" className="gap-2">
+            <Filter className="h-4 w-4" />
+            Filtros
+          </Button>
+        </div>
+
+        {/* Table */}
+        <div className="rounded-lg border bg-card">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="font-semibold">Nombre</TableHead>
+                <TableHead className="font-semibold">Descripción</TableHead>
+                <TableHead className="w-[100px] text-right">Acciones</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-    </div>
-      </DashboardLayout>
-  );
-};
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center py-4">
+                    Cargando...
+                  </TableCell>
+                </TableRow>
+              ) : error ? (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center py-4 text-red-500">
+                    Error: {error}
+                  </TableCell>
+                </TableRow>
+              ) : filteredCargos.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center py-4 text-muted-foreground">
+                    No se encontraron cargos
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredCargos.map((cargo) => (
+                  <TableRow key={cargo.id} className="hover:bg-muted/50">
+                    <TableCell className="font-medium">{cargo.nombre}</TableCell>
+                    <TableCell>{cargo.descripcion}</TableCell>
+                    <TableCell className="text-right">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Edit2 className="h-4 w-4" />
+                            <span className="sr-only">Editar cargo</span>
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Editar Cargo</DialogTitle>
+                            <DialogDescription>
+                              <form className="space-y-4 mt-4">
+                                <div className="space-y-2">
+                                  <label htmlFor="nombre" className="text-sm font-medium">
+                                    Nombre
+                                  </label>
+                                  <Input id="nombre" defaultValue={cargo.nombre} placeholder="Nombre del cargo" />
+                                </div>
+                                <div className="space-y-2">
+                                  <label htmlFor="descripcion" className="text-sm font-medium">
+                                    Descripción
+                                  </label>
+                                  <Input
+                                    id="descripcion"
+                                    defaultValue={cargo.descripcion}
+                                    placeholder="Descripción del cargo"
+                                  />
+                                </div>
+                                <Button type="submit" className="w-full">
+                                  Guardar cambios
+                                </Button>
+                              </form>
+                            </DialogDescription>
+                          </DialogHeader>
+                        </DialogContent>
+                      </Dialog>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
 
-export default Cargos;
+        {/* Pagination */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Filas por página</span>
+            <select className="rounded-md border bg-transparent px-2 py-1 text-sm">
+              <option>10</option>
+              <option>20</option>
+              <option>30</option>
+              <option>40</option>
+              <option>50</option>
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Página 1 de 1</span>
+            <div className="flex gap-1">
+              <Button variant="outline" size="icon" disabled>
+                ⟨
+              </Button>
+              <Button variant="outline" size="icon" disabled>
+                ⟩
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </DashboardLayout>
+  )
+}
+
+export default Cargos
+

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import { Breadcrumb } from "@/app/componentes/breadcrumb"
 
 export default function MultiStepForm() {
   const [step, setStep] = useState(1)
@@ -39,6 +40,26 @@ export default function MultiStepForm() {
 
   return (
     <DashboardLayout>
+      <div className="p-6 space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-semibold tracking-tight">Nueva PQRSD</h2>
+            <Breadcrumb>
+              {/* <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="#">Administración</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="#">Cargos</BreadcrumbLink>
+                </BreadcrumbItem>
+              </BreadcrumbList> */}
+            </Breadcrumb>
+          </div>
+          
+        </div>
+      </div>
       <div className="mx-auto max-w-4xl px-4 py-8">
         <nav aria-label="Progress">
           <ol role="list" className="flex justify-center space-x-80">
