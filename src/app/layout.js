@@ -3,6 +3,9 @@ import { Geist, Poppins } from "next/font/google";
 import { Sidebar } from "@/app/sidebar";
 import { Navbar } from "@/app/navbar";
 
+import LoginPage from "@/app/login/page";
+
+
 import "./globals.css";
 
 
@@ -19,15 +22,15 @@ export default function RootLayout({ children }) {
       <body className={`${poppins.variable} antialiased bg-gray-100`}>
         <div className="flex h-screen">
           {/* Sidebar fijo */}
-          <Sidebar />
+          {/* <Sidebar /> */}
 
           {/* Contenido principal */}
           <div className="flex-1 flex flex-col">
             {/* Navbar fijo */}
-            <Navbar />
+            {/* <Navbar /> */}
 
             {/* Contenido dinámico */}
-            <main className="flex-1 overflow-y-auto p-6 bg-white">{children}</main>
+            <main className="flex-1 overflow-y-auto bg-white">{children}</main>
           </div>
         </div>
       </body>

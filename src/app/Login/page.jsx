@@ -1,10 +1,11 @@
-'use client'
+'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
+import Cookies from 'js-cookie'; // Importar js-cookie
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
 import { LogIn, Lock, Mail } from 'lucide-react';
 import api from '../api/axios';
 
@@ -22,10 +23,14 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      await api.get('/sanctum/csrf-cookie');
+      await api.get('/sanctum/csrf-cookie'); // Obtener el CSRF token si es necesario
       const response = await api.post('/login', formData);
       console.log('API Response:', response);
-      localStorage.setItem('authToken', response.data.token); // Almacena el token en localStorage
+
+      // Almacenar el token en cookies
+      Cookies.set('token', response.data.token, { expires: 1 }); // Expira en 1 día
+
+      // Redirigir al dashboard
       router.push('/dashboard');
     } catch (err) {
       console.error('API Error:', err);

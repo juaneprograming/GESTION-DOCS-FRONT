@@ -7,6 +7,8 @@ import { Table, TableBody, TableCell, TableHead, TableRow, TableHeader } from "@
 import { Badge } from "@/components/ui/badge"
 import { Edit2, Plus } from 'lucide-react'
 import axios from 'axios'
+import  DashboardLayout  from "@/app/dashboard/layout";
+
 
 
 const Entidades = () => {
@@ -33,15 +35,16 @@ const Entidades = () => {
         setLoading(false);
       }
     };
-
+    
     fetchEntidades();
   }, []);
+  
+  
 
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
-
+  
   return (
+      <DashboardLayout>
+
     <div className="container mx-auto py-6">
       <h1>Entidades</h1>
       <div className="mb-4 flex justify-end">
@@ -83,6 +86,7 @@ const Entidades = () => {
         </Table>
       </div>
     </div>
+      </DashboardLayout>
   );
 };
 

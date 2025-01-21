@@ -9,6 +9,9 @@ import { Edit2, Plus } from 'lucide-react'
 import axios from 'axios'
 // import { Plus } from 'lucide-react';
 import { CreateEmpleado } from './create/page'
+import  DashboardLayout  from "@/app/dashboard/layout";
+
+ 
 
 
 const Empleados = () => {
@@ -43,10 +46,11 @@ const Empleados = () => {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
+ 
 
   return (
+    <DashboardLayout>
+  
     <div className="container mx-auto py-6">
       <h1 className="text-4xl font-bold">Empleados</h1>
       <div className="mb-4 flex justify-end">
@@ -86,6 +90,7 @@ const Empleados = () => {
         </Table>
       </div>
     </div>
+ </DashboardLayout>
   );
 };
 

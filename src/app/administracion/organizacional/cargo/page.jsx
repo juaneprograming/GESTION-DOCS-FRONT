@@ -1,4 +1,6 @@
 'use client'
+import  DashboardLayout  from "@/app/dashboard/layout";
+
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
@@ -40,14 +42,17 @@ const Cargos = () => {
         setLoading(false);
       }
     };
-
+    
     fetchCargos();
   }, []);
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
-
+  
+  
+  // if (loading) return <p>Loading...</p>;
+  // if (error) return <p>Error: {error}</p>;
+  
   return (
+      <DashboardLayout>
+
     <div className="container mx-auto py-6">
       <h1 className="text-2xl font-bold mb-4">Cargos</h1>
       <div className="mb-4 flex justify-end">
@@ -95,6 +100,7 @@ const Cargos = () => {
         </Table>
       </div>
     </div>
+      </DashboardLayout>
   );
 };
 

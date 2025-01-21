@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogTrigger , DialogTitle} from "@/components/
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import  DashboardLayout  from "@/app/dashboard/layout";
 
 const Users = () => {
   const [users, setUsers] = useState([])
@@ -43,10 +44,12 @@ const Users = () => {
     // Aquí iría la lógica para crear el usuario
   }
 
-  if (loading) return <p>Loading...</p>
-  if (error) return <p>Error: {error}</p>
+  // if (loading) return <p>Loading...</p>
+  // if (error) return <p>Error: {error}</p>
 
   return (
+    <DashboardLayout>
+  
     <div className="container mx-auto py-6">
       <div className="mb-4 flex justify-end">
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -200,6 +203,7 @@ const Users = () => {
         </Table>
       </div>
     </div>
+    </DashboardLayout>
   )
 }
 

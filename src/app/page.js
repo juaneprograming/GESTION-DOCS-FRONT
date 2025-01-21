@@ -1,6 +1,7 @@
 'use client';
 
 import Image from "next/image";
+import Link from "next/link";
 
 
 export default function Home() {
@@ -12,6 +13,9 @@ export default function Home() {
       
       <main className="max-w-7xl mx-auto p-4">
           Hola Mundo
+      <Link href="/login" className="w-full py-4 bg-primary/500 text-black font-bold">
+        iniciar sesion
+      </Link>
       </main>
 
       <footer className="mt-auto py-4 border-t">
