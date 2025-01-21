@@ -1,14 +1,31 @@
-import { Sidebar } from "@/app/componentes/sidebar";
+'use client';
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Navbar } from "@/app/componentes/navbar";
+import { Sidebar } from "@/app/componentes/sidebar";
 
 export default function DashboardLayout({ children }) {
-    return (
-      <div className="flex h-screen">
-        <Sidebar />
-        <div className="flex-1 flex flex-col">
-          <Navbar />
-          <main className="flex-1 overflow-y-auto bg-white">{children}</main>
-        </div>
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("token="))
+      ?.split("=")[1];
+
+    if (!token) {
+      router.push("/login"); // Redirige si no hay token
+    }
+  }, [router]);
+
+  return (
+    <div className="flex h-screen">
+      <Sidebar />
+      <div className="flex-1 flex flex-col">
+        <Navbar />
+        <main className="flex-1 overflow-y-auto bg-white">{children}</main>
       </div>
-    );
-  }
+    </div>
+  );
+}
