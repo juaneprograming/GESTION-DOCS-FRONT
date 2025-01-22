@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-
+import { Toaster } from 'sonner';
 
 export default function Home() {
 
@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
      
-      
+     <Toaster position="top-right" richColors />
       <main className="max-w-7xl mx-auto p-4">
           Hola Mundo
       <Link href="/login" className="w-full py-4 bg-primary/500 text-black font-bold">

@@ -1,8 +1,10 @@
+'use client'
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowDown, ArrowUp } from "lucide-react"
 import { Breadcrumb } from "@/app/componentes/breadcrumb"
 import withAuth from '../../components/withAuth'; // Importa el HOC
-
+import { useEffect } from "react"
+import { Toaster, toast } from 'sonner'
 // Helper function to format GB values
 function formatGB(value) {
   return `${value.toLocaleString()} GB`
@@ -46,6 +48,19 @@ export default function Dashboard() {
     },
   ]
 
+  useEffect(() => {
+    const showLoginSuccess = localStorage.getItem('showLoginSuccess');
+    
+    if (showLoginSuccess === 'true') {
+      toast.success('Inicio de sesión exitoso', {
+        duration: 3000,
+        position: 'top-center',
+      });
+      
+      localStorage.removeItem('showLoginSuccess');
+    }
+  }, []);
+
   const monthlyData = [
     { month: "Jan", images: 5000, videos: 2000, documents: 1000, musics: 1500 },
     { month: "Feb", images: 8000, videos: 3000, documents: 2000, musics: 2500 },
@@ -72,6 +87,8 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* <Breadcrumb /> */}
+      <Toaster richColors />
       <div className="space-y-6">
         {/* Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

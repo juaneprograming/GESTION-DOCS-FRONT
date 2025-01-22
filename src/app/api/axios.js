@@ -6,12 +6,12 @@ const api = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
-    withCredentials: true,
+    withCredentials: true, // Si estás usando cookies de sesión
 });
 
 // Interceptor para añadir el token de autenticación
 api.interceptors.request.use(config => {
-    const token = localStorage.getItem('token'); // Asegúrate de almacenar el token aquí
+    const token = localStorage.getItem('token'); 
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }

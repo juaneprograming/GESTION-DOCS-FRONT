@@ -1,5 +1,4 @@
 'use client'
-
 import React, { useEffect, useState } from "react"
 import axios from "axios"
 import { Button } from "@/components/ui/button"
@@ -17,6 +16,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import DashboardLayout from "@/app/dashboard/layout"
+import { CreateEmpleado } from "./create/page"
 
 const Empleados = () => {
   const [empleados, setEmpleados] = useState([])
@@ -65,67 +65,7 @@ const Empleados = () => {
               <Download className="h-4 w-4" />
               Exportar
             </Button>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="gap-2">
-                  <Plus className="h-4 w-4" />
-                  Nuevo Empleado
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Crear Empleado</DialogTitle>
-                </DialogHeader>
-                <form className="space-y-4 mt-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Tipo de identificación</Label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccionar" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="cc">Cédula de ciudadanía</SelectItem>
-                          <SelectItem value="ti">Tarjeta de identidad</SelectItem>
-                          <SelectItem value="ce">Cédula de extranjería</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Número de identificación</Label>
-                      <Input placeholder="Número de identificación" />
-                    </div>
-                    <div>
-                      <Label>Primer Nombre</Label>
-                      <Input placeholder="Primer nombre" />
-                    </div>
-                    <div>
-                      <Label>Segundo Nombre</Label>
-                      <Input placeholder="Segundo nombre" />
-                    </div>
-                    <div>
-                      <Label>Primer Apellido</Label>
-                      <Input placeholder="Primer apellido" />
-                    </div>
-                    <div>
-                      <Label>Segundo Apellido</Label>
-                      <Input placeholder="Segundo apellido" />
-                    </div>
-                    <div>
-                      <Label>Correo</Label>
-                      <Input type="email" placeholder="correo@ejemplo.com" />
-                    </div>
-                    <div>
-                      <Label>Cargo</Label>
-                      <Input placeholder="Cargo del empleado" />
-                    </div>
-                  </div>
-                  <Button type="submit" className="w-full">
-                    Guardar Empleado
-                  </Button>
-                </form>
-              </DialogContent>
-            </Dialog>
+              <CreateEmpleado />
           </div>
         </div>
 

@@ -31,6 +31,9 @@ export default function Login() {
 
       console.log('Token almacenado:', response.data.token);
 
+        // Establecer flag para mostrar la notificación después de la redirección
+        localStorage.setItem('showLoginSuccess', 'true');
+
       // Redirigir al dashboard
       router.push('/dashboard');
     } catch (err) {
