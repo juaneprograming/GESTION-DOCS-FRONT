@@ -1,97 +1,202 @@
 'use client'
 
-import { useState, useEffect } from "react"
+import React, { useEffect, useState } from "react"
+import axios from "axios"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableRow, TableHeader } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Edit2, Plus } from 'lucide-react'
-import axios from 'axios'
-// import { Plus } from 'lucide-react';
-import { CreateEmpleado } from './create/page'
-import  DashboardLayout  from "@/app/dashboard/layout";
-
- 
-
+import { Edit2, Plus, Download } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import DashboardLayout from "@/app/dashboard/layout"
 
 const Empleados = () => {
-  const [empleados, setEmpleados] = useState([]);
-  const [loading, setLoading] = useState(true); // Agregamos el estado loading
-  const [error, setError] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false); 
+  const [empleados, setEmpleados] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [searchTerm, setSearchTerm] = useState("")
 
   useEffect(() => {
     const fetchEmpleados = async () => {
       try {
-        const token = localStorage.getItem('token'); // Obtén el token de localStorage
+        const token = localStorage.getItem("token")
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/empleados`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        });
-        console.log('API Response:', response.data); // Verificar la respuesta de la API
-        setEmpleados(response.data.data || []); // Asegúrate de que sea un array
-        console.log('Updated empleados State:', response.data.data); // Verificar el estado de usuarios
+        })
+        setEmpleados(response.data.data)
       } catch (err) {
-        console.error("Error fetching empleados:", err); // Imprimir error en la consola
-        setError(err.message);
+        console.error("Error fetching empleados:", err)
+        setError(err.message)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchEmpleados();
-  }, []);
+    fetchEmpleados()
+  }, [])
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
-
- 
+  const filteredEmpleados = empleados.filter((empleado) =>
+    `${empleado.nombre_1} ${empleado.nombre_2 || ''} ${empleado.apellido_1 || ''} ${empleado.apellido_2 || ''}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase()) ||
+    empleado.correo.toLowerCase().includes(searchTerm.toLowerCase()),
+  )
 
   return (
     <DashboardLayout>
-  
-    <div className="container mx-auto py-6">
-      <h1 className="text-4xl font-bold">Empleados</h1>
-      <div className="mb-4 flex justify-end">
-      <CreateEmpleado open={isModalOpen} onOpenChange={setIsModalOpen} />
-      </div>
-     
-      <div className="rounded-lg border bg-card shadow-md">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="text-center">Tipo de identificación</TableHead>
-              <TableHead>Numero de identificación</TableHead>
-              <TableHead>Nombre Completo</TableHead>
-              <TableHead>Correo</TableHead>
-              <TableHead>Cargo</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {empleados.map((empleado) => (
-              <TableRow key={empleado.id}>
-                <TableCell className="text-center">{empleado.tipo_identificacion}</TableCell>
-                <TableCell>{empleado.numero_identificacion}</TableCell>
-                <TableCell>
-                  {`${empleado.nombre_1} ${empleado.nombre_2 || ''} ${empleado.apellido_1 || ''} ${empleado.apellido_2 || ''}`.trim()}
-                </TableCell>
-                <TableCell>{empleado.correo}</TableCell>
-                <TableCell>{empleado.cargo?.nombre || 'Sin asignar'}</TableCell>
-                <TableCell>
-                  <Button variant="ghost" size="icon">
-                    <Edit2 className="h-4 w-4" />
+      <div className="p-6 space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-semibold tracking-tight">Empleados</h2>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" className="gap-2">
+              <Download className="h-4 w-4" />
+              Exportar
+            </Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Nuevo Empleado
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Crear Empleado</DialogTitle>
+                </DialogHeader>
+                <form className="space-y-4 mt-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Tipo de identificación</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccionar" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="cc">Cédula de ciudadanía</SelectItem>
+                          <SelectItem value="ti">Tarjeta de identidad</SelectItem>
+                          <SelectItem value="ce">Cédula de extranjería</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Número de identificación</Label>
+                      <Input placeholder="Número de identificación" />
+                    </div>
+                    <div>
+                      <Label>Primer Nombre</Label>
+                      <Input placeholder="Primer nombre" />
+                    </div>
+                    <div>
+                      <Label>Segundo Nombre</Label>
+                      <Input placeholder="Segundo nombre" />
+                    </div>
+                    <div>
+                      <Label>Primer Apellido</Label>
+                      <Input placeholder="Primer apellido" />
+                    </div>
+                    <div>
+                      <Label>Segundo Apellido</Label>
+                      <Input placeholder="Segundo apellido" />
+                    </div>
+                    <div>
+                      <Label>Correo</Label>
+                      <Input type="email" placeholder="correo@ejemplo.com" />
+                    </div>
+                    <div>
+                      <Label>Cargo</Label>
+                      <Input placeholder="Cargo del empleado" />
+                    </div>
+                  </div>
+                  <Button type="submit" className="w-full">
+                    Guardar Empleado
                   </Button>
-                </TableCell>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
+
+        {/* Search */}
+        <div className="flex justify-between gap-4">
+          <div className="relative flex-1">
+            <Input
+              placeholder="Buscar por nombre o correo..."
+              className="pl-10"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="rounded-lg border bg-card">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Tipo de Identificación</TableHead>
+                <TableHead>Número</TableHead>
+                <TableHead>Nombre Completo</TableHead>
+                <TableHead>Correo</TableHead>
+                <TableHead>Cargo</TableHead>
+                <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-4">
+                    Cargando...
+                  </TableCell>
+                </TableRow>
+              ) : error ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-4 text-red-500">
+                    Error: {error}
+                  </TableCell>
+                </TableRow>
+              ) : filteredEmpleados.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-4 text-muted-foreground">
+                    No se encontraron empleados
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredEmpleados.map((empleado) => (
+                  <TableRow key={empleado.id}>
+                    <TableCell>{empleado.tipo_identificacion}</TableCell>
+                    <TableCell>{empleado.numero_identificacion}</TableCell>
+                    <TableCell>
+                      {`${empleado.nombre_1} ${empleado.nombre_2 || ''} ${empleado.apellido_1 || ''} ${empleado.apellido_2 || ''}`.trim()}
+                    </TableCell>
+                    <TableCell>{empleado.correo}</TableCell>
+                    <TableCell>{empleado.cargo?.nombre || "Sin asignar"}</TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="icon">
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
-    </div>
- </DashboardLayout>
-  );
-};
+    </DashboardLayout>
+  )
+}
 
-export default Empleados;
+export default Empleados
