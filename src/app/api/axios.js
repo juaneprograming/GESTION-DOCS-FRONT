@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Configuración base de Axios
 const api = axios.create({
-    baseURL: 'http://127.0.0.1:8000/api',
+    baseURL: process.env.NEXT_PUBLIC_API_URL,
     headers: {
         'Content-Type': 'application/json',
     },

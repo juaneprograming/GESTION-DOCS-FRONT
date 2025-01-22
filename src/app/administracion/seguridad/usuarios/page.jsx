@@ -26,6 +26,7 @@ import DashboardLayout from "@/app/dashboard/layout"
 // } from "@/components/ui/breadcrumb"
 import { Breadcrumb } from "@/app/componentes/breadcrumb"
 
+
 const Users = () => {
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
@@ -35,7 +36,7 @@ const Users = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const token = localStorage.getItem("authToken")
+        const token = localStorage.getItem("token")
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/users`, {
           headers: {
             Authorization: `Bearer ${token}`,

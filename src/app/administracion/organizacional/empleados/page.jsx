@@ -23,7 +23,7 @@ const Empleados = () => {
   useEffect(() => {
     const fetchEmpleados = async () => {
       try {
-        const token = localStorage.getItem('authToken'); // Obtén el token de localStorage
+        const token = localStorage.getItem('token'); // Obtén el token de localStorage
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/empleados`, {
           headers: {
             Authorization: `Bearer ${token}`,

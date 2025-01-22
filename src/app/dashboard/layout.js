@@ -9,10 +9,7 @@ export default function DashboardLayout({ children }) {
   const router = useRouter();
 
   useEffect(() => {
-    const token = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("token="))
-      ?.split("=")[1];
+    const token = localStorage.getItem('token'); // Obtener el token de localStorage
 
     if (!token) {
       router.push("/login"); // Redirige si no hay token

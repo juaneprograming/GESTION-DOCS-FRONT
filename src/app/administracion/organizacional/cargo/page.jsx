@@ -33,7 +33,7 @@ const Cargos = () => {
   useEffect(() => {
     const fetchCargos = async () => {
       try {
-        const token = localStorage.getItem("authToken")
+        const token = localStorage.getItem("token")
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/cargos`, {
           headers: {
             Authorization: `Bearer ${token}`,

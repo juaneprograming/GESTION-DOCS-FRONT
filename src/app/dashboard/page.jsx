@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowDown, ArrowUp } from "lucide-react"
 import { Breadcrumb } from "@/app/componentes/breadcrumb"
+import withAuth from '../../components/withAuth'; // Importa el HOC
 
 // Helper function to format GB values
 function formatGB(value) {

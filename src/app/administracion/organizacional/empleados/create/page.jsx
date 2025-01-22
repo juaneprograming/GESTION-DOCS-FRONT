@@ -39,7 +39,7 @@ export function CreateEmpleado() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem('token');
 
         // Fetch areas
         const areasResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/areas`, {

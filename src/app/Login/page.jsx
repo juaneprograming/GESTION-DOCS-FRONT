@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie'; // Importar js-cookie
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -27,8 +26,10 @@ export default function Login() {
       const response = await api.post('/login', formData);
       console.log('API Response:', response);
 
-      // Almacenar el token en cookies
-      Cookies.set('token', response.data.token, { expires: 1 }); // Expira en 1 día
+      // Almacenar el token en localStorage
+      localStorage.setItem('token', response.data.token);
+
+      console.log('Token almacenado:', response.data.token);
 
       // Redirigir al dashboard
       router.push('/dashboard');
