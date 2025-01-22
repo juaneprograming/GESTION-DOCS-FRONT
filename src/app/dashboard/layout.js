@@ -1,28 +1,34 @@
-'use client';
+"use client"
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Navbar } from "@/app/componentes/navbar";
-import { Sidebar } from "@/app/componentes/sidebar";
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { Navbar } from "@/app/componentes/navbar"
+import { Sidebar } from "@/app/componentes/sidebar"
 
 export default function DashboardLayout({ children }) {
-  const router = useRouter();
+  const router = useRouter()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
-    const token = localStorage.getItem('token'); // Obtener el token de localStorage
-
+    const token = localStorage.getItem("token")
     if (!token) {
-      router.push("/login"); // Redirige si no hay token
+      router.push("/login")
     }
-  }, [router]);
+  }, [router])
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen)
+  }
 
   return (
     <div className="flex h-screen">
-      <Sidebar />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex-1 flex flex-col">
-        <Navbar />
-        <main className="flex-1 overflow-y-auto bg-white">{children}</main>
+        <Navbar onToggleSidebar={toggleSidebar} />
+        <main className="flex-1 overflow-y-auto bg-white p-4">
+          {children}
+        </main>
       </div>
     </div>
-  );
+  )
 }

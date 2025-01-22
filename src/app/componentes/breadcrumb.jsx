@@ -8,28 +8,28 @@ import { cn } from "@/lib/utils"
 export function Breadcrumb() {
   const pathname = usePathname()
 
-  // Divide la ruta en partes
+  // Divide the path into segments
   const segments = pathname.split("/").filter((segment) => segment)
 
-  // Define los segmentos que no serán enlaces
+  // Define segments that should not be links
   const nonLinkSegments = ["administracion", "pqrsd", "seguridad", "organizacional"]
 
   return (
-    <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
+    <nav className="flex flex-wrap items-center space-x-2 text-sm text-muted-foreground">
       {segments.map((segment, index) => {
-        // Construye la URL acumulativa para cada segmento
+        // Construct the cumulative URL for each segment
         const url = `/${segments.slice(0, index + 1).join("/")}`
 
-        // Capitaliza cada segmento, excepto casos específicos
+        // Capitalize each segment, with specific exceptions
         let name = segment.replace(/-/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())
         if (segment.toLowerCase() === "pqrsd") {
-          name = "PQRSD" // Muestra "PQRSd" en mayúsculas específicas
+          name = "PQRSD" // Display "PQRSD" with specific capitalization
         }
 
-        // Último segmento: no es un enlace
+        // Determine if the segment is the last one
         const isLast = index === segments.length - 1
 
-        // Verifica si el segmento debe ser un enlace o texto plano
+        // Check if the segment should be a link or plain text
         const isNonLink = nonLinkSegments.includes(segment.toLowerCase())
 
         return (

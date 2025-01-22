@@ -14,6 +14,7 @@ import {
   Building2,
   Cog,
   PenSquare,
+  X,
 } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { useState, useEffect } from "react"
@@ -33,7 +34,6 @@ const pqrsdItems = {
     { name: "Gestion de PQRSD", url: "/pqrsd/gestionpqrsd/", icon: MessageSquare },
     { name: "Gestion Archivo", url: "/pqrsd/gestionarchivo/", icon: FileText },
     { name: "Informe de PQRSD", url: "/pqrsd/informe/", icon: FileText },
-    // { name: "Analisis Individual", url: "/pqrsd/analisis/analisis", icon: FileText },
     { name: "Administrar PQRSD", url: "/pqrsd/administrarpqrsd/", icon: Settings },
     {
       name: "Parametricas",
@@ -136,11 +136,10 @@ const MenuItem = ({ item, level = 0, openItems, setOpenItems }) => {
   )
 }
 
-export function Sidebar() {
+export function Sidebar({ isOpen, onClose }) {
   const [openItems, setOpenItems] = useState({})
 
   useEffect(() => {
-    // Ensure that localStorage is accessed only on the client-side
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("openItems")
       if (saved) {
@@ -150,21 +149,27 @@ export function Sidebar() {
   }, [])
 
   useEffect(() => {
-    // Store the updated openItems in localStorage on the client-side
     if (typeof window !== "undefined") {
       localStorage.setItem("openItems", JSON.stringify(openItems))
     }
   }, [openItems])
 
   return (
-    <aside className="w-64 min-h-screen border-r bg-background">
-      <div className="p-4 border-b">
-        <div className="flex justify-center items-center gap-2">
-          <div className="font-bold text-xl text-foreground">DOCUMENT</div>
-        </div>
+    <aside
+      className={cn(
+        "fixed inset-y-0 left-0 z-50 w-64 bg-background border-r transform transition-transform duration-200 ease-in-out",
+        isOpen ? "translate-x-0" : "-translate-x-full",
+        "md:relative md:translate-x-0",
+      )}
+    >
+      <div className="flex justify-between items-center p-4 border-b">
+        <div className="font-bold text-xl text-foreground">DOCUMENT</div>
+        <button onClick={onClose} className="md:hidden">
+          <X className="h-6 w-6" />
+        </button>
       </div>
 
-      <div className="p-2 space-y-2">
+      <div className="p-2 space-y-2 overflow-y-auto h-[calc(100vh-60px)]">
         <MenuItem item={dashboardItem} openItems={openItems} setOpenItems={setOpenItems} />
         <MenuItem item={pqrsdItems} openItems={openItems} setOpenItems={setOpenItems} />
         <MenuItem item={administracionItems} openItems={openItems} setOpenItems={setOpenItems} />
@@ -172,3 +177,4 @@ export function Sidebar() {
     </aside>
   )
 }
+

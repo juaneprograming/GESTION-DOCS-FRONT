@@ -69,13 +69,12 @@ export default function Dashboard() {
           <div className="space-y-1">
             <h2 className="text-2xl font-semibold tracking-tight">Dashboard</h2>
           </div>
-          
         </div>
       </div>
 
       <div className="space-y-6">
         {/* Metric Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {metrics.map((metric) => (
             <Card key={metric.title}>
               <CardContent className="p-6">
@@ -232,4 +231,3 @@ export default function Dashboard() {
     </div>
   )
 }
-
