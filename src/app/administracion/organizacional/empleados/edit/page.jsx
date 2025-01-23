@@ -28,27 +28,43 @@ export function EditEmpleado({ empleadoId }) {
 
     useEffect(() => {
         const fetchData = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const config = {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                };
+            if (open && empleadoId) {  // Solo ejecutar si el modal está abierto y hay un ID
+                try {
+                    const token = localStorage.getItem('token');
+                    const config = {
+                        headers: { Authorization: `Bearer ${token}` },
+                    };
 
-                // Fetch employee data
-                const empleadoRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/empleados/${empleadoId}`, config);
-                // console.log('Empleado Data:', empleadoRes.data); // Aquí verificamos que esté trayendo datos
-                if (empleadoRes.data) {
-                    setFormData(empleadoRes.data);
+                    const response = await axios.get(
+                        `${process.env.NEXT_PUBLIC_API_URL}/administracion/empleados/${empleadoId}`, 
+                        config
+                    );
+
+                    // Verificar estructura de la respuesta
+                    const employeeData = response.data.data || response.data;
+                    
+                    setFormData({
+                        nombre_1: employeeData.nombre_1 || "",
+                        nombre_2: employeeData.nombre_2 || "",
+                        apellido_1: employeeData.apellido_1 || "",
+                        apellido_2: employeeData.apellido_2 || "",
+                        tipo_identificacion: employeeData.tipo_identificacion || "",
+                        numero_identificacion: employeeData.numero_identificacion || "",
+                        correo: employeeData.correo || "",
+                        telefono: employeeData.telefono || "",
+                        cargo_id: employeeData.cargo_id || "",
+                        sede_id: employeeData.sede_id || "",
+                        area_id: employeeData.area_id || ""
+                    });
+                    
+                } catch (err) {
+                    console.error("Error fetching data:", err);
                 }
-            } catch (err) {
-                console.error("Error fetching data:", err);
             }
         };
 
         fetchData();
-    }, [empleadoId]);
+    }, [open, empleadoId]);
 
 
     const handleChange = (field, value) => {
@@ -93,7 +109,11 @@ export function EditEmpleado({ empleadoId }) {
     };
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(isOpen) => {
+            setOpen(isOpen);
+            // Resetear errores al cerrar
+            if (!isOpen) setErrors({});
+        }}>
             <DialogTrigger asChild>
                 <Button variant="ghost" size="icon">
                     <Edit2 className="h-4 w-4" />
@@ -108,7 +128,7 @@ export function EditEmpleado({ empleadoId }) {
                 </DialogHeader>
                 <div className="grid gap-4 py-4 grid-cols-2">
                     <div className="grid items-center gap-4">
-                        <Label htmlFor="nombre_1">Nombre 1 *</Label>
+                        <Label htmlFor="nombre_1" >Nombre 1 *</Label>
                         <Input
                             id="nombre_1"
                             value={formData.nombre_1 || ""}
