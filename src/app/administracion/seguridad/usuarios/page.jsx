@@ -6,25 +6,14 @@ import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableRow, TableHeader } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Edit2, Plus, Download, CalendarIcon } from "lucide-react"
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import DashboardLayout from "@/app/dashboard/layout"
-// import {
-//   Breadcrumb,
-//   BreadcrumbItem,
-//   BreadcrumbLink,
-//   BreadcrumbList,
-//   BreadcrumbSeparator,
-// } from "@/components/ui/breadcrumb"
+import { CreateUsuario } from "@/app/administracion/seguridad/usuarios/create/page"
 import { Breadcrumb } from "@/app/componentes/breadcrumb"
+import { EditUsuario } from "./edit/page"
+
+const userId = 1
 
 
 const Users = () => {
@@ -84,66 +73,9 @@ const Users = () => {
               <Download className="h-4 w-4" />
               Exportar
             </Button>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="gap-2">
-                  <Plus className="h-4 w-4" />
-                  Nuevo Usuario
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Crear Usuario</DialogTitle>
-                </DialogHeader>
-                <form className="space-y-4 mt-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Usuario</Label>
-                      <Input placeholder="Nombre de usuario" />
-                    </div>
-                    <div>
-                      <Label>Nombre</Label>
-                      <Input placeholder="Nombre del empleado" />
-                    </div>
-                    <div>
-                      <Label>Correo</Label>
-                      <Input type="email" placeholder="correo@ejemplo.com" />
-                    </div>
-                    <div>
-                      <Label>Contraseña</Label>
-                      <Input type="password" placeholder="Contraseña" />
-                    </div>
-                    <div>
-                      <Label>Administrador</Label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccionar" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="yes">Sí</SelectItem>
-                          <SelectItem value="no">No</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Estado</Label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccionar" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="active">Activo</SelectItem>
-                          <SelectItem value="inactive">Inactivo</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <Button type="submit" className="w-full">
-                    Guardar Usuario
-                  </Button>
-                </form>
-              </DialogContent>
-            </Dialog>
+            <div>
+              <CreateUsuario/>
+            </div>
           </div>
         </div>
 
@@ -196,19 +128,19 @@ const Users = () => {
                     <TableCell>{user.username}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>
-                      <Badge variant={user.isAdmin ? "success" : "secondary"}>
-                        {user.isAdmin ? "Sí" : "No"}
+                      <Badge variant={user.is_admin ? "success" : "secondary"}>
+                        {user.is_admin ? "Sí" : "No"}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={user.isActive ? "success" : "destructive"}>
-                        {user.isActive ? "Activo" : "Inactivo"}
+                      <Badge variant={user.estado ? "success" : "destructive"}>
+                        {user.estado ? "Activo" : "Inactivo"}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="icon">
-                        <Edit2 className="h-4 w-4" />
-                      </Button>
+                      <div>
+                      <EditUsuario userId={user.id} />
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
