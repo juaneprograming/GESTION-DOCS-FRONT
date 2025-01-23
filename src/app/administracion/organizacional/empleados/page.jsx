@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import DashboardLayout from "@/app/dashboard/layout"
 import { CreateEmpleado } from "./create/page"
+import { EditEmpleado } from "./edit/page"
 
 const Empleados = () => {
   const [empleados, setEmpleados] = useState([])
@@ -65,7 +66,7 @@ const Empleados = () => {
               <Download className="h-4 w-4" />
               Exportar
             </Button>
-              <CreateEmpleado />
+            <CreateEmpleado />
           </div>
         </div>
 
@@ -124,9 +125,7 @@ const Empleados = () => {
                     <TableCell>{empleado.correo}</TableCell>
                     <TableCell>{empleado.cargo?.nombre || "Sin asignar"}</TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="icon">
-                        <Edit2 className="h-4 w-4" />
-                      </Button>
+                      <EditEmpleado empleadoId={empleado.id} />
                     </TableCell>
                   </TableRow>
                 ))
