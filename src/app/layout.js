@@ -12,7 +12,7 @@ import "./globals.css";
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "700"] });
 
 export const metadata = {
-  title: "Dashboard",
+  title: "Gestión Documental",
   description: "Dynamic dashboard example",
 };
 
