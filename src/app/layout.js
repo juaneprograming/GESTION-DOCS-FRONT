@@ -2,7 +2,7 @@
 import { Geist, Poppins } from "next/font/google";
 import { Sidebar } from "@/app/componentes/sidebar";
 import { Navbar } from "@/app/componentes/navbar";
-
+import { Toaster } from 'sonner'
 import LoginPage from "@/app/login/page";
 
 import "./globals.css";
@@ -21,7 +21,7 @@ export default function RootLayout({ children }) {
         <div className="flex h-screen">
           {/* Sidebar fijo */}
           {/* <Sidebar /> */}
-
+          <Toaster richColors position="top-center" />
           {/* Contenido principal */}
           <div className="flex-1 flex flex-col w-full">
             {/* Navbar fijo */}

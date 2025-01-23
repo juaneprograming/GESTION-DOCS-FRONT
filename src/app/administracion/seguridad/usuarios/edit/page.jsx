@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import axiosRetry from "axios-retry";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,13 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-// Configurar reintentos automáticos para errores 429
-axiosRetry(axios, {
-  retries: 3,
-  retryDelay: (retryCount) => retryCount * 1000, // Retraso exponencial: 1s, 2s, 3s
-  retryCondition: (error) => error.response?.status === 429,
-});
 
 export function EditUsuario({ userId }) {
   const [open, setOpen] = useState(false);

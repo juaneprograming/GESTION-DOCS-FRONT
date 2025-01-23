@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import axiosRetry from 'axios-retry';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -13,27 +12,18 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { toast } from 'sonner';
 
-// Configurar reintentos automáticos para errores 429
-axiosRetry(axios, {
-    retries: 3,
-    retryDelay: (retryCount) => {
-      return retryCount * 1000; // Retraso exponencial: 1s, 2s, 3s
-    },
-    retryCondition: (error) => {
-      return error.response?.status === 429;
-    }
-  });
-  
-  // Cache global con TTL y bloqueo de solicitudes
-  let globalCache = {
+
+// Cache global con TTL y bloqueo de solicitudes
+let globalCache = {
     cargos: { data: null, timestamp: 0, isFetching: false },
     areas: { data: null, timestamp: 0, isFetching: false },
     sedes: { data: null, timestamp: 0, isFetching: false },
     CACHE_TTL: 5 * 60 * 1000 // 5 minutos
-  };
-  
-export function EditEmpleado({ empleadoId }) {
+};
+
+export function EditEmpleado({ empleadoId, onEmpleadoActualizado }) {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
@@ -60,57 +50,67 @@ export function EditEmpleado({ empleadoId }) {
         area_id: ""
     });
 
-    // Funciones de fetching con cache y TTL
-    const fetchDataWithCache = async (endpoint, cacheKey) => {
+    const fetchDataWithCache = useCallback(async (endpoint, cacheKey) => {
         const now = Date.now();
         if (globalCache[cacheKey].data && now - globalCache[cacheKey].timestamp < globalCache.CACHE_TTL) {
             return globalCache[cacheKey].data;
         }
 
+        if (globalCache[cacheKey].isFetching) {
+            return new Promise((resolve) => {
+                const interval = setInterval(() => {
+                    if (!globalCache[cacheKey].isFetching) {
+                        clearInterval(interval);
+                        resolve(globalCache[cacheKey].data);
+                    }
+                }, 100);
+            });
+        }
 
-        // Esperar 1 segundo entre solicitudes
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
+        globalCache[cacheKey].isFetching = true;
         const token = localStorage.getItem('token');
-        const response = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}/administracion/${endpoint}`,
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/${endpoint}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
 
         const data = response.data.data || response.data;
-        globalCache[cacheKey] = { data, timestamp: now };
+        globalCache[cacheKey] = { data, timestamp: now, isFetching: false };
         return data;
-    };
+    }, []);
 
     const fetchCargos = useCallback(async () => {
         const data = await fetchDataWithCache('cargos', 'cargos');
         setCargos(data);
-    }, []);
+    }, [fetchDataWithCache]);
 
     const fetchAreas = useCallback(async () => {
         const data = await fetchDataWithCache('areas', 'areas');
         setAreas(data);
-    }, []);
+    }, [fetchDataWithCache]);
 
     const fetchSedes = useCallback(async () => {
         const data = await fetchDataWithCache('sedes', 'sedes');
         setSedes(data);
-    }, []);
+    }, [fetchDataWithCache]);
 
-
-
-    // Carga inicial paralela de datos maestros
     useEffect(() => {
+        let isMounted = true; // Bandera para verificar si el componente está montado
+
         const loadInitialData = async () => {
             await Promise.all([fetchCargos(), fetchAreas(), fetchSedes()]);
         };
-        loadInitialData();
-    }, [fetchAreas, fetchCargos, fetchSedes]);
 
-    // Fetch datos del empleado con cancelación
+        if (isMounted) {
+            loadInitialData();
+        }
+
+        return () => {
+            isMounted = false; // Cleanup: cambia la bandera al desmontar
+        };
+    }, [fetchCargos, fetchAreas, fetchSedes]);
+
     const fetchEmployeeData = useCallback(async (background = false) => {
         const source = axios.CancelToken.source();
-
         try {
             if (!background) setIsEmployeeLoading(true);
 
@@ -120,20 +120,13 @@ export function EditEmpleado({ empleadoId }) {
             }
 
             const token = localStorage.getItem('token');
-            const response = await axios.get(
-                `${process.env.NEXT_PUBLIC_API_URL}/administracion/empleados/${empleadoId}`,
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                    cancelToken: source.token
-                }
-            );
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/empleados/${empleadoId}`, {
+                headers: { Authorization: `Bearer ${token}` },
+                cancelToken: source.token
+            });
 
             const employeeData = response.data.data || response.data;
-
-            setCache(prev => ({
-                ...prev,
-                [empleadoId]: employeeData
-            }));
+            setCache(prev => ({ ...prev, [empleadoId]: employeeData }));
 
             if (!background) setFormData(employeeData);
         } catch (err) {
@@ -147,15 +140,15 @@ export function EditEmpleado({ empleadoId }) {
         return () => source.cancel("Request cancelado");
     }, [empleadoId, cache]);
 
-
-    // Prefetch al interactuar con el botón
     const handlePrefetch = useCallback(() => {
         if (!cache[empleadoId]) {
-            fetchEmployeeData(true);
+            // Ejecutar después de un breve retraso
+            setTimeout(() => {
+                fetchEmployeeData(true);
+            }, 100);
         }
     }, [empleadoId, cache, fetchEmployeeData]);
 
-    // Actualizar datos al abrir el modal
     useEffect(() => {
         if (open) {
             if (cache[empleadoId]) {
@@ -170,31 +163,20 @@ export function EditEmpleado({ empleadoId }) {
         setErrors(prev => ({ ...prev, [field]: undefined }));
     };
 
-
     const handleSubmit = async () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            await axios.put(
-                `${process.env.NEXT_PUBLIC_API_URL}/administracion/empleados/${empleadoId}`,
-                formData,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
+            await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/administracion/empleados/${empleadoId}`, formData, {
+                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+            });
 
-            setCache(prev => ({
-                ...prev,
-                [empleadoId]: formData
-            }));
-
+            toast.success("Empleado actualizado exitosamente");
+            onEmpleadoActualizado && onEmpleadoActualizado(); // Actualiza la lista en el padre
+            setCache(prev => ({ ...prev, [empleadoId]: formData }));
             setOpen(false);
-            alert("Empleado actualizado exitosamente");
         } catch (error) {
-            console.error("Update error:", error);
+            toast.error(`Error al Actualizar: ${error.response?.data?.message || error.message}`);
             if (error.response?.data?.errors) {
                 setErrors(error.response.data.errors);
             }
@@ -202,6 +184,7 @@ export function EditEmpleado({ empleadoId }) {
             setLoading(false);
         }
     };
+
     return (
         <Dialog open={open} onOpenChange={(isOpen) => {
             setOpen(isOpen);
@@ -211,8 +194,7 @@ export function EditEmpleado({ empleadoId }) {
                 <Button
                     variant="ghost"
                     size="icon"
-                    onMouseEnter={handlePrefetch}
-                    onTouchStart={handlePrefetch}
+                    onMouseEnter={() => handlePrefetch()}
                 >
                     <Edit2 className="h-4 w-4" />
                 </Button>
@@ -234,9 +216,10 @@ export function EditEmpleado({ empleadoId }) {
                             onChange={(e) => handleChange("nombre_1", e.target.value)}
                             className={errors.nombre_1 ? "border-red-500" : ""}
                         />
-                        {errors.nombre_1 && <span className="text-red-500 text-sm">{errors.nombre_1}</span>}
+                        {errors.nombre_1 && (
+                            <span className="text-red-500 text-sm">{errors.nombre_1}</span>
+                        )}
                     </div>
-
                     <div className="grid items-center gap-4">
                         <Label htmlFor="nombre_2">Nombre 2</Label>
                         <Input
@@ -245,7 +228,6 @@ export function EditEmpleado({ empleadoId }) {
                             onChange={(e) => handleChange("nombre_2", e.target.value)}
                         />
                     </div>
-
                     <div className="grid items-center gap-4">
                         <Label htmlFor="apellido_1">Apellido 1 *</Label>
                         <Input
@@ -256,7 +238,6 @@ export function EditEmpleado({ empleadoId }) {
                         />
                         {errors.apellido_1 && <span className="text-red-500 text-sm">{errors.apellido_1}</span>}
                     </div>
-
                     <div className="grid items-center gap-4">
                         <Label htmlFor="apellido_2">Apellido 2</Label>
                         <Input

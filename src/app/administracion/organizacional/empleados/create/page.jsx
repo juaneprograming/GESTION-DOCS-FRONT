@@ -13,8 +13,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import axios from "axios";
+import { toast } from 'sonner';
 
-export function CreateEmpleado() {
+export function CreateEmpleado({ onEmpleadoCreado }) {
   const [open, setOpen] = useState(false);
   const [areas, setAreas] = useState([]);
   const [sedes, setSedes] = useState([]);
@@ -106,9 +107,10 @@ export function CreateEmpleado() {
         sede_id: "",
         area_id: "",
       });
-      alert("Empleado creado exitosamente");
+      toast.success("Empleado creado Exitosamente");
+      onEmpleadoCreado && onEmpleadoCreado(); // Actualiza la lista en el padre
     } catch (error) {
-      console.error("Error creating employee:", error);
+      toast.error("Error al Crear Empleado:", error);
       if (error.response?.data?.errors) {
         setErrors(error.response.data.errors);
       } else {
