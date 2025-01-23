@@ -30,7 +30,7 @@ const services = [
 
 export function ServicesSection() {
   return (
-    <section id="services" className="container h-screen py-8 md:py-16 px-4 md:px-8">
+    <section id="services" className="h-screen py-8 md:py-16 px-4 md:px-8">
       <div className="text-center mb-8 md:mb-12 px-4">
         <p className="text-blue-500 font-medium mb-2">Nuestros Servicios</p>
         <h2 className="text-2xl md:text-4xl font-bold mb-4">Soluciones Especializadas</h2>

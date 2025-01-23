@@ -30,7 +30,7 @@ const articles = [
 
 export function ArticlesSection() {
   return (
-    <section className="container py-8 md:py-16">
+    <section className="py-8 md:py-16">
       <div className="text-center mb-8 md:mb-12 px-4">
         <p className="text-blue-500 font-medium mb-2">Insight And Trends</p>
         <h2 className="text-2xl md:text-4xl font-bold mb-4">Recent Articles</h2>
