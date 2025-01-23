@@ -10,8 +10,8 @@ export function SiteHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   return (
-    <header id="inicio" className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-16 items-center justify-between px-12">
+    <header  className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div id="inicio" className="flex h-16 items-center justify-between px-12">
         <div className="flex items-center space-x-2">
           <Link href="/" className="flex items-center space-x-2">
             <Image
@@ -57,49 +57,37 @@ export function SiteHeader() {
           <div className="absolute top-16 left-0 right-0 bg-background border-b md:hidden">
             <nav className="flex flex-col p-4">
               <Link
-                href="/"
+                href="#inicio"
                 className="py-2 px-4 hover:bg-blue-500 hover:text-white rounded-md"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Home
+                Inicio
               </Link>
+             
               <Link
-                href="/company"
+                href="#services"
                 className="py-2 px-4 hover:bg-blue-500 hover:text-white rounded-md"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Company
-              </Link>
-              <Link
-                href="/services"
-                className="py-2 px-4 hover:bg-blue-500 hover:text-white rounded-md"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Services
+                Servicio
               </Link>
               <Link
                 href="/news"
                 className="py-2 px-4 hover:bg-blue-500 hover:text-white rounded-md"
                 onClick={() => setIsMenuOpen(false)}
               >
-                News & Media
+                ¿Quienes somos?
               </Link>
-              <Link
-                href="/features"
-                className="py-2 px-4 hover:bg-blue-500 hover:text-white rounded-md"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Features
-              </Link>
+              
               <Link
                 href="/contact"
                 className="py-2 px-4 hover:bg-blue-500 hover:text-white rounded-md"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Contact
+                Contacto
               </Link>
               <Link href="/login" className="mt-2" onClick={() => setIsMenuOpen(false)}>
-                <Button variant="destructive" className="w-full">
+                <Button className="w-full bg-blue-500 text-white">
                   Iniciar sesión
                 </Button>
               </Link>

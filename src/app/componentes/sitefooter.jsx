@@ -3,7 +3,7 @@ import { Facebook, Twitter, Instagram } from "lucide-react"
 
 export function SiteFooter() {
   return (
-    <footer className="bg-zinc-950 text-zinc-400 py-16 px-36">
+    <footer className="bg-zinc-950 text-zinc-400 py-16 px-32">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {/* About Section */}
         <div className="space-y-4">
@@ -73,9 +73,9 @@ export function SiteFooter() {
 
       {/* Copyright */}
       <div className="mt-12 pt-8 border-t border-zinc-800 text-sm text-center">
-        © Equita, With Love by{" "}
+        © Copyrigth{" "}
         <Link href="#" className="text-blue-500 hover:text-blue-500/90">
-          Zytheme.com
+          gestiondocumental@gmail.com
         </Link>
       </div>
     </footer>

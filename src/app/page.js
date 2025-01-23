@@ -6,15 +6,14 @@ import { SiteFooter } from "@/app/componentes/sitefooter"
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col bg-gray-100">
-      <main className="flex-1">
-        <SiteHeader />
+    <main className="flex min-h-screen flex-col bg-gray-100 overflow-x-hidden">
+      <SiteHeader />
+      <div className="flex-1 w-full">
         <HeroCarousel />
         <ServicesSection />
         <ArticlesSection />
-      </main>
-      <SiteFooter/>
+      </div>
+      <SiteFooter />
     </main>
   )
 }
-
