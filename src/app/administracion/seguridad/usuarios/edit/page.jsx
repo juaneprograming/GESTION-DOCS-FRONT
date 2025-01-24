@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export function EditUsuario({ userId }) {
+export function EditUsuario({ userId , onSuccess }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -122,8 +122,7 @@ export function EditUsuario({ userId }) {
         }
       );
   
-      // Mostrar mensaje de éxito
-      alert(response.data.message || "Usuario actualizado correctamente.");
+      if (onSuccess) onSuccess(); // Ejecutar después de éxito
       setOpen(false);
     } catch (error) {
       console.error("Error updating user:", error);
@@ -170,7 +169,7 @@ export function EditUsuario({ userId }) {
           <Edit2 className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[800px]">
         <DialogHeader>
           <DialogTitle>Editar Usuario</DialogTitle>
           <DialogDescription>

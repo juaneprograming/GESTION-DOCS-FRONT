@@ -1,42 +1,151 @@
 'use client'
 
 import React, { useState } from "react"
+import axios from "axios"
 import DashboardLayout from "@/app/dashboard/layout"
-import { Check } from "lucide-react"
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
 import { Breadcrumb } from "@/app/componentes/breadcrumb"
+import { ProgressStepper} from "@/app/componentes/progressStepper"
+import { Step1Solicitud } from "@/app/componentes/step1Solicitud"
+import { Step2Gestor } from "@/app/componentes/step2Gestor"
+import { Step3Solicitante } from "@/app/componentes/step3Solicitante"
 
-export default function MultiStepForm() {
+export default function MultiStepForm( {onSuccess} ) {
   const [step, setStep] = useState(1)
-  const [formData, setFormData] = useState({
-    tipo: "",
-    motivo: "",
-    medioRadicacion: "",
-    medioRespuesta: "",
-    asunto: "",
-  })
+  const [errors, setErrors] = useState({})
 
-  const steps = [
-    { id: 1, name: "Datos de la Solicitud" },
-    { id: 2, name: "Datos del Gestor" },
-    { id: 3, name: "Datos del Solicitante" },
-  ]
+  
+    const [formData, setFormData] = useState({
+        tipo: "",
+        motivo: "",
+        medio_radicacion: "",
+        medio_respuesta: "",
+        asunto_solicitud: "",
+        tipo_identificacion_gestor: "",
+        identificacion_gestor: "",
+        primer_nombre_gestor: "",
+        segundo_nombre_gestor: "",
+        primer_apellido_gestor: "",
+        segundo_apellido_gestor: "",
+        tipo_solicitante: "",
+        tipo_identificacion_solicitante: "",
+        identificacion_solicitante: "",
+        primer_nombre_solicitante: "",
+        segundo_nombre_solicitante: "",
+        primer_apellido_solicitante: "",
+        segundo_apellido_solicitante: "",
+        direccion: "",
+        pais: "Colombia",
+        departamento: "",
+        municipio: "",
+        celular: "",
+        email: "",
+        confirm_email_solicitante: "",
+        telefono: "",
+    });
 
-  const handleNext = () => {
-    setStep((prev) => Math.min(prev + 1, steps.length))
-  }
+    const steps = [
+        { id: 1, name: "Datos Solicitud" },
+        { id: 2, name: "Datos Gestor" },
+        { id: 3, name: "Datos Solicitante" },
+    ];
 
-  const handlePrevious = () => {
-    setStep((prev) => Math.max(prev - 1, 1))
-  }
+    const requiredFields = {
+        1: ['tipo', 'motivo', 'medio_radicacion', 'medio_respuesta', 'asunto_solicitud'],
+        2: ['primer_nombre_gestor', 'primer_apellido_gestor'],
+        3: ['tipo_solicitante', 'tipo_identificacion_solicitante', 'identificacion_solicitante', 
+           'primer_nombre_solicitante', 'primer_apellido_solicitante', 'direccion',
+           'departamento', 'municipio', 'celular', 'email', 'confirm_email_solicitante']
+    };
 
-  const updateFormData = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+    const validateStep = () => {
+        const currentRequired = requiredFields[step];
+        const newErrors = {};
+
+        currentRequired.forEach(field => {
+            if (!formData[field]?.trim()) {
+                newErrors[field] = 'Este campo es requerido';
+            }
+        });
+
+        if (step === 3 && formData.email !== formData.confirm_email_solicitante) {
+            newErrors.confirm_email_solicitante = 'Los correos no coinciden';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleNext = () => {
+        if (!validateStep()) return;
+        setStep(prev => Math.min(prev + 1, steps.length));
+    };
+
+    const handlePrevious = () => {
+        setStep(prev => Math.max(prev - 1, 1));
+    };
+
+    const handleChange = (field, value) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+        if (errors[field]) setErrors(prev => ({ ...prev, [field]: undefined }));
+    };
+
+    const handleSubmit = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/nuevapqrsd`,
+                formData,
+                {
+                  headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                withCredentials: true
+                }
+            );
+
+            if (response.data.success) {
+                setFormData({        
+                  tipo: "",
+                  motivo: "",
+                  medio_radicacion: "",
+                  medio_respuesta: "",
+                  asunto_solicitud: "",
+                  tipo_identificacion_gestor: "",
+                  identificacion_gestor: "",
+                  primer_nombre_gestor: "",
+                  segundo_nombre_gestor: "",
+                  primer_apellido_gestor: "",
+                  segundo_apellido_gestor: "",
+                  tipo_solicitante: "",
+                  tipo_identificacion_solicitante: "",
+                  identificacion_solicitante: "",
+                  primer_nombre_solicitante: "",
+                  segundo_nombre_solicitante: "",
+                  primer_apellido_solicitante: "",
+                  segundo_apellido_solicitante: "",
+                  direccion: "",
+                  pais: "Colombia",
+                  departamento: "",
+                  municipio: "",
+                  celular: "",
+                  email: "",
+                  confirm_email_solicitante: "",
+                  telefono: "",});
+                  setStep(1); // ← Aquí el cambio importante
+                if (onSuccess) onSuccess();
+            }
+          } catch (error) {
+            console.error('Error creating PQRSD:', error);
+            // Mejor manejo de errores
+            if (error.response?.status === 422) {
+              setErrors(error.response.data.errors || {});
+            } else {
+              setErrors({ general: 'Error de conexión con el servidor' });
+            }
+          }
+        };
 
   return (
     <DashboardLayout>
@@ -45,226 +154,46 @@ export default function MultiStepForm() {
         <div className="flex justify-between items-center">
           <div className="space-y-1">
             <h2 className="text-2xl font-semibold tracking-tight">Nueva PQRSD</h2>
-            <Breadcrumb>
-              {/* <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink href="#">Administración</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbLink href="#">Cargos</BreadcrumbLink>
-                </BreadcrumbItem>
-              </BreadcrumbList> */}
-            </Breadcrumb>
+            <Breadcrumb />
           </div>
-          
         </div>
       </div>
+
       <div className="mx-auto max-w-4xl px-4 py-8">
-        <nav aria-label="Progress">
-          <ol role="list" className="flex justify-center space-x-80">
-            {steps.map((stepItem, stepIdx) => (
-              <li key={stepItem.name} className={cn(stepIdx !== steps.length - 1 ? "pr-8 sm:pr-20" : "", "relative")}>
-                <div className="flex items-center">
-                  <div
-                    className={cn(
-                      "flex h-8 w-8 items-center justify-center rounded-full",
-                      step > stepItem.id
-                        ? "bg-primary"
-                        : step === stepItem.id
-                          ? "border-2 border-primary"
-                          : "border-2 border-gray-300",
-                    )}
-                  >
-                    {step > stepItem.id ? (
-                      <Check className="h-5 w-5 text-white" />
-                    ) : (
-                      <span className={cn("text-sm", step === stepItem.id ? "text-primary" : "text-gray-500")}>
-                        {stepItem.id}
-                      </span>
-                    )}
-                  </div>
-                  {stepIdx !== steps.length - 1 && (
-                    <div
-                      className={cn(
-                        "absolute left-0 top-4 -z-10 h-0.5 w-full",
-                        step > stepItem.id ? "bg-primary" : "bg-gray-300",
-                      )}
-                    />
-                  )}
-                </div>
-                <span
-                  className={cn(
-                    "absolute left-0 top-10 w-max text-sm",
-                    step === stepItem.id ? "text-primary font-medium" : "text-gray-500",
-                  )}
-                >
-                  {stepItem.name}
-                </span>
-              </li>
-            ))}
-          </ol>
-        </nav>
+        <ProgressStepper steps={steps} currentStep={step} />
 
         <div className="mt-16">
-          {step === 1 && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="tipo">
-                    Tipo <span className="text-destructive">*</span>
-                  </Label>
-                  <Select value={formData.tipo} onValueChange={(value) => updateFormData("tipo", value)}>
-                    <SelectTrigger id="tipo">
-                      <SelectValue placeholder="Seleccione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="tipo1">Tipo 1</SelectItem>
-                      <SelectItem value="tipo2">Tipo 2</SelectItem>
-                      <SelectItem value="tipo3">Tipo 3</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+          {step === 1 && <Step1Solicitud 
+            formData={formData} 
+            errors={errors} 
+            onChange={handleChange} // Nombre correcto de la prop
+          />}
+          {step === 2 && <Step2Gestor  formData={formData} 
+            errors={errors} 
+            onChange={handleChange}/>}
+          {step === 3 && <Step3Solicitante  formData={formData} 
+            errors={errors} 
+            onChange={handleChange} />}
 
-                <div className="space-y-2">
-                  <Label htmlFor="motivo">
-                    Motivo <span className="text-destructive">*</span>
-                  </Label>
-                  <Select value={formData.motivo} onValueChange={(value) => updateFormData("motivo", value)}>
-                    <SelectTrigger id="motivo">
-                      <SelectValue placeholder="Seleccione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="motivo1">Motivo 1</SelectItem>
-                      <SelectItem value="motivo2">Motivo 2</SelectItem>
-                      <SelectItem value="motivo3">Motivo 3</SelectItem>
-                    </SelectContent>
-                  </Select>
+          <div className="flex justify-between">
+                    <Button 
+                        variant="outline" 
+                        onClick={handlePrevious}
+                        disabled={step === 1}
+                    >
+                        Anterior
+                    </Button>
+                    
+                    {step === steps.length ? (
+                        <Button onClick={handleSubmit}>
+                            Enviar PQRSD
+                        </Button>
+                    ) : (
+                        <Button onClick={handleNext}>
+                            Siguiente
+                        </Button>
+                    )}
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="medioRadicacion">
-                    Medio de Radicación <span className="text-destructive">*</span>
-                  </Label>
-                  <Select
-                    value={formData.medioRadicacion}
-                    onValueChange={(value) => updateFormData("medioRadicacion", value)}
-                  >
-                    <SelectTrigger id="medioRadicacion">
-                      <SelectValue placeholder="Seleccione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="medio1">Medio 1</SelectItem>
-                      <SelectItem value="medio2">Medio 2</SelectItem>
-                      <SelectItem value="medio3">Medio 3</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="medioRespuesta">
-                    Medio de respuesta <span className="text-destructive">*</span>
-                  </Label>
-                  <Select
-                    value={formData.medioRespuesta}
-                    onValueChange={(value) => updateFormData("medioRespuesta", value)}
-                  >
-                    <SelectTrigger id="medioRespuesta">
-                      <SelectValue placeholder="Seleccione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="respuesta1">Respuesta 1</SelectItem>
-                      <SelectItem value="respuesta2">Respuesta 2</SelectItem>
-                      <SelectItem value="respuesta3">Respuesta 3</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="asunto">
-                  Asunto <span className="text-destructive">*</span>
-                </Label>
-                <Textarea
-                  id="asunto"
-                  value={formData.asunto}
-                  onChange={(e) => updateFormData("asunto", e.target.value)}
-                  placeholder="Escriba el asunto..."
-                  className="min-h-[100px]"
-                />
-                <div className="text-xs text-muted-foreground">{formData.asunto.length}/1000 caracteres</div>
-              </div>
-            </div>
-          )}
-
-          {step === 2 && (
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold">Datos del Gestor</h2>
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="nombreGestor">
-                    Nombre del Gestor <span className="text-destructive">*</span>
-                  </Label>
-                  <input
-                    id="nombreGestor"
-                    type="text"
-                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    placeholder="Ingrese el nombre del gestor"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="emailGestor">
-                    Email del Gestor <span className="text-destructive">*</span>
-                  </Label>
-                  <input
-                    id="emailGestor"
-                    type="email"
-                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    placeholder="Ingrese el email del gestor"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className="space-y-6">
-              <h2 className="text-2xl flex text-center font-bold">Datos del Solicitante</h2>
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="nombreSolicitante">
-                    Nombre del Solicitante <span className="text-destructive">*</span>
-                  </Label>
-                  <input
-                    id="nombreSolicitante"
-                    type="text"
-                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    placeholder="Ingrese el nombre del solicitante"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="emailSolicitante">
-                    Email del Solicitante <span className="text-destructive">*</span>
-                  </Label>
-                  <input
-                    id="emailSolicitante"
-                    type="email"
-                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    placeholder="Ingrese el email del solicitante"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="mt-8 flex justify-between">
-            <Button variant="outline" onClick={handlePrevious} disabled={step === 1}>
-              Anterior
-            </Button>
-            <Button onClick={handleNext} disabled={step === steps.length}>
-              {step === steps.length ? "Enviar" : "Siguiente"}
-            </Button>
-          </div>
         </div>
       </div>
     </DashboardLayout>

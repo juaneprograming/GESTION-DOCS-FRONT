@@ -5,7 +5,7 @@ import axios from "axios"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableRow, TableHeader } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Edit2, Plus, Download, CalendarIcon } from "lucide-react"
+import { Download } from "lucide-react"
 
 import { Input } from "@/components/ui/input"
 import DashboardLayout from "@/app/dashboard/layout"
@@ -13,7 +13,6 @@ import { CreateUsuario } from "@/app/administracion/seguridad/usuarios/create/pa
 import { Breadcrumb } from "@/app/componentes/breadcrumb"
 import { EditUsuario } from "./edit/page"
 
-const userId = 1
 
 
 const Users = () => {
@@ -21,6 +20,7 @@ const Users = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [searchTerm, setSearchTerm] = useState("")
+  const [refreshFlag, setRefreshFlag] = useState(false)
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -41,7 +41,11 @@ const Users = () => {
     }
 
     fetchUsers()
-  }, [])
+  },  [refreshFlag])
+
+  const handleRefresh = () => {
+    setRefreshFlag(prev => !prev)
+  }
 
   const filteredUsers = users.filter(
     (user) =>
@@ -74,7 +78,7 @@ const Users = () => {
               Exportar
             </Button>
             <div>
-              <CreateUsuario/>
+              <CreateUsuario onSuccess={handleRefresh} />
             </div>
           </div>
         </div>
@@ -128,7 +132,7 @@ const Users = () => {
                     <TableCell>{user.username}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>
-                      <Badge variant={user.is_admin ? "success" : "secondary"}>
+                      <Badge variant={user.is_admin ? "success" : "destructive"}>
                         {user.is_admin ? "Sí" : "No"}
                       </Badge>
                     </TableCell>
@@ -139,7 +143,7 @@ const Users = () => {
                     </TableCell>
                     <TableCell className="text-right">
                       <div>
-                      <EditUsuario userId={user.id} />
+                      <EditUsuario userId={user.id} onSuccess={handleRefresh} />
                       </div>
                     </TableCell>
                   </TableRow>

@@ -23,7 +23,7 @@ import {
 import axios from "axios";
 
 
-export function CreateUsuario() {
+export function CreateUsuario({ onSuccess }) {
     const [open, setOpen] = useState(false);
     const [roles, setRoles] = useState([]);
     const [empleados, setEmpleados] = useState([]);
@@ -115,6 +115,8 @@ export function CreateUsuario() {
                 is_admin: "",
                 estado: "",
             });
+            if (onSuccess) onSuccess(); // Ejecutar después de éxito
+            setOpen(false);
         } catch (error) {
             if (error.response && error.response.data && error.response.data.errors) {
                 setErrors(error.response.data.errors);
@@ -132,7 +134,7 @@ export function CreateUsuario() {
                     Nuevo Usuario
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
+            <DialogContent className="sm:max-w-[800px]">
                 <DialogHeader>
                     <DialogTitle>Crear Usuario</DialogTitle>
                     <DialogDescription>

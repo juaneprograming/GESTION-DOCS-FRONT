@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import DashboardLayout from "@/app/dashboard/layout"
 import { useState, useEffect } from "react"
@@ -6,29 +6,17 @@ import { Search, Filter, Plus, Edit2, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableRow, TableHeader } from "@/components/ui/table"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-// import {
-//   Breadcrumb,
-//   BreadcrumbItem,
-//   BreadcrumbLink,
-//   BreadcrumbList,
-//   BreadcrumbSeparator,
-// } from "@/components/ui/breadcrumb"
 import { Breadcrumb } from "@/app/componentes/breadcrumb"
 import axios from "axios"
+import { CreateCargo } from "./create/page"
+import { EditCargo } from "./edit/page"
 
 const Cargos = () => {
   const [cargos, setCargos] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [searchTerm, setSearchTerm] = useState("")
+  const [refreshFlag, setRefreshFlag] = useState(false) // Nuevo estado para refrescar
 
   useEffect(() => {
     const fetchCargos = async () => {
@@ -49,7 +37,12 @@ const Cargos = () => {
     }
 
     fetchCargos()
-  }, [])
+  }, [refreshFlag]) // Añadir refreshFlag como dependencia
+
+  // Función para forzar actualización
+  const handleRefresh = () => {
+    setRefreshFlag(prev => !prev)
+  }
 
   const filteredCargos = cargos.filter(
     (cargo) =>
@@ -72,10 +65,9 @@ const Cargos = () => {
               <Download className="h-4 w-4" />
               Exportar
             </Button>
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              Nuevo Cargo
-            </Button>
+          <div>
+          <CreateCargo onSuccess={handleRefresh} />
+          </div>
           </div>
         </div>
 
@@ -131,42 +123,7 @@ const Cargos = () => {
                     <TableCell className="font-medium">{cargo.nombre}</TableCell>
                     <TableCell>{cargo.descripcion}</TableCell>
                     <TableCell className="text-right">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <Edit2 className="h-4 w-4" />
-                            <span className="sr-only">Editar cargo</span>
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Editar Cargo</DialogTitle>
-                            <DialogDescription>
-                              <form className="space-y-4 mt-4">
-                                <div className="space-y-2">
-                                  <label htmlFor="nombre" className="text-sm font-medium">
-                                    Nombre
-                                  </label>
-                                  <Input id="nombre" defaultValue={cargo.nombre} placeholder="Nombre del cargo" />
-                                </div>
-                                <div className="space-y-2">
-                                  <label htmlFor="descripcion" className="text-sm font-medium">
-                                    Descripción
-                                  </label>
-                                  <Input
-                                    id="descripcion"
-                                    defaultValue={cargo.descripcion}
-                                    placeholder="Descripción del cargo"
-                                  />
-                                </div>
-                                <Button type="submit" className="w-full">
-                                  Guardar cambios
-                                </Button>
-                              </form>
-                            </DialogDescription>
-                          </DialogHeader>
-                        </DialogContent>
-                      </Dialog>
+                    <EditCargo cargoId={cargo.id} onSuccess={handleRefresh} />
                     </TableCell>
                   </TableRow>
                 ))
