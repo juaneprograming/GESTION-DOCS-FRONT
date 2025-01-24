@@ -17,39 +17,46 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import DashboardLayout from "@/app/dashboard/layout"
 import { Breadcrumb } from "@/app/componentes/breadcrumb"
+import { CreateEntidad } from "./create/page"
+import { EditEntidad } from "./edit/page"
 
 const Entidades = () => {
   const [entidades, setEntidades] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [searchTerm, setSearchTerm] = useState("")
+  const [refreshFlag, setRefreshFlag] = useState(false)
 
-  useEffect(() => {
-    const fetchEntidades = async () => {
-      try {
-        const token = localStorage.getItem("token")
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/entidades`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        setEntidades(response.data.data)
-      } catch (err) {
-        console.error("Error fetching entidades:", err)
-        setError(err.message)
-      } finally {
-        setLoading(false)
-      }
+  const fetchEntidades = async () => {
+    try {
+      const token = localStorage.getItem("token")
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/entidades`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      setEntidades(response.data.data)
+    } catch (err) {
+      console.error("Error fetching entidades:", err)
+      setError(err.message)
+    } finally {
+      setLoading(false)
     }
-
+  }
+  useEffect(() => {
     fetchEntidades()
-  }, [])
+  }, [refreshFlag])
+
+   // Función para forzar actualización
+   const handleRefresh = () => {
+    setRefreshFlag(prev => !prev)
+  }
 
   const filteredEntidades = entidades.filter(
     (entidad) =>
       entidad.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      entidad.nit.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+      String(entidad.nit || "").toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <DashboardLayout>
@@ -58,57 +65,14 @@ const Entidades = () => {
         <div className="flex justify-between items-center">
           <div className="space-y-1">
             <h2 className="text-2xl font-semibold tracking-tight">Entidades</h2>
-            <Breadcrumb/>
+            <Breadcrumb />
           </div>
           <div className="flex gap-2">
             <Button variant="outline" className="gap-2">
               <Download className="h-4 w-4" />
               Exportar
             </Button>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="gap-2">
-                  <Plus className="h-4 w-4" />
-                  Nueva Entidad
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Crear Entidad</DialogTitle>
-                </DialogHeader>
-                <form className="space-y-4 mt-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Nombre</Label>
-                      <Input placeholder="Nombre de la entidad" />
-                    </div>
-                    <div>
-                      <Label>NIT</Label>
-                      <Input placeholder="NIT" />
-                    </div>
-                    <div>
-                      <Label>Dirección</Label>
-                      <Input placeholder="Dirección" />
-                    </div>
-                    <div>
-                      <Label>Misión</Label>
-                      <Input placeholder="Misión" />
-                    </div>
-                    <div>
-                      <Label>Visión</Label>
-                      <Input placeholder="Visión" />
-                    </div>
-                    <div>
-                      <Label>Logo</Label>
-                      <Input type="file" />
-                    </div>
-                  </div>
-                  <Button type="submit" className="w-full">
-                    Guardar Entidad
-                  </Button>
-                </form>
-              </DialogContent>
-            </Dialog>
+            <CreateEntidad onEntidadCreado={() => fetchEntidades()} />
           </div>
         </div>
 
@@ -134,7 +98,7 @@ const Entidades = () => {
                 <TableHead>Dirección</TableHead>
                 <TableHead>Misión</TableHead>
                 <TableHead>Visión</TableHead>
-                <TableHead>Logo</TableHead>
+                {/* <TableHead>Logo</TableHead> */}
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
@@ -165,11 +129,12 @@ const Entidades = () => {
                     <TableCell>{entidad.direccion}</TableCell>
                     <TableCell>{entidad.mision}</TableCell>
                     <TableCell>{entidad.vision}</TableCell>
-                    <TableCell>{entidad.logo}</TableCell>
+                    {/* <TableCell>{entidad.logo}</TableCell> */}
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="icon">
-                        <Edit2 className="h-4 w-4" />
-                      </Button>
+                      <EditEntidad
+                        entidadId={entidad.id} // <--- Asegúrate que esto existe y es correcto
+                        onEntidadActualizada={handleRefresh}
+                      />
                     </TableCell>
                   </TableRow>
                 ))
