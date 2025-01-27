@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import DashboardLayout from "@/app/dashboard/layout"
 import { Breadcrumb } from "@/app/componentes/breadcrumb"
 import { CreatePerfil } from "@/app/administracion/seguridad/perfiles/create/page"
+import { EditPerfil } from "@/app/administracion/seguridad/perfiles/edit/page"
 
 
 
@@ -18,7 +19,7 @@ const Perfiles = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [searchTerm, setSearchTerm] = useState("")
-  const [refreshFlag, setRefreshFlag] = useState(false) // Nuevo estado para refrescar
+  const [refreshFlag, setRefreshFlag] = useState(false)
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -67,7 +68,9 @@ const Perfiles = () => {
               <Download className="h-4 w-4" />
               Exportar
             </Button>
-            <CreatePerfil onSuccess={handleRefresh}/>
+            <div>
+              <CreatePerfil onSuccess={handleRefresh} />
+            </div>
           </div>
         </div>
 
@@ -129,12 +132,17 @@ const Perfiles = () => {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        {/* <EditPerfil profileId={profile.id} /> */}
+                        <EditPerfil profileId={profile.id} onSuccess={handleRefresh} />
                         <Button variant="ghost" size="sm" className="text-red-600">
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </TableCell>
+                    {/* <TableCell className="text-right">
+                      <div>
+                        
+                      </div>
+                    </TableCell> */}
                   </TableRow>
                 ))
               )}

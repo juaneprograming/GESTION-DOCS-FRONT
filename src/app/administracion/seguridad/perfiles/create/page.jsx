@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import axios from "axios";
 
-export function CreatePerfil() {
+export function CreatePerfil({ onSuccess }) {
     const [open, setOpen] = useState(false);
     const [pefiles, setPerfiles] = useState([]);
     const [errors, setErrors] = useState([]);
@@ -46,9 +46,9 @@ export function CreatePerfil() {
                     }
                 );
                 setPerfiles(response.data.data);
-            } catch (err) {
-                console.error("Error fetching data:", err);
-                setErrors(err.message);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                setErrors(error.message);
             }
         };
 
@@ -88,7 +88,7 @@ export function CreatePerfil() {
             if (error.response && error.response.data && error.response.data.errors) {
                 setErrors(error.response.data);
             } else {
-                console.log('Errot saving profile:', err);
+                console.log('Errot saving profile:', error);
             }
         }
     };
