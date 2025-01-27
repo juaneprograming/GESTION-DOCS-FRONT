@@ -30,35 +30,35 @@ export function EditEntidad({ entidadId, onEntidadActualizada }) {
     vision: ""
   });
 
- const fetchEntidadData = useCallback(async () => {
-  setIsFetching(true);
-  try {
-    const token = localStorage.getItem('token');
-    const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/administracion/entidades/${entidadId}`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+  const fetchEntidadData = useCallback(async () => {
+    setIsFetching(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/administracion/entidades/${entidadId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-    // Ajustar según estructura real de la respuesta
-    const entidadData = response.data.data || response.data.entidad || response.data;
-    
-    setFormData({
-      nombre: entidadData.nombre || "",
-      nit: entidadData.nit || "",
-      direccion: entidadData.direccion || "",
-      mision: entidadData.mision || "",
-      vision: entidadData.vision || "",
-    });
-    
-  } catch (err) {
-    toast.error("Error cargando datos de la entidad");
-    console.error("Fetch error:", err);
-  } finally {
-    setIsFetching(false);
-  }
-}, [entidadId]);
+      // Ajustar según estructura real de la respuesta
+      const entidadData = response.data.data || response.data.entidad || response.data;
 
-   useEffect(() => {
+      setFormData({
+        nombre: entidadData.nombre || "",
+        nit: entidadData.nit || "",
+        direccion: entidadData.direccion || "",
+        mision: entidadData.mision || "",
+        vision: entidadData.vision || "",
+      });
+
+    } catch (err) {
+      toast.error("Error cargando datos de la entidad");
+      console.error("Fetch error:", err);
+    } finally {
+      setIsFetching(false);
+    }
+  }, [entidadId]);
+
+  useEffect(() => {
     if (open && entidadId) {
       fetchEntidadData();
     }
@@ -69,11 +69,17 @@ export function EditEntidad({ entidadId, onEntidadActualizada }) {
     setErrors(prev => ({ ...prev, [field]: undefined, general: undefined }));
   };
 
+
   const handleSubmit = async () => {
     setLoading(true);
     setErrors({});
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Token no encontrado");
+      }
+
+      // Preparar payload
       const payload = {
         nombre: formData.nombre,
         nit: formData.nit,
@@ -82,31 +88,38 @@ export function EditEntidad({ entidadId, onEntidadActualizada }) {
         vision: formData.vision
       };
 
-      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/administracion/entidades/${entidadId}`, payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/administracion/entidades/${entidadId}`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
         }
-      });
+      );
 
       toast.success("Entidad actualizada exitosamente");
-      onEntidadActualizada?.();
+      if (onEntidadActualizada) onEntidadActualizada(); // Ejecutar después de éxito
       setOpen(false);
     } catch (error) {
       console.error("Error al actualizar:", error);
-      const errorMessage = error.response?.data?.message || "Error inesperado al actualizar";
-      
+
       if (error.response?.data?.errors) {
         setErrors(error.response.data.errors);
       } else {
-        setErrors(prev => ({ ...prev, general: errorMessage }));
+        setErrors(prev => ({
+          ...prev,
+          general: error.response?.data?.message || "Error al actualizar la entidad"
+        }));
       }
-      toast.error(`Error al Actualizar: ${errorMessage}`);
+      toast.error(`Error al Actualizar: ${error.response?.data?.message || "Error inesperado al actualizar"}`);
     } finally {
       setLoading(false);
     }
   };
-  
+
+
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => {
@@ -125,7 +138,7 @@ export function EditEntidad({ entidadId, onEntidadActualizada }) {
             Modifica los campos necesarios para actualizar la información de la entidad.
           </DialogDescription>
         </DialogHeader>
-        
+
         {isFetching ? (
           <div className="text-center">Cargando datos...</div>
         ) : (
@@ -151,7 +164,7 @@ export function EditEntidad({ entidadId, onEntidadActualizada }) {
                   id="nit"
                   value={formData.nit}
                   onChange={(e) => handleChange("nit", e.target.value)}
-                  disabled={loading}
+                  disabled={true} // Deshabilitado
                 />
                 {errors.nit && (
                   <span className="text-red-500 text-sm">{errors.nit[0]}</span>
@@ -209,15 +222,15 @@ export function EditEntidad({ entidadId, onEntidadActualizada }) {
         )}
 
         <div className="flex justify-end space-x-2">
-          <Button 
-            variant="outline" 
-            onClick={() => setOpen(false)} 
+          <Button
+            variant="outline"
+            onClick={() => setOpen(false)}
             disabled={loading}
           >
             Cancelar
           </Button>
-          <Button 
-            onClick={handleSubmit} 
+          <Button
+            onClick={handleSubmit}
             disabled={loading || isFetching}
           >
             {loading ? "Guardando..." : "Actualizar"}
