@@ -20,10 +20,10 @@ export const Step2Gestor = ({ formData, errors, onChange }) => {
                             <SelectValue placeholder="Seleccione" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="cc">Cédula de Ciudadanía</SelectItem>
-                            <SelectItem value="ce">Cédula de Extranjería</SelectItem>
-                            <SelectItem value="pa">Pasaporte</SelectItem>
-                            <SelectItem value="nit">NIT</SelectItem>
+                            <SelectItem value="Cedula de Ciudadanía">Cédula de Ciudadanía</SelectItem>
+                            <SelectItem value="Cedula de Extranjería">Cédula de Extranjería</SelectItem>
+                            <SelectItem value="Pasaporte">Pasaporte</SelectItem>
+                            <SelectItem value="NIT">NIT</SelectItem>
                         </SelectContent>
                     </Select>
                     {errors.tipo_identificacion_gestor && (

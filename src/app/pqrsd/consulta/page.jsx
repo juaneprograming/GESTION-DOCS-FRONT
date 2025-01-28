@@ -9,6 +9,8 @@ import { Download } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import DashboardLayout from "@/app/dashboard/layout"
 import { Breadcrumb } from "@/app/componentes/breadcrumb"
+import { VerPqrsd } from "./informacionpqrsd/page"
+import { useRouter } from "next/navigation"
 
 const Consulta = () => {
   const [pqrsdList, setPqrsdList] = useState([])
@@ -16,6 +18,7 @@ const Consulta = () => {
   const [error, setError] = useState(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [refreshFlag, setRefreshFlag] = useState(false)
+    const router = useRouter()
 
   useEffect(() => {
     const fetchPQRSD = async () => {
@@ -26,7 +29,7 @@ const Consulta = () => {
             Authorization: `Bearer ${token}`,
           },
         })
-        
+
         // Verificación corregida
         if (Array.isArray(response.data)) {
           setPqrsdList(response.data)
@@ -34,7 +37,7 @@ const Consulta = () => {
           console.error('La respuesta no es un array:', response.data)
           setPqrsdList([])
         }
-        
+
       } catch (err) {
         console.error("Error fetching PQRSD:", err)
         setError(err.message)
@@ -43,7 +46,7 @@ const Consulta = () => {
         setLoading(false)
       }
     }
-  
+
     fetchPQRSD()
   }, [refreshFlag])
 
@@ -52,12 +55,12 @@ const Consulta = () => {
   }
 
   // Filtrado seguro con verificación de array
-  const filteredPQRSD = Array.isArray(pqrsdList) 
+  const filteredPQRSD = Array.isArray(pqrsdList)
     ? pqrsdList.filter(nueva_pqrsd =>
-        Object.values(nueva_pqrsd).some(value =>
-          String(value).toLowerCase().includes(searchTerm.toLowerCase())
-        )
+      Object.values(nueva_pqrsd).some(value =>
+        String(value).toLowerCase().includes(searchTerm.toLowerCase())
       )
+    )
     : []
 
   const getStatusBadge = (estado) => {
@@ -106,7 +109,7 @@ const Consulta = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ID</TableHead>
+                <TableHead>Identificacion</TableHead>
                 <TableHead>Tipo</TableHead>
                 <TableHead>Motivo</TableHead>
                 <TableHead>Fecha Radicación</TableHead>
@@ -136,7 +139,8 @@ const Consulta = () => {
               ) : (
                 filteredPQRSD.map((nueva_pqrsd) => (
                   <TableRow key={nueva_pqrsd.id}>
-                    <TableCell className="font-medium">#{nueva_pqrsd.id}</TableCell>
+                    <TableCell>{ nueva_pqrsd.identificacion_gestor}
+                    </TableCell>
                     <TableCell>{nueva_pqrsd.tipo}</TableCell>
                     <TableCell>{nueva_pqrsd.motivo}</TableCell>
                     <TableCell>
@@ -146,7 +150,11 @@ const Consulta = () => {
                       {getStatusBadge(nueva_pqrsd.estado)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="outline" size="sm">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => router.push(`/pqrsd/consulta/informacionpqrsd?id=${nueva_pqrsd.id}`)}
+                      >
                         Detalle
                       </Button>
                     </TableCell>

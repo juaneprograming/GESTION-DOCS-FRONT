@@ -72,9 +72,9 @@ export const Step1Solicitud = ({ formData , errors, onChange }) => {
                             <SelectValue placeholder="Seleccione" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="correo_certificado">Correo certificado</SelectItem>
-                            <SelectItem value="correo_electronico">Correo electrónico</SelectItem>
-                            <SelectItem value="persona_directa">Persona directa</SelectItem>
+                            <SelectItem value="correo certificado">Correo certificado</SelectItem>
+                            <SelectItem value="correo electronico">Correo electrónico</SelectItem>
+                            <SelectItem value="persona directa">Persona directa</SelectItem>
                         </SelectContent>
                     </Select>
                     {errors.medio_radicacion && <span className="text-red-500 text-sm">{errors.medio_radicacion}</span>}
