@@ -9,6 +9,8 @@ import { Download } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import DashboardLayout from "@/app/dashboard/layout"
 import { Breadcrumb } from "@/app/componentes/breadcrumb"
+import EditGestion from "./edit/page"
+import { useRouter } from "next/navigation"
 
 const GestionPqrsd = () => {
   const [pqrsdList, setPqrsdList] = useState([])
@@ -16,6 +18,7 @@ const GestionPqrsd = () => {
   const [error, setError] = useState(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [refreshFlag, setRefreshFlag] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     const fetchPQRSD = async () => {
@@ -26,7 +29,7 @@ const GestionPqrsd = () => {
             Authorization: `Bearer ${token}`,
           },
         })
-        
+
         // Verificación corregida
         if (Array.isArray(response.data)) {
           setPqrsdList(response.data)
@@ -34,7 +37,7 @@ const GestionPqrsd = () => {
           console.error('La respuesta no es un array:', response.data)
           setPqrsdList([])
         }
-        
+
       } catch (err) {
         console.error("Error fetching PQRSD:", err)
         setError(err.message)
@@ -43,7 +46,7 @@ const GestionPqrsd = () => {
         setLoading(false)
       }
     }
-  
+
     fetchPQRSD()
   }, [refreshFlag])
 
@@ -52,12 +55,12 @@ const GestionPqrsd = () => {
   }
 
   // Filtrado seguro con verificación de array
-  const filteredPQRSD = Array.isArray(pqrsdList) 
+  const filteredPQRSD = Array.isArray(pqrsdList)
     ? pqrsdList.filter(nueva_pqrsd =>
-        Object.values(nueva_pqrsd).some(value =>
-          String(value).toLowerCase().includes(searchTerm.toLowerCase())
-        )
+      Object.values(nueva_pqrsd).some(value =>
+        String(value).toLowerCase().includes(searchTerm.toLowerCase())
       )
+    )
     : []
 
   const getStatusBadge = (estado) => {
@@ -136,7 +139,7 @@ const GestionPqrsd = () => {
               ) : (
                 filteredPQRSD.map((nueva_pqrsd) => (
                   <TableRow key={nueva_pqrsd.id}>
-                    <TableCell className="font-medium">#{nueva_pqrsd.id}</TableCell>
+                    <TableCell className="font-medium">{nueva_pqrsd.numero_radicado}</TableCell>
                     <TableCell>{nueva_pqrsd.tipo}</TableCell>
                     <TableCell>{nueva_pqrsd.motivo}</TableCell>
                     <TableCell>
@@ -146,7 +149,11 @@ const GestionPqrsd = () => {
                       {getStatusBadge(nueva_pqrsd.estado)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="outline" size="sm">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => router.push(`/pqrsd/gestionpqrsd/edit?id=${nueva_pqrsd.id}`)}
+                      >
                         Detalle
                       </Button>
                     </TableCell>
