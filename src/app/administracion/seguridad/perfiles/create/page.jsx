@@ -21,11 +21,13 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import axios from "axios";
+import { toast } from "sonner";
 
 export function CreatePerfil({ onSuccess }) {
     const [open, setOpen] = useState(false);
     const [pefiles, setPerfiles] = useState([]);
     const [errors, setErrors] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const [formData, setFormData] = useState({
         name: "",
@@ -60,9 +62,15 @@ export function CreatePerfil({ onSuccess }) {
     };
 
     const handleSubmit = async () => {
+        // Validar formulario
+        if (!validateForm()) {
+            return;
+        }
+
+        setLoading(true);
         try {
             const token = localStorage.getItem("token");
-            const response = await axios.post(
+            await axios.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/administracion/roles`,
                 formData,
                 {
@@ -83,15 +91,42 @@ export function CreatePerfil({ onSuccess }) {
 
             setErrors({});
             if (onSuccess) onSuccess();
-            setOpen(false);
+            toast.success("Perfil creado exitosamente");
         } catch (error) {
             if (error.response && error.response.data && error.response.data.errors) {
-                setErrors(error.response.data);
+                const validationErrors = error.response.data.errors;
+                setErrors(validationErrors);
+        
+                // Limpiar errores después de 3 segundos (opcional)
+                setTimeout(() => setErrors({}), 3000); 
+        
+                // Mostrar errores en toast
+                Object.entries(validationErrors).forEach(([field, messages]) => {
+                    toast.error(messages[0]);
+                });
             } else {
-                console.log('Errot saving profile:', error);
+                toast.error("Error al guardar el perfil");
             }
+            setLoading(false); // Forzar restablecimiento
         }
     };
+
+
+
+    const validateForm = () => {
+        const requiredFields = ["name", "descripcion", "estado"];
+        const newErrors = {};
+
+        requiredFields.forEach(field => {
+            if (!formData[field]) {
+                newErrors[field] = "Este campo es requerido";
+            }
+        });
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -113,37 +148,39 @@ export function CreatePerfil({ onSuccess }) {
                 <div className="grid grid-cols-1 gap-4">
                     {/* Name */}
                     <div className="grid items-center gap-4">
-                        <Label htmlFor="name">Name</Label>
+                        <Label htmlFor="name">Nombre *</Label>
                         <Input
                             id="name"
                             name="name"
                             value={formData.name}
                             onChange={(e) => handleChange("name", e.target.value)}
+                            className={errors.name ? "border-red-500" : ""}
                         />
                         {errors.name && (
-                            <div className="text-red-500 text-sm">{errors.name[0]}</div>
+                            <div className="text-red-500 text-sm">{errors.name}</div>
                         )}
                     </div>
 
                     {/* Descripcion */}
                     <div className="grid items-center gap-4">
-                        <Label htmlFor="descripcion">Descripcion</Label>
+                        <Label htmlFor="descripcion">Descripcion *</Label>
                         <Input
                             id="descripcion"
                             name="descripcion"
                             value={formData.descripcion}
                             onChange={(e) => handleChange("descripcion", e.target.value)}
+                            className={errors.descripcion ? "border-red-500" : ""}
                         />
                         {errors.descripcion && (
-                            <div className="text-red-500 text-sm">{errors.descripcion[0]}</div>
+                            <div className="text-red-500 text-sm">{errors.descripcion}</div>
                         )}
                     </div>
 
                     {/* Estado */}
                     <div className="grid items-center gap-4">
-                        <Label htmlFor="estado">Estado</Label>
+                        <Label htmlFor="estado">Estado *</Label>
                         <Select name="estado" onValueChange={(value) => handleChange("estado", value === "true")}>
-                            <SelectTrigger>
+                            <SelectTrigger className={errors.estado ? "border-red-500" : ""}>
                                 <SelectValue placeholder="Seleccione el estado" />
                             </SelectTrigger>
                             <SelectContent>
@@ -151,6 +188,9 @@ export function CreatePerfil({ onSuccess }) {
                                 <SelectItem value="false">Inactivo</SelectItem>
                             </SelectContent>
                         </Select>
+                        {errors.estado && (
+                            <div className="text-red-500 text-sm">{errors.estado}</div>
+                        )}
                     </div>
 
                     {/* Buttons */}
@@ -158,11 +198,12 @@ export function CreatePerfil({ onSuccess }) {
                         <Button variant="outline" onClick={() => setOpen(false)}>
                             Cancelar
                         </Button>
-                        <Button onClick={handleSubmit}>
-                            Guardar
+                        <Button onClick={handleSubmit} disabled={loading}>
+                            {loading ? "Guardando..." : "Guardar"}
                         </Button>
                     </div>
                 </div>
+
             </DialogContent>
         </Dialog>
     );

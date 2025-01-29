@@ -21,6 +21,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import axios from "axios";
+import { toast } from 'sonner';
 
 
 export function CreateUsuario({ onSuccess }) {
@@ -28,6 +29,7 @@ export function CreateUsuario({ onSuccess }) {
     const [roles, setRoles] = useState([]);
     const [empleados, setEmpleados] = useState([]);
     const [errors, setErrors] = useState({});
+    const [loading, setLoading] = useState(false);
 
     const [formData, setFormData] = useState({
         username: "",
@@ -90,21 +92,18 @@ export function CreateUsuario({ onSuccess }) {
     };
 
     const handleSubmit = async () => {
+        setLoading(true);
         try {
-            const token = localStorage.getItem("token");
-            const response = await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/administracion/users`, 
-                formData,
-                {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    withCredentials: true
+            const token = localStorage.getItem('token');
+            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/administracion/users`, formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 }
-            );
-            setOpen(false);
+            });
+    
+            toast.success("Usuario creado exitosamente");
+            onSuccess?.();
             setFormData({
                 username: "",
                 empleado_id: "",
@@ -115,17 +114,32 @@ export function CreateUsuario({ onSuccess }) {
                 is_admin: "",
                 estado: "",
             });
-            if (onSuccess) onSuccess(); // Ejecutar después de éxito
             setOpen(false);
         } catch (error) {
             if (error.response && error.response.data && error.response.data.errors) {
-                setErrors(error.response.data.errors);
+                const validationErrors = error.response.data.errors;
+                setErrors(validationErrors);
+    
+                // Mostrar mensaje para username duplicado
+                if (validationErrors.username) {
+                    toast.error("Este nombre de usuario ya está registrado.");
+                }
+    
+                // Mostrar otros errores de validación
+                Object.entries(validationErrors).forEach(([field, messages]) => {
+                    if (field !== 'username') {
+                        toast.error(messages[0]);
+                    }
+                });
             } else {
-                console.error('Error saving user:', error);
+                console.error('Error al guardar el usuario:', error);
+                toast.error(`Error al guardar el usuario: ${error.response?.data?.message || 'Error en la creación del usuario'}`);
             }
+        } finally {
+            setLoading(false);
         }
     };
-
+    
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -141,7 +155,7 @@ export function CreateUsuario({ onSuccess }) {
                         Por favor, completa los campos necesarios para registrar un nuevo usuario.
                     </DialogDescription>
                 </DialogHeader>
-                
+
                 <div className="grid gap-4 py-4 grid-cols-2">
                     {/* Username */}
                     <div className="grid items-center gap-4">
@@ -151,15 +165,16 @@ export function CreateUsuario({ onSuccess }) {
                             name="username"
                             value={formData.username}
                             onChange={(e) => handleChange("username", e.target.value)}
+                            className={errors.username ? "border-red-500" : ""}
                         />
                         {errors.username && (
-                            <div className="text-red-500 mt-1 text-sm">{errors.username[0]}</div>
+                            <div className="text-red-500 mt-1 text-sm">{errors.username}</div>
                         )}
                     </div>
-    
+
                     {/* Empleado Selection */}
                     <div className="grid items-center gap-4">
-                        <Label htmlFor="empleado_id">Empleado sin usuario</Label>
+                        <Label htmlFor="empleado_id">Empleado Disponible</Label>
                         <Select name="empleado_id" onValueChange={handleEmpleadoChange}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Seleccionar" />
@@ -173,7 +188,7 @@ export function CreateUsuario({ onSuccess }) {
                             </SelectContent>
                         </Select>
                     </div>
-    
+
                     {/* Nombre del empleado */}
                     <div className="grid items-center gap-4">
                         <Label htmlFor="persona">Nombre del empleado</Label>
@@ -184,7 +199,7 @@ export function CreateUsuario({ onSuccess }) {
                             readOnly
                         />
                     </div>
-    
+
                     {/* Email */}
                     <div className="grid items-center gap-4">
                         <Label htmlFor="email">Email</Label>
@@ -196,7 +211,7 @@ export function CreateUsuario({ onSuccess }) {
                             readOnly
                         />
                     </div>
-    
+
                     {/* Password */}
                     <div className="grid items-center gap-4">
                         <Label htmlFor="password">Password</Label>
@@ -208,7 +223,7 @@ export function CreateUsuario({ onSuccess }) {
                             onChange={(e) => handleChange("password", e.target.value)}
                         />
                     </div>
-    
+
                     {/* Fecha Expiración */}
                     <div className="grid items-center gap-4">
                         <Label htmlFor="fecha_expiracion">Fecha Expiracion</Label>
@@ -220,10 +235,10 @@ export function CreateUsuario({ onSuccess }) {
                             onChange={(e) => handleChange("fecha_expiracion", e.target.value)}
                         />
                     </div>
-    
+
                     {/* Is Admin */}
                     <div className="grid items-center gap-4">
-                        <Label htmlFor="is_admin">Is Admin</Label>
+                        <Label htmlFor="is_admin">Administrador</Label>
                         <Select name="is_admin" onValueChange={(value) => handleChange("is_admin", value === "true")}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Seleccione si es admin" />
@@ -234,7 +249,7 @@ export function CreateUsuario({ onSuccess }) {
                             </SelectContent>
                         </Select>
                     </div>
-    
+
                     {/* Estado */}
                     <div className="grid items-center gap-4">
                         <Label htmlFor="estado">Estado</Label>
@@ -249,7 +264,7 @@ export function CreateUsuario({ onSuccess }) {
                         </Select>
                     </div>
                 </div>
-    
+
                 {/* Buttons */}
                 <div className="flex justify-end space-x-2">
                     <Button variant="outline" onClick={() => setOpen(false)}>

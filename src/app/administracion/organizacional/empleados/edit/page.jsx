@@ -35,6 +35,7 @@ export function EditEmpleado({ empleadoId, onEmpleadoActualizado }) {
     const [areas, setAreas] = useState([]);
     const [sedes, setSedes] = useState([]);
     const [isEmployeeLoading, setIsEmployeeLoading] = useState(false);
+    const [originalData, setOriginalData] = useState({});
 
     const [formData, setFormData] = useState({
         nombre_1: "",
@@ -116,6 +117,7 @@ export function EditEmpleado({ empleadoId, onEmpleadoActualizado }) {
 
             if (cache[empleadoId] && !background) {
                 setFormData(cache[empleadoId]);
+                setOriginalData(cache[empleadoId]); // Almacenar datos originales
                 return;
             }
 
@@ -126,9 +128,17 @@ export function EditEmpleado({ empleadoId, onEmpleadoActualizado }) {
             });
 
             const employeeData = response.data.data || response.data;
+            // Formatear IDs a strings
+            const formattedEmployeeData = {
+                ...employeeData,
+                cargo_id: employeeData.cargo_id?.toString(),
+                sede_id: employeeData.sede_id?.toString(),
+                area_id: employeeData.area_id?.toString(),
+            };
             setCache(prev => ({ ...prev, [empleadoId]: employeeData }));
 
             if (!background) setFormData(employeeData);
+            setOriginalData(formattedEmployeeData); // Almacenar datos originales formateado
         } catch (err) {
             if (!axios.isCancel(err)) {
                 console.error("Error fetching employee:", err);
@@ -164,26 +174,85 @@ export function EditEmpleado({ empleadoId, onEmpleadoActualizado }) {
     };
 
     const handleSubmit = async () => {
+        // Verificar cambios
+        const hasChanges = Object.keys(formData).some(
+            key => formData[key] !== originalData[key]
+        );
+
+        if (!hasChanges) {
+            toast.info('No se han hecho cambios');
+            return;
+        }
+
+        // Validar si el número de identificación es único
+        const esUnico = await validarNumeroIdentificacionUnico(formData.numero_identificacion);
+        if (!esUnico) {
+            setErrors(prev => ({ ...prev, numero_identificacion: "Este número de identificación ya está registrado para otro empleado." }));
+            toast.error("El número de identificación ya está registrado para otro empleado.");
+            return;
+        }
+
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
             await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/administracion/empleados/${empleadoId}`, formData, {
-                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
             });
 
             toast.success("Empleado actualizado exitosamente");
-            onEmpleadoActualizado && onEmpleadoActualizado(); // Actualiza la lista en el padre
+            onEmpleadoActualizado?.();
             setCache(prev => ({ ...prev, [empleadoId]: formData }));
             setOpen(false);
         } catch (error) {
-            toast.error(`Error al Actualizar: ${error.response?.data?.message || error.message}`);
-            if (error.response?.data?.errors) {
-                setErrors(error.response.data.errors);
+            // Manejar errores de duplicados
+            if (error.response?.status === 422) {
+                // Manejar errores de validación de Laravel
+                const validationErrors = error.response.data.errors;
+                setErrors(validationErrors);
+
+                // Mostrar mensaje para número de identificación duplicado
+                if (validationErrors.numero_identificacion) {
+                    toast.error("Este número de identificación ya está registrado para otro empleado");
+                }
+
+                // Mostrar otros errores de validación
+                Object.entries(validationErrors).forEach(([field, messages]) => {
+                    if (field !== 'numero_identificacion') {
+                        toast.error(messages[0]);
+                    }
+                });
+            } else {
+                toast.error(`Error al actualizar: ${error.response?.data?.message || 'Error en la actualización'}`);
             }
         } finally {
             setLoading(false);
         }
     };
+
+
+
+    async function validarNumeroIdentificacionUnico(numero_identificacion) {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/administracion/empleados/${empleadoId}`, {
+                numero_identificacion
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            return response.data.existe; // Devuelve si el número de identificación ya existe
+        } catch (error) {
+            console.error("Error al validar número de identificación:", error);
+            return false;
+        }
+    }
+
 
     return (
         <Dialog open={open} onOpenChange={(isOpen) => {
@@ -266,6 +335,7 @@ export function EditEmpleado({ empleadoId, onEmpleadoActualizado }) {
                         />
                         {errors.numero_identificacion && <span className="text-red-500 text-sm">{errors.numero_identificacion}</span>}
                     </div>
+
                     <div className="grid items-center gap-4">
                         <Label htmlFor="correo">Correo *</Label>
                         <Input

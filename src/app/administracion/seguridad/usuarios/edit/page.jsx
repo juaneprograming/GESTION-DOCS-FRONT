@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from 'sonner';
 
 export function EditUsuario({ userId , onSuccess }) {
   const [open, setOpen] = useState(false);
@@ -96,60 +97,73 @@ export function EditUsuario({ userId , onSuccess }) {
     setLoading(true);
     setErrors({}); // Limpiar errores anteriores
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("Token no encontrado. Por favor, inicia sesión.");
-      }
-  
-      // Preparamos los datos según las validaciones del backend
-      const payload = {
-        username: formData.username,
-        email: formData.email,
-        is_admin: formData.is_admin === "true",
-        estado: formData.estado === "true",
-        fecha_expiracion: formData.fecha_expiracion || null, // Puede ser `null` si es opcional
-      };
-  
-      // Llamamos al endpoint para actualizar el usuario
-      const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}/administracion/users/${userId}`,
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+        const token = localStorage.getItem("token");
+        if (!token) {
+            throw new Error("Token no encontrado. Por favor, inicia sesión.");
         }
-      );
-  
-      if (onSuccess) onSuccess(); // Ejecutar después de éxito
-      setOpen(false);
-    } catch (error) {
-      console.error("Error updating user:", error);
-  
-      if (error.response?.data?.errors) {
-        // Mostrar errores de validación específicos desde el backend
-        setErrors(error.response.data.errors);
-      } else {
-        // Manejo genérico de errores
-        setErrors((prev) => ({
-          ...prev,
-          general:
-            error.response?.data?.message ||
-            "Ocurrió un error inesperado al actualizar el usuario.",
-        }));
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-  
 
-  const handlePrefetch = useCallback(() => {
-    if (!isFetchingUser) {
-      fetchUserData();
+        // Preparamos los datos según las validaciones del backend
+        const payload = {
+            username: formData.username,
+            email: formData.email,
+            is_admin: formData.is_admin === "true",
+            estado: formData.estado === "true",
+            fecha_expiracion: formData.fecha_expiracion || null, // Puede ser `null` si es opcional
+        };
+
+        // Llamamos al endpoint para actualizar el usuario
+        await axios.put(
+            `${process.env.NEXT_PUBLIC_API_URL}/administracion/users/${userId}`,
+            payload,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+
+        toast.success("Usuario actualizado exitosamente");
+        if (onSuccess) onSuccess(); // Ejecutar después de éxito
+        setOpen(false);
+    } catch (error) {
+        console.error("Error al actualizar el usuario:", error);
+
+        if (error.response?.data?.errors) {
+            const validationErrors = error.response.data.errors;
+            setErrors(validationErrors);
+
+            // Mostrar mensaje para username duplicado
+            if (validationErrors.username) {
+                toast.error("Este nombre de usuario ya está registrado.");
+            }
+
+            // Mostrar otros errores de validación
+            Object.entries(validationErrors).forEach(([field, messages]) => {
+                if (field !== 'username') {
+                    toast.error(messages[0]);
+                }
+            });
+        } else {
+            setErrors((prev) => ({
+                ...prev,
+                general:
+                    error.response?.data?.message ||
+                    "Ocurrió un error inesperado al actualizar el usuario.",
+            }));
+            toast.error("Error al actualizar el usuario.");
+        }
+    } finally {
+        setLoading(false);
     }
-  }, [isFetchingUser, fetchUserData]);
+};
+
+
+const handlePrefetch = useCallback(() => {
+    if (!isFetchingUser) {
+        fetchUserData();
+    }
+}, [isFetchingUser, fetchUserData]);
 
   return (
     <Dialog

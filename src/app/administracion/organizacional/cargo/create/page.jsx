@@ -14,10 +14,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import axios from "axios";
+import { toast } from "sonner";
 
 export function CreateCargo({ onSuccess }) {
     const [open, setOpen] = useState(false);
     const [errors, setErrors] = useState({});
+    const [loading, setLoading] = useState(false);
 
     const [formData, setFormData] = useState({
         nombre: "",
@@ -29,35 +31,37 @@ export function CreateCargo({ onSuccess }) {
     };
 
     const handleSubmit = async () => {
+        setLoading(true);
         try {
             const token = localStorage.getItem("token");
-            const response = await axios.post(
+            await axios.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/administracion/cargos`,
                 formData,
                 {
                     headers: {
                         'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    withCredentials: true
+                        'Content-Type': 'application/json'
+                    }
                 }
             );
             
+            toast.success("Cargo creado exitosamente");
             setOpen(false);
-            setFormData({
-                nombre: "",
-                descripcion: "",
-            });
-            setErrors({});
-            if (onSuccess) onSuccess(); // Ejecutar después de éxito
-            setOpen(false);
+            setFormData({ nombre: "", descripcion: "" });
+            if (onSuccess) onSuccess();
+
         } catch (error) {
             if (error.response?.data?.errors) {
                 setErrors(error.response.data.errors);
+                // Mostrar errores en toast
+                Object.values(error.response.data.errors).forEach(errorMessages => {
+                    errorMessages.forEach(message => toast.error(message));
+                });
             } else {
-                console.error('Error creating cargo:', error);
+                toast.error(error.response?.data?.message || "Error al crear el cargo");
             }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -80,7 +84,7 @@ export function CreateCargo({ onSuccess }) {
                 <div className="grid gap-4 py-4">
                     {/* Nombre */}
                     <div className="grid items-center gap-4">
-                        <Label htmlFor="nombre">Nombre del cargo</Label>
+                        <Label htmlFor="nombre">Nombre del cargo *</Label>
                         <Input
                             id="nombre"
                             value={formData.nombre}
@@ -93,7 +97,7 @@ export function CreateCargo({ onSuccess }) {
 
                     {/* Descripción */}
                     <div className="grid items-center gap-4">
-                        <Label htmlFor="descripcion">Descripción</Label>
+                        <Label htmlFor="descripcion">Descripción *</Label>
                         <Input
                             id="descripcion"
                             value={formData.descripcion}

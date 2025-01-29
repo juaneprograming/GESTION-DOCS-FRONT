@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import axios from "axios"
+import { Edit } from "lucide-react"
 
 export function GestorForm({ isEditing = false }) {
   const searchParams = useSearchParams()
@@ -74,10 +75,11 @@ export function GestorForm({ isEditing = false }) {
   return (
     <Card>
     <CardContent className="p-6">
-      <div className="flex justify-end mb-4">
         <Button variant="outline" onClick={handleSave}>
-          {isEditing ? "Guardar Cambios" : "Editar Información"}
+          {/* {isEditing ? "Guardar Cambios" : "Editar Información"} */}
+          <Edit className="h-4 w-4" />
         </Button>
+      <div className="flex justify-end mb-4">
       </div>
       <div className="space-y-6">
         {/* Grupo de Identificación */}

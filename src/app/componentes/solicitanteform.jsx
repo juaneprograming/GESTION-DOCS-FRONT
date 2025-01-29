@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import axios from "axios"
+import { Edit } from "lucide-react"
 
 export function SolicitanteForm({ isEditing = false }) {
   const searchParams = useSearchParams()
@@ -22,7 +23,7 @@ export function SolicitanteForm({ isEditing = false }) {
             Authorization: `Bearer ${token}`,
           },
         })
-        
+
         setSolicitanteData({
           tipo_identificacion_solicitante: response.data.tipo_identificacion_solicitante,
           identificacion_solicitante: response.data.identificacion_solicitante,
@@ -78,31 +79,36 @@ export function SolicitanteForm({ isEditing = false }) {
 
   return (
     <Card>
+      {/* <Button variant="ghost" size="icon">
+        <Edit className="h-4 w-4" />
+        <span className="sr-only">Editar</span>
+      </Button> */}
       <CardContent className="p-6">
-        <div className="flex justify-end mb-4">
-          <Button variant="outline" onClick={handleSave}>
-            {isEditing ? "Guardar Cambios" : "Editar Información"}
+        <Button variant="outline" onClick={handleSave}>
+            {/* {isEditing ? "Guardar Cambios" : "Editar Información"} */}
+            <Edit className="h-4 w-4" />
           </Button>
+        <div className="flex justify-end mb-4">
         </div>
         <div className="space-y-6">
           {/* Grupo de Identificación */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="tipo_identificacion_solicitante">Tipo de Identificación</Label>
-              <Input 
-                id="tipo_identificacion_solicitante" 
+              <Input
+                id="tipo_identificacion_solicitante"
                 disabled={!isEditing}
                 value={solicitanteData?.tipo_identificacion_solicitante || ''}
-                onChange={(e) => setSolicitanteData({...solicitanteData, tipo_identificacion_solicitante: e.target.value})}
+                onChange={(e) => setSolicitanteData({ ...solicitanteData, tipo_identificacion_solicitante: e.target.value })}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="identificacion_solicitante">Número de Identificación</Label>
-              <Input 
-                id="identificacion_solicitante" 
+              <Input
+                id="identificacion_solicitante"
                 disabled={!isEditing}
                 value={solicitanteData?.identificacion_solicitante || ''}
-                onChange={(e) => setSolicitanteData({...solicitanteData, identificacion_solicitante: e.target.value})}
+                onChange={(e) => setSolicitanteData({ ...solicitanteData, identificacion_solicitante: e.target.value })}
               />
             </div>
           </div>
@@ -111,20 +117,20 @@ export function SolicitanteForm({ isEditing = false }) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="primer_nombre_solicitante">Primer Nombre</Label>
-              <Input 
-                id="primer_nombre_solicitante" 
+              <Input
+                id="primer_nombre_solicitante"
                 disabled={!isEditing}
                 value={solicitanteData?.primer_nombre_solicitante || ''}
-                onChange={(e) => setSolicitanteData({...solicitanteData, primer_nombre_solicitante: e.target.value})}
+                onChange={(e) => setSolicitanteData({ ...solicitanteData, primer_nombre_solicitante: e.target.value })}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="segundo_nombre_solicitante">Segundo Nombre</Label>
-              <Input 
-                id="segundo_nombre_solicitante" 
+              <Input
+                id="segundo_nombre_solicitante"
                 disabled={!isEditing}
                 value={solicitanteData?.segundo_nombre_solicitante || ''}
-                onChange={(e) => setSolicitanteData({...solicitanteData, segundo_nombre_solicitante: e.target.value})}
+                onChange={(e) => setSolicitanteData({ ...solicitanteData, segundo_nombre_solicitante: e.target.value })}
               />
             </div>
           </div>
@@ -133,20 +139,20 @@ export function SolicitanteForm({ isEditing = false }) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="primer_apellido_solicitante">Primer Apellido</Label>
-              <Input 
-                id="primer_apellido_solicitante" 
+              <Input
+                id="primer_apellido_solicitante"
                 disabled={!isEditing}
                 value={solicitanteData?.primer_apellido_solicitante || ''}
-                onChange={(e) => setSolicitanteData({...solicitanteData, primer_apellido_solicitante: e.target.value})}
+                onChange={(e) => setSolicitanteData({ ...solicitanteData, primer_apellido_solicitante: e.target.value })}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="segundo_apellido_solicitante">Segundo Apellido</Label>
-              <Input 
-                id="segundo_apellido_solicitante" 
+              <Input
+                id="segundo_apellido_solicitante"
                 disabled={!isEditing}
                 value={solicitanteData?.segundo_apellido_solicitante || ''}
-                onChange={(e) => setSolicitanteData({...solicitanteData, segundo_apellido_solicitante: e.target.value})}
+                onChange={(e) => setSolicitanteData({ ...solicitanteData, segundo_apellido_solicitante: e.target.value })}
               />
             </div>
           </div>
@@ -155,21 +161,21 @@ export function SolicitanteForm({ isEditing = false }) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="direccion">Dirección Notificación</Label>
-              <Input 
-                id="direccion" 
+              <Input
+                id="direccion"
                 disabled={!isEditing}
                 value={solicitanteData?.direccion || ''}
-                onChange={(e) => setSolicitanteData({...solicitanteData, direccion: e.target.value})}
+                onChange={(e) => setSolicitanteData({ ...solicitanteData, direccion: e.target.value })}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input 
-                id="email" 
+              <Input
+                id="email"
                 type="email"
                 disabled={!isEditing}
                 value={solicitanteData?.email || ''}
-                onChange={(e) => setSolicitanteData({...solicitanteData, email: e.target.value})}
+                onChange={(e) => setSolicitanteData({ ...solicitanteData, email: e.target.value })}
               />
             </div>
           </div>
@@ -178,20 +184,20 @@ export function SolicitanteForm({ isEditing = false }) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="departamento">Departamento Notificación</Label>
-              <Input 
-                id="departamento" 
+              <Input
+                id="departamento"
                 disabled={!isEditing}
                 value={solicitanteData?.departamento || ''}
-                onChange={(e) => setSolicitanteData({...solicitanteData, departamento: e.target.value})}
+                onChange={(e) => setSolicitanteData({ ...solicitanteData, departamento: e.target.value })}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="municipio">Municipio Notificación</Label>
-              <Input 
-                id="municipio" 
+              <Input
+                id="municipio"
                 disabled={!isEditing}
                 value={solicitanteData?.municipio || ''}
-                onChange={(e) => setSolicitanteData({...solicitanteData, municipio: e.target.value})}
+                onChange={(e) => setSolicitanteData({ ...solicitanteData, municipio: e.target.value })}
               />
             </div>
           </div>
@@ -200,20 +206,20 @@ export function SolicitanteForm({ isEditing = false }) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="telefono">Teléfono</Label>
-              <Input 
-                id="telefono" 
+              <Input
+                id="telefono"
                 disabled={!isEditing}
                 value={solicitanteData?.telefono || ''}
-                onChange={(e) => setSolicitanteData({...solicitanteData, telefono: e.target.value})}
+                onChange={(e) => setSolicitanteData({ ...solicitanteData, telefono: e.target.value })}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="celular">Celular</Label>
-              <Input 
-                id="celular" 
+              <Input
+                id="celular"
                 disabled={!isEditing}
                 value={solicitanteData?.celular || ''}
-                onChange={(e) => setSolicitanteData({...solicitanteData, celular: e.target.value})}
+                onChange={(e) => setSolicitanteData({ ...solicitanteData, celular: e.target.value })}
               />
             </div>
           </div>

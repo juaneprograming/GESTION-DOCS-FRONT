@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import axios from "axios";
+import { toast } from "sonner";
 
 export function EditCargo({ cargoId, onSuccess }) {
     const [open, setOpen] = useState(false);
@@ -81,40 +82,41 @@ export function EditCargo({ cargoId, onSuccess }) {
         setErrors({});
         try {
             const token = localStorage.getItem("token");
-            if (!token) {
-                throw new Error("Token no encontrado");
-            }
+            if (!token) throw new Error("Token no encontrado");
 
-            // Preparar payload
             const payload = {
                 nombre: formData.nombre,
                 descripcion: formData.descripcion
             };
 
-            const response = await axios.put(
+            await axios.put(
                 `${process.env.NEXT_PUBLIC_API_URL}/administracion/cargos/${cargoId}`,
                 payload,
                 {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json"
-                    }
+                    headers: { Authorization: `Bearer ${token}` }
                 }
             );
 
-            if (onSuccess) onSuccess(); // Ejecutar después de éxito
+            toast.success("Cargo actualizado exitosamente"); // Toast de éxito
+            if (onSuccess) onSuccess();
             setOpen(false);
+
         } catch (error) {
             console.error("Error updating cargo:", error);
-
+            
+            // Manejo de errores de validación
             if (error.response?.data?.errors) {
-                setErrors(error.response.data.errors);
+                const validationErrors = error.response.data.errors;
+                setErrors(validationErrors);
+                
+                // Mostrar toast para error de nombre duplicado
+                if (validationErrors.nombre) {
+                    toast.error(validationErrors.nombre[0]); 
+                }
+                
             } else {
-                setErrors(prev => ({
-                    ...prev,
-                    general: error.response?.data?.message ||
-                        "Error al actualizar el cargo"
-                }));
+                const errorMsg = error.response?.data?.message || "Error al actualizar el cargo";
+                toast.error(errorMsg);
             }
         } finally {
             setLoading(false);

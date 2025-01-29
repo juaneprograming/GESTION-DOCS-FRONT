@@ -21,6 +21,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
 
 
 export function EditPerfil({ profileId, onSuccess }) {
@@ -86,52 +87,41 @@ export function EditPerfil({ profileId, onSuccess }) {
     };
 
     const handleSubmit = async () => {
-        setLoading(true);
+        setLoading(true); // Estado: "Guardando..."
         setErrors({});
         try {
             const token = localStorage.getItem("token");
-            if (!token) {
-                throw new Error("Token no encontrado. Inicia sesión nuevamente.");
-            }
-
             const payload = {
                 name: formData.name,
                 descripcion: formData.descripcion,
                 estado: formData.estado === "true",
             };
-
-            const response = await axios.put(
+    
+            await axios.put(
                 `${process.env.NEXT_PUBLIC_API_URL}/administracion/roles/${profileId}`,
                 payload,
                 {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
+                    headers: { Authorization: `Bearer ${token}` },
                 }
             );
-
-            if (onSuccess) onSuccess()
+    
+            toast.success("Perfil actualizado exitosamente");
             setOpen(false);
+            if (onSuccess) onSuccess();
+    
         } catch (error) {
-            console.error("Error updating profile:", error);
-
-            if (error.response?.data?.errors) {
-                // Mostrar errores de validación específicos desde el backend
-                setErrors(error.response.data.errors);
+            // Manejar error de nombre duplicado
+            if (error.response?.status === 422) {
+                toast.error("Este nombre ya está en uso");
+                setErrors({ name: "Este nombre ya está en uso" });
             } else {
-                // Manejo genérico de errores
-                setErrors((prev) => ({
-                    ...prev,
-                    general:
-                        error.response?.data?.message ||
-                        "Ocurrió un error inesperado al actualizar el perfil.",
-                }));
+                toast.error("Error al actualizar el perfil");
             }
         } finally {
-            setLoading(false);
+            setLoading(false); // Restablecer siempre el estado
         }
     };
+    
 
     const handlePrefetch = useCallback(() => {
         if (!isFetchingProfile) {
