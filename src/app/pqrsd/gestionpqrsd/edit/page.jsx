@@ -7,7 +7,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Printer, Download, MessageSquarePlus, Edit, Plus } from "lucide-react"
 import { ActionMenu } from "../../../componentes/actionmenu"
 import { GestorForm } from "../../../componentes/gestorform"
+import  Formdocument  from "../../../componentes/gestiondocument"
 import { SolicitanteForm } from "../../../componentes/solicitanteform"
+import  Observationsmanagment  from "../../../componentes/ObservationsManagement"
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip"
 import DashboardLayout from "@/app/dashboard/layout"
 import { useSearchParams } from "next/navigation"
@@ -77,7 +79,7 @@ export function EditGestion() {
                     </div>
 
                     {/* Status Indicators */}
-                    <div className="flex justify-center items-center gap-4 py-4">
+                    <div className="flex justify-center items-center gap-4 py-2">
                         <Tooltip>
                             <TooltipTrigger>
                                 <div className="flex items-center gap-2">
@@ -144,7 +146,7 @@ export function EditGestion() {
 
                     {/* Main Content */}
                     <Card>
-                        <CardContent className="p-6">
+                        <CardContent className="p-4">
                             <Tabs defaultValue="solicitud" className="w-full">
                                 <TabsList>
                                     <TabsTrigger value="solicitud">Numero de la Solicitud</TabsTrigger>
@@ -230,19 +232,13 @@ export function EditGestion() {
                                     </div>
                                     <SolicitanteForm />
                                 </TabsContent>
-                                <TabsContent value="documentos" className="mt-6">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <h2 className="text-xl font-semibold">Documentos</h2>
-                                        <ActionMenu />
-                                    </div>
-                                    <div className="p-4 text-center text-muted-foreground">Contenido de Documentos</div>
+                                <TabsContent value="documentos" className="mt-6">                                  
+                                    <Formdocument/>
                                 </TabsContent>
                                 <TabsContent value="observaciones" className="mt-6">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <h2 className="text-xl font-semibold">Observaciones</h2>
-                                        <ActionMenu />
-                                    </div>
-                                    <div className="p-4 text-center text-muted-foreground">Contenido de Observaciones</div>
+                                    
+                                        <Observationsmanagment/>
+                                   
                                 </TabsContent>
                             </Tabs>
                         </CardContent>
