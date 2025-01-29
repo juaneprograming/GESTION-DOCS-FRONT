@@ -1,33 +1,77 @@
-"use client"
+"use client";
 
-import DashboardLayout from "@/app/dashboard/layout"
-import { Breadcrumb } from "@/app/componentes/breadcrumb"
-import { useState } from "react"
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { ScrollArea } from "@/components/ui/scroll-area"
-
-// Simulación de datos de usuarios
-const users = Array.from({ length: 20 }, (_, i) => ({
-  id: i + 1,
-  name: `Usuario ${i + 1}`,
-}))
+import DashboardLayout from "@/app/dashboard/layout";
+import { Breadcrumb } from "@/app/componentes/breadcrumb";
+import { useState, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import axios from "axios"; // Importa axios para hacer solicitudes HTTP
 
 export default function CambiarContraseña() {
-  const [selectedUser, setSelectedUser] = useState(null)
-  const [newPassword, setNewPassword] = useState("")
+  const [users, setUsers] = useState([]); // Lista de usuarios desde la API
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [newPassword, setNewPassword] = useState(""); // Solo la nueva contraseña
 
-  const handleUserSelect = (userName) => {
-    setSelectedUser(userName)
-    setNewPassword("")
-  }
+  // Obtener la lista de usuarios al cargar el componente
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const token = localStorage.getItem("token");
 
-  const handlePasswordChange = () => {
-    // Aquí iría la lógica para cambiar la contraseña
-    console.log(`Cambiando contraseña para ${selectedUser} a: ${newPassword}`)
-    setNewPassword("")
-  }
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/passwordReset`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setUsers(response.data.data);  // Asume que la respuesta tiene un formato { success, message, data }
+
+      } catch (error) {
+        console.error("Error al obtener la lista de usuarios:", error);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  // Manejar la selección de un usuario
+  const handleUserSelect = (userId) => {
+    const user = users.find((user) => user.id === userId);
+    setSelectedUser(user);
+    setNewPassword(""); // Resetea el campo de la nueva contraseña
+  };
+
+  // Manejar el cambio de contraseña
+  const handlePasswordChange = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      // Eliminar user_id del cuerpo de la solicitud
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/administracion/passwordReset/${selectedUser.id}`,
+        {
+          password: newPassword,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Token de autorización en el encabezado
+          },
+        }
+      );
+
+      if (response.data.success) {
+        alert("Contraseña actualizada exitosamente.");
+        setNewPassword(""); // Resetea el campo de la nueva contraseña
+      } else {
+        alert("Error al actualizar la contraseña.");
+      }
+    } catch (error) {
+      console.error("Error al actualizar la contraseña:", error);
+      alert("Ocurrió un error al actualizar la contraseña.");
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -36,17 +80,8 @@ export default function CambiarContraseña() {
         <div className="flex justify-between items-center">
           <div className="space-y-1">
             <h2 className="text-2xl font-semibold tracking-tight">Cambiar Contraseña</h2>
-            <Breadcrumb>
-              {/* <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink href="#">Administración</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbLink href="#">Cargos</BreadcrumbLink>
-                </BreadcrumbItem>
-              </BreadcrumbList> */}
-            </Breadcrumb>
+            {/* Puedes mantener el breadcrumb si lo necesitas */}
+            <Breadcrumb></Breadcrumb>
           </div>
         </div>
 
@@ -62,9 +97,9 @@ export default function CambiarContraseña() {
                       key={user.id}
                       variant="ghost"
                       className="w-full justify-start"
-                      onClick={() => handleUserSelect(user.name)}
+                      onClick={() => handleUserSelect(user.id)}
                     >
-                      {user.name}
+                      {user.username}
                     </Button>
                   ))}
                 </div>
@@ -79,7 +114,12 @@ export default function CambiarContraseña() {
                   <label htmlFor="selectedUser" className="block text-sm font-medium text-gray-700 mb-1">
                     Usuario Seleccionado
                   </label>
-                  <Input id="selectedUser" value={selectedUser || ""} readOnly className="bg-gray-100" />
+                  <Input
+                    id="selectedUser"
+                    value={selectedUser ? selectedUser.username : ""}
+                    readOnly
+                    className="bg-gray-100"
+                  />
                 </div>
                 <div>
                   <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-1">
@@ -93,7 +133,11 @@ export default function CambiarContraseña() {
                     placeholder="Ingrese la nueva contraseña"
                   />
                 </div>
-                <Button onClick={handlePasswordChange} disabled={!selectedUser || !newPassword} className="w-full">
+                <Button
+                  onClick={handlePasswordChange}
+                  disabled={!selectedUser || !newPassword} // Solo habilitar si hay usuario y contraseña
+                  className="w-full"
+                >
                   Cambiar Contraseña
                 </Button>
               </div>
@@ -102,6 +146,5 @@ export default function CambiarContraseña() {
         </Card>
       </div>
     </DashboardLayout>
-  )
+  );
 }
-
