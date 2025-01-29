@@ -7,10 +7,10 @@ import { Check } from "lucide-react"
 export const ProgressStepper = ({ steps, currentStep }) => {
   return (
     <nav aria-label="Progress">
-      <ol role="list" className="flex justify-center space-x-80">
+      <ol role="list" className="flex justify-left p-4 space-x-40">
         {steps.map((stepItem, stepIdx) => (
           <li key={stepItem.name} className={cn(stepIdx !== steps.length - 1 ? "pr-8 sm:pr-20" : "", "relative")}>
-            <div className="flex items-center">
+            <div className="flex items-center space-x-2"> {/* Alineación horizontal */}
               <div
                 className={cn(
                   "flex h-8 w-8 items-center justify-center rounded-full",
@@ -29,23 +29,26 @@ export const ProgressStepper = ({ steps, currentStep }) => {
                   </span>
                 )}
               </div>
-              {stepIdx !== steps.length - 1 && (
-                <div
-                  className={cn(
-                    "absolute left-0 top-4 -z-10 h-0.5 w-full",
-                    currentStep > stepItem.id ? "bg-primary" : "bg-gray-300",
-                  )}
-                />
-              )}
+              
+              {/* Nombre del paso al lado del número */}
+              <span
+                className={cn(
+                  "w-max text-sm",
+                  currentStep === stepItem.id ? "text-primary font-medium" : "text-gray-500",
+                )}
+              >
+                {stepItem.name}
+              </span>
             </div>
-            <span
-              className={cn(
-                "absolute left-0 top-10 w-max text-sm",
-                currentStep === stepItem.id ? "text-primary font-medium" : "text-gray-500",
-              )}
-            >
-              {stepItem.name}
-            </span>
+
+            {stepIdx !== steps.length - 1 && (
+              <div
+                className={cn(
+                  "absolute left-0 top-4 -z-10 h-0.5 w-full",
+                  currentStep > stepItem.id ? "bg-primary" : "bg-gray-300",
+                )}
+              />
+            )}
           </li>
         ))}
       </ol>

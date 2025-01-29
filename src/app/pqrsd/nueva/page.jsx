@@ -149,7 +149,7 @@ export default function MultiStepForm( {onSuccess} ) {
 
   return (
     <DashboardLayout>
-      <div className="p-6 space-y-6">
+      <div className="p-4 space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
           <div className="space-y-1">
@@ -159,7 +159,7 @@ export default function MultiStepForm( {onSuccess} ) {
         </div>
       </div>
 
-      <div className="mx-auto max-w-4xl px-4 py-8">
+      <div className="space-y-6 px-4">
         <ProgressStepper steps={steps} currentStep={step} />
 
         <div className="mt-16">

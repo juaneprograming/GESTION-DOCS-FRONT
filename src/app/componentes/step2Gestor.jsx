@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input"
 
 export const Step2Gestor = ({ formData, errors, onChange }) => {
     return (
-        <div className="w-full max-w-5xl mx-auto p-4">
+        <div className="w-full max-w-7xl mx-auto p-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Tipo de Identificación */}
                 <div className="space-y-2">

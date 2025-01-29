@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea"
 export const Step1Solicitud = ({ formData , errors, onChange }) => {
     return (
         <div className="w-full max-w-7xl mx-auto p-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                 {/* Tipo */}
                 <div className="space-y-2">
                     <Label htmlFor="tipo_solicitud" className="flex items-center gap-1">
