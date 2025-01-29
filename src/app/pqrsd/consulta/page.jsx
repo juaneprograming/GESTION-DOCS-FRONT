@@ -24,7 +24,7 @@ const Consulta = () => {
     const fetchPQRSD = async () => {
       try {
         const token = localStorage.getItem("token")
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/nuevapqrsd`, {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pqrsd`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -56,8 +56,8 @@ const Consulta = () => {
 
   // Filtrado seguro con verificación de array
   const filteredPQRSD = Array.isArray(pqrsdList)
-    ? pqrsdList.filter(nueva_pqrsd =>
-      Object.values(nueva_pqrsd).some(value =>
+    ? pqrsdList.filter(pqrsd =>
+      Object.values(pqrsd).some(value =>
         String(value).toLowerCase().includes(searchTerm.toLowerCase())
       )
     )
@@ -137,23 +137,23 @@ const Consulta = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredPQRSD.map((nueva_pqrsd) => (
-                  <TableRow key={nueva_pqrsd.id}>
-                    <TableCell>{ nueva_pqrsd.identificacion_gestor}
+                filteredPQRSD.map((pqrsd) => (
+                  <TableRow key={pqrsd.id}>
+                    <TableCell>{ pqrsd.identificacion_gestor}
                     </TableCell>
-                    <TableCell>{nueva_pqrsd.tipo}</TableCell>
-                    <TableCell>{nueva_pqrsd.motivo}</TableCell>
+                    <TableCell>{pqrsd.tipo}</TableCell>
+                    <TableCell>{pqrsd.motivo}</TableCell>
                     <TableCell>
-                      {new Date(nueva_pqrsd.created_at).toLocaleDateString()}
+                      {new Date(pqrsd.created_at).toLocaleDateString()}
                     </TableCell>
                     <TableCell>
-                      {getStatusBadge(nueva_pqrsd.estado)}
+                      {getStatusBadge(pqrsd.estado)}
                     </TableCell>
                     <TableCell className="text-right">
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => router.push(`/pqrsd/consulta/informacionpqrsd?id=${nueva_pqrsd.id}`)}
+                        onClick={() => router.push(`/pqrsd/consulta/informacionpqrsd?id=${pqrsd.id}`)}
                       >
                         Detalle
                       </Button>

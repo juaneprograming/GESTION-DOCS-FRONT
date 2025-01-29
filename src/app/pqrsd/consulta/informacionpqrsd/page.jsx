@@ -26,7 +26,7 @@ export function EditGestion() {
         const fetchPQRSD = async () => {
           try {
             const token = localStorage.getItem("token")
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/nuevapqrsd/${id}`, {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pqrsd/${id}`, {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
@@ -69,7 +69,7 @@ export function EditGestion() {
             <TooltipProvider>
                 <div className="container mx-auto p-6 space-y-6">
                     <div className="flex justify-between items-center">
-                        <h1 className="text-2xl font-bold">GESTIÓN PQRSD</h1>
+                        <h1 className="text-2xl font-bold">CONSULTA PQRSD</h1>
                         <div className="flex items-center gap-2">
                             <span>Gestión de PQRSD</span>
                             <span>›</span>
@@ -174,7 +174,7 @@ export function EditGestion() {
                                             </div>
                                             <div>
                                                 <label className="text-sm font-medium">Tipo</label>
-                                                <Input value={pqrsdData.tipo || ''} readOnly />
+                                                <Input value={pqrsdData.tipo_solicitud || ''} readOnly />
                                             </div>
                                             <div>
                                                 <label className="text-sm font-medium">Estado</label>

@@ -17,7 +17,7 @@ export function SolicitanteForm({ isEditing = false }) {
     const fetchSolicitanteData = async () => {
       try {
         const token = localStorage.getItem("token")
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/nuevapqrsd/${id}`, {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pqrsd/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -55,7 +55,7 @@ export function SolicitanteForm({ isEditing = false }) {
     try {
       const token = localStorage.getItem("token")
       await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}/gestionpqrsd/${id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/pqrsd/${id}`,
         {
           form_type: 'solicitantes',
           ...solicitanteData

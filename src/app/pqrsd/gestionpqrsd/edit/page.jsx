@@ -27,7 +27,7 @@ export function EditGestion() {
         const fetchPQRSD = async () => {
           try {
             const token = localStorage.getItem("token")
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/nuevapqrsd/${id}`, {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pqrsd/${id}`, {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
@@ -183,7 +183,7 @@ export function EditGestion() {
                                             </div>
                                             <div>
                                                 <label className="text-sm font-medium">Tipo</label>
-                                                <Input value={pqrsdData.tipo || ''} readOnly />
+                                                <Input value={pqrsdData.tipo_solicitud || ''} readOnly />
                                             </div>
                                             <div>
                                                 <label className="text-sm font-medium">Estado</label>

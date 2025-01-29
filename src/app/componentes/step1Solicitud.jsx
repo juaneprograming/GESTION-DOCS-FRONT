@@ -10,16 +10,16 @@ export const Step1Solicitud = ({ formData , errors, onChange }) => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 {/* Tipo */}
                 <div className="space-y-2">
-                    <Label htmlFor="tipo" className="flex items-center gap-1">
+                    <Label htmlFor="tipo_solicitud" className="flex items-center gap-1">
                         Tipo
                         <span className="text-red-500">*</span>
                     </Label>
                     <Select 
-                        value={formData.tipo}  
-                        onValueChange={(value) => onChange('tipo', value)}
+                        value={formData.tipo_solicitud}  
+                        onValueChange={(value) => onChange('tipo_solicitud', value)}
                         required
                     >
-                        <SelectTrigger id="tipo" className={errors.tipo ? 'border-red-500' : ''}>
+                        <SelectTrigger id="tipo_solicitud" className={errors.tipo_solicitud ? 'border-red-500' : ''}>
                             <SelectValue placeholder="Seleccione" />
                         </SelectTrigger>
                         <SelectContent>
@@ -31,7 +31,7 @@ export const Step1Solicitud = ({ formData , errors, onChange }) => {
                             <SelectItem value="tramite">Trámite Ambiental</SelectItem>
                         </SelectContent>
                     </Select>
-                    {errors.tipo && <span className="text-red-500 text-sm">{errors.tipo}</span>}
+                    {errors.tipo && <span className="text-red-500 text-sm">{errors.tipo_solicitud}</span>}
                 </div>
 
                 {/* Motivo */}

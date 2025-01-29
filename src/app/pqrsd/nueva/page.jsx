@@ -16,7 +16,7 @@ export default function MultiStepForm( {onSuccess} ) {
 
   
     const [formData, setFormData] = useState({
-        tipo: "",
+      tipo_solicitud: "",
         motivo: "",
         medio_radicacion: "",
         medio_respuesta: "",
@@ -51,7 +51,7 @@ export default function MultiStepForm( {onSuccess} ) {
     ];
 
     const requiredFields = {
-        1: ['tipo', 'motivo', 'medio_radicacion', 'medio_respuesta', 'asunto_solicitud'],
+        1: ['tipo_solicitud', 'motivo', 'medio_radicacion', 'medio_respuesta', 'asunto_solicitud'],
         2: ['primer_nombre_gestor', 'primer_apellido_gestor'],
         3: ['tipo_solicitante', 'tipo_identificacion_solicitante', 'identificacion_solicitante', 
            'primer_nombre_solicitante', 'primer_apellido_solicitante', 'direccion',
@@ -94,7 +94,7 @@ export default function MultiStepForm( {onSuccess} ) {
         try {
             const token = localStorage.getItem("token");
             const response = await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/nuevapqrsd`,
+                `${process.env.NEXT_PUBLIC_API_URL}/pqrsd`,
                 formData,
                 {
                   headers: {
@@ -107,7 +107,7 @@ export default function MultiStepForm( {onSuccess} ) {
 
             if (response.data.success) {
                 setFormData({        
-                  tipo: "",
+                  tipo_solicitud: "",
                   motivo: "",
                   medio_radicacion: "",
                   medio_respuesta: "",

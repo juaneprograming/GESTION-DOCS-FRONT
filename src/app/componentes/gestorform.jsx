@@ -17,7 +17,7 @@ export function GestorForm({ isEditing = false }) {
     const fetchGestorData = async () => {
       try {
         const token = localStorage.getItem("token")
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/nuevapqrsd/${id}`, {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pqrsd/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
