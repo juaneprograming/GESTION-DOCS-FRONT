@@ -28,6 +28,7 @@ export function EditUsuario({ userId , onSuccess }) {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [isFetchingUser, setIsFetchingUser] = useState(false);
+  const [originalData, setOriginalData] = useState({}); // Nuevo estado para datos originales
 
   const [formData, setFormData] = useState({
     username: "",
@@ -55,7 +56,7 @@ export function EditUsuario({ userId , onSuccess }) {
       );
 
       const userData = response.data.data || response.data;
-      setFormData({
+      const initialData = {
         username: userData.username || "",
         persona: userData.persona || "",
         email: userData.email || "",
@@ -63,7 +64,11 @@ export function EditUsuario({ userId , onSuccess }) {
         fecha_expiracion: userData.fecha_expiracion || "",
         is_admin: userData.is_admin ? "true" : "false",
         estado: userData.estado ? "true" : "false",
-      });
+      };
+      
+      setFormData(initialData);
+      setOriginalData(initialData); // Almacenar datos originales
+
     } catch (err) {
       console.error("Error fetching user data:", err);
       setErrors((prev) => ({
@@ -75,7 +80,6 @@ export function EditUsuario({ userId , onSuccess }) {
     }
   }, [userId]);
 
-  // Actualizar datos al abrir el modal
   useEffect(() => {
     if (open) {
       fetchUserData();
@@ -95,75 +99,82 @@ export function EditUsuario({ userId , onSuccess }) {
 
   const handleSubmit = async () => {
     setLoading(true);
-    setErrors({}); // Limpiar errores anteriores
+    setErrors({});
+
+    // Comparar campos relevantes (excluyendo password)
+    const relevantFields = ['username', 'email', 'is_admin', 'estado', 'fecha_expiracion'];
+    const hasChanges = relevantFields.some(
+      field => formData[field] !== originalData[field]
+    );
+
+    if (!hasChanges) {
+      toast.info("No se han realizado cambios. Modifica algún campo para actualizar el usuario.");
+      setLoading(false);
+      return;
+    }
+
     try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            throw new Error("Token no encontrado. Por favor, inicia sesión.");
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Token no encontrado. Por favor, inicia sesión.");
+      }
+
+      const payload = {
+        username: formData.username,
+        email: formData.email,
+        is_admin: formData.is_admin === "true",
+        estado: formData.estado === "true",
+        fecha_expiracion: formData.fecha_expiracion || null,
+      };
+
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/administracion/users/${userId}`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
+      );
 
-        // Preparamos los datos según las validaciones del backend
-        const payload = {
-            username: formData.username,
-            email: formData.email,
-            is_admin: formData.is_admin === "true",
-            estado: formData.estado === "true",
-            fecha_expiracion: formData.fecha_expiracion || null, // Puede ser `null` si es opcional
-        };
-
-        // Llamamos al endpoint para actualizar el usuario
-        await axios.put(
-            `${process.env.NEXT_PUBLIC_API_URL}/administracion/users/${userId}`,
-            payload,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-            }
-        );
-
-        toast.success("Usuario actualizado exitosamente");
-        if (onSuccess) onSuccess(); // Ejecutar después de éxito
-        setOpen(false);
+      toast.success("Usuario actualizado exitosamente");
+      if (onSuccess) onSuccess();
+      setOpen(false);
     } catch (error) {
-        console.error("Error al actualizar el usuario:", error);
+      console.error("Error al actualizar el usuario:", error);
 
-        if (error.response?.data?.errors) {
-            const validationErrors = error.response.data.errors;
-            setErrors(validationErrors);
+      if (error.response?.data?.errors) {
+        const validationErrors = error.response.data.errors;
+        setErrors(validationErrors);
 
-            // Mostrar mensaje para username duplicado
-            if (validationErrors.username) {
-                toast.error("Este nombre de usuario ya está registrado.");
-            }
-
-            // Mostrar otros errores de validación
-            Object.entries(validationErrors).forEach(([field, messages]) => {
-                if (field !== 'username') {
-                    toast.error(messages[0]);
-                }
-            });
-        } else {
-            setErrors((prev) => ({
-                ...prev,
-                general:
-                    error.response?.data?.message ||
-                    "Ocurrió un error inesperado al actualizar el usuario.",
-            }));
-            toast.error("Error al actualizar el usuario.");
+        if (validationErrors.username) {
+          toast.error("Este nombre de usuario ya está registrado.");
         }
+
+        Object.entries(validationErrors).forEach(([field, messages]) => {
+          if (field !== 'username') {
+            toast.error(messages[0]);
+          }
+        });
+      } else {
+        setErrors((prev) => ({
+          ...prev,
+          general: error.response?.data?.message ||
+            "Ocurrió un error inesperado al actualizar el usuario.",
+        }));
+        toast.error("Error al actualizar el usuario.");
+      }
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
 
-
-const handlePrefetch = useCallback(() => {
+  const handlePrefetch = useCallback(() => {
     if (!isFetchingUser) {
-        fetchUserData();
+      fetchUserData();
     }
-}, [isFetchingUser, fetchUserData]);
+  }, [isFetchingUser, fetchUserData]);
 
   return (
     <Dialog
@@ -196,6 +207,7 @@ const handlePrefetch = useCallback(() => {
           <p className="text-center">Cargando datos...</p>
         ) : (
           <div className="grid gap-4 py-4 grid-cols-2">
+            {/* Campos del formulario (igual que antes) */}
             <div className="grid items-center gap-4">
               <Label htmlFor="username">Username *</Label>
               <Input

@@ -22,6 +22,16 @@ import {
 } from "@/components/ui/select";
 import axios from "axios";
 import { toast } from 'sonner';
+const initialFormData = {
+    username: "",
+    empleado_id: "",
+    persona: "",
+    email: "",
+    password: "",
+    fecha_expiracion: "",
+    is_admin: "",
+    estado: "",
+};
 
 
 export function CreateUsuario({ onSuccess }) {
@@ -30,17 +40,8 @@ export function CreateUsuario({ onSuccess }) {
     const [empleados, setEmpleados] = useState([]);
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
-
-    const [formData, setFormData] = useState({
-        username: "",
-        empleado_id: "",
-        persona: "",
-        email: "",
-        password: "",
-        fecha_expiracion: "",
-        is_admin: "",
-        estado: "",
-    });
+    const [searchTerm, setSearchTerm] = useState("");
+    const [formData, setFormData] = useState(initialFormData);
 
     useEffect(() => {
         const fetchRolesAndEmpleados = async () => {
@@ -68,8 +69,32 @@ export function CreateUsuario({ onSuccess }) {
         fetchRolesAndEmpleados();
     }, []);
 
+    // Función para reiniciar todos los estados
+    const resetStates = () => {
+        setFormData(initialFormData);
+        setErrors({});
+        setSearchTerm("");
+    };
+
+       // Modificar el manejador de cambio del modal
+       const handleOpenChange = (newOpen) => {
+        if (!newOpen) {
+            resetStates();
+        }
+        setOpen(newOpen);
+    };
+
+    
     const handleChange = (field, value) => {
         setFormData({ ...formData, [field]: value });
+        // Limpiar el error específico cuando el usuario empiece a escribir
+        if (errors[field]) {
+            setErrors((prev) => {
+                const newErrors = { ...prev };
+                delete newErrors[field];
+                return newErrors;
+            });
+        }
     };
 
     const handleEmpleadoChange = (value) => {
@@ -139,9 +164,15 @@ export function CreateUsuario({ onSuccess }) {
             setLoading(false);
         }
     };
+
+     // Filtrar empleados según el término de búsqueda
+     const filteredEmpleados = empleados.filter((empleado) => {
+        const fullName = `${empleado.nombre_1} ${empleado.nombre_2} ${empleado.apellido_1} ${empleado.apellido_2}`;
+        return fullName.toLowerCase().includes(searchTerm.toLowerCase());
+    });
     
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
                 <Button className="gap-2">
                     <Plus className="h-4 w-4" />
@@ -180,7 +211,19 @@ export function CreateUsuario({ onSuccess }) {
                                 <SelectValue placeholder="Seleccionar" />
                             </SelectTrigger>
                             <SelectContent>
-                                {empleados.map((empleado) => (
+                                {/* Campo de búsqueda */}
+                                <div className="p-2">
+                                    <Input
+                                        type="text"
+                                        placeholder="Buscar empleado"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="mb-2"
+                                    />
+                                </div>
+
+                                {/* Lista filtrada de empleados */}
+                                {filteredEmpleados.map((empleado) => (
                                     <SelectItem key={empleado.id} value={empleado.id}>
                                         {`${empleado.nombre_1} ${empleado.nombre_2} ${empleado.apellido_1} ${empleado.apellido_2}`}
                                     </SelectItem>
