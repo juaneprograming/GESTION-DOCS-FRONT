@@ -8,12 +8,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import axios from "axios";
+import { toast } from "sonner";
 
 export default function CambiarContraseña() {
   const [users, setUsers] = useState([]); // Lista de usuarios desde la API
   const [selectedUser, setSelectedUser] = useState(null);
   const [newPassword, setNewPassword] = useState(""); // Nueva contraseña
   const [errors, setErrors] = useState({}); // Errores de validación
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Obtener la lista de usuarios al cargar el componente
   useEffect(() => {
@@ -29,32 +31,29 @@ export default function CambiarContraseña() {
           }
         );
 
-        setUsers(response.data.data); // Asume que la respuesta tiene un formato { success, message, data }
+        setUsers(response.data.data);
       } catch (error) {
         console.error("Error al obtener la lista de usuarios:", error);
+        toast.error("Error al obtener la lista de usuarios.");
       }
     };
 
     fetchUsers();
   }, []);
 
-  // Manejar la selección de un usuario
   const handleUserSelect = (userId) => {
     const user = users.find((user) => user.id === userId);
     setSelectedUser(user);
-    setNewPassword(""); // Resetea el campo de la nueva contraseña
-    setErrors({}); // Limpia los errores anteriores
+    setNewPassword("");
+    setErrors({});
   };
 
-  // Manejar el cambio de contraseña
   const handlePasswordChange = async () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}/administracion/passwordReset/${selectedUser.id}`,
-        {
-          password: newPassword,
-        },
+        { password: newPassword },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -63,23 +62,28 @@ export default function CambiarContraseña() {
       );
 
       if (response.data.success) {
-        alert("Contraseña actualizada exitosamente.");
-        setNewPassword(""); // Resetea el campo de la nueva contraseña
-        setSelectedUser(null); // Resetea el usuario seleccionado
-        setErrors({}); // Limpia los errores
+        toast.success("Contraseña actualizada exitosamente.");
+        setNewPassword("");
+        setSelectedUser(null);
+        setErrors({});
       } else {
-        alert("Error al actualizar la contraseña.");
+        toast.error("Error al actualizar la contraseña.");
       }
     } catch (error) {
       if (error.response && error.response.status === 422) {
-        // Manejar errores de validación
         setErrors(error.response.data.errors);
+        toast.error("Error de validación. Verifique los campos.");
       } else {
         console.error("Error al actualizar la contraseña:", error);
-        alert("Ocurrió un error al actualizar la contraseña.");
+        toast.error("Ocurrió un error al actualizar la contraseña.");
       }
     }
   };
+
+  const filteredUsers = users.filter(user =>
+    user.persona.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.username.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <DashboardLayout>
@@ -97,9 +101,19 @@ export default function CambiarContraseña() {
             {/* Lista de usuarios (lado izquierdo) */}
             <div className="w-full border-r border-gray-200 p-4">
               <h2 className="text-lg font-semibold mb-4">Usuarios disponibles</h2>
+
+              {/* Campo de búsqueda */}
+              <Input
+                type="text"
+                placeholder="Buscar usuario..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="mb-3"
+              />
+
               <ScrollArea className="h-[420px]">
                 <div className="space-y-2">
-                  {users.map((user) => (
+                  {filteredUsers.map((user) => (
                     <Button
                       key={user.id}
                       variant="ghost"
