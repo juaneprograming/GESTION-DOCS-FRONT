@@ -103,7 +103,7 @@ export function CreateUsuario({ onSuccess }) {
             setFormData({
                 ...formData,
                 empleado_id: value,
-                persona: `${selectedEmpleado.nombre_1} ${selectedEmpleado.nombre_2} ${selectedEmpleado.apellido_1} ${selectedEmpleado.apellido_2}`,
+                persona: `${selectedEmpleado.nombre_1} ${selectedEmpleado.nombre_2 || ''} ${selectedEmpleado.apellido_1} ${selectedEmpleado.apellido_2}`.trim(),
                 email: selectedEmpleado.correo,
             });
         } else {
@@ -225,7 +225,7 @@ export function CreateUsuario({ onSuccess }) {
                                 {/* Lista filtrada de empleados */}
                                 {filteredEmpleados.map((empleado) => (
                                     <SelectItem key={empleado.id} value={empleado.id}>
-                                        {`${empleado.nombre_1} ${empleado.nombre_2} ${empleado.apellido_1} ${empleado.apellido_2}`}
+                                        {`${empleado.nombre_1} ${empleado.nombre_2 || ''} ${empleado.apellido_1} ${empleado.apellido_2}`}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
