@@ -20,14 +20,23 @@ export function CreateEntidad({ onEntidadCreado }) {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
 
-    const [formData, setFormData] = useState({
+    // Initial form state moved outside to allow easy reset
+    const initialFormData = {
         nombre: "",
         nit: "",
         direccion: "",
         mision: "",
         vision: "",
         logo: null,
-    });
+    };
+
+    const [formData, setFormData] = useState(initialFormData);
+
+    // Reset function to clear form and errors
+    const resetForm = () => {
+        setFormData(initialFormData);
+        setErrors({});
+    };
 
     const handleChange = (field, value) => {
         setFormData((prev) => ({
@@ -59,30 +68,20 @@ export function CreateEntidad({ onEntidadCreado }) {
                 }
             );
             
-            // Éxito: Cualquier código 2xx
             setOpen(false);
-            setFormData({
-                nombre: "",
-                nit: "",
-                direccion: "",
-                mision: "",
-                vision: "",
-            });
+            resetForm(); // Use reset function
             
             toast.success("Entidad creada exitosamente");
             
-            // Ejecutar callback y manejar posibles errores internos
             if (onEntidadCreado) {
                 try {
                     await onEntidadCreado();
                 } catch (error) {
                     console.error("Error en onEntidadCreado:", error);
-                    // Opcional: Mostrar toast específico si es necesario
                 }
             }
             
         } catch (error) {
-            // Manejo de errores de la petición
             const errorMessage = error.response?.data?.message || "Error desconocido al crear la entidad";
             toast.error(`Error al crear la entidad: ${errorMessage}`);
             
@@ -95,7 +94,16 @@ export function CreateEntidad({ onEntidadCreado }) {
     };
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog 
+            open={open} 
+            onOpenChange={(isOpen) => {
+                setOpen(isOpen);
+                // Reset form when modal is closed and reopened
+                if (!isOpen) {
+                    resetForm();
+                }
+            }}
+        >
             <DialogTrigger asChild>
                 <Button className="gap-2 bg-black hover:bg-gray-800 text-white">
                     <Plus className="h-4 w-4" />
@@ -111,56 +119,67 @@ export function CreateEntidad({ onEntidadCreado }) {
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4 grid-cols-2">
-                    <div className="grid items-center gap-4">
+                    {/* Nombre */}
+                    <div className="grid items-center gap-1">
                         <Label htmlFor="nombre">Nombre *</Label>
                         <Input
                             id="nombre"
                             value={formData.nombre}
                             onChange={(e) => handleChange("nombre", e.target.value)}
-                            className={errors.nombre ? "border-red-500" : ""}
+                            className={`min-h-[40px] ${errors.nombre ? "border-red-500" : ""}`}
                         />
-                        {errors.nombre && (
+                        {errors.nombre ? (
                             <span className="text-red-500 text-sm">{errors.nombre}</span>
-                        )}
+                        ) : <div className="h-5" />}
                     </div>
-                    <div className="grid items-center gap-4">
+
+                    {/* NIT */}
+                    <div className="grid items-center gap-1">
                         <Label htmlFor="nit">NIT *</Label>
                         <Input
                             id="nit"
                             value={formData.nit}
                             onChange={(e) => handleChange("nit", e.target.value)}
-                            className={errors.nit ? "border-red-500" : ""}
+                            className={`min-h-[40px] ${errors.nit ? "border-red-500" : ""}`}
                         />
-                        {errors.nit && (
+                        {errors.nit ? (
                             <span className="text-red-500 text-sm">{errors.nit}</span>
-                        )}
+                        ) : <div className="h-5" />}
                     </div>
-                    <div className="grid items-center gap-4 col-span-2">
+
+                    {/* Dirección */}
+                    <div className="grid items-center gap-1 col-span-2">
                         <Label htmlFor="direccion">Dirección *</Label>
                         <Input
                             id="direccion"
                             value={formData.direccion}
                             onChange={(e) => handleChange("direccion", e.target.value)}
-                            className={errors.direccion ? "border-red-500" : ""}
+                            className={`min-h-[40px] ${errors.direccion ? "border-red-500" : ""}`}
                         />
-                        {errors.direccion && (
+                        {errors.direccion ? (
                             <span className="text-red-500 text-sm">{errors.direccion}</span>
-                        )}
+                        ) : <div className="h-5" />}
                     </div>
-                    <div className="grid items-center gap-4 col-span-2">
+
+                    {/* Misión */}
+                    <div className="grid items-center gap-1 col-span-2">
                         <Label htmlFor="mision">Misión</Label>
                         <Textarea
                             id="mision"
                             value={formData.mision}
                             onChange={(e) => handleChange("mision", e.target.value)}
+                            className="min-h-[100px]"
                         />
                     </div>
-                    <div className="grid items-center gap-4 col-span-2">
+
+                    {/* Visión */}
+                    <div className="grid items-center gap-1 col-span-2">
                         <Label htmlFor="vision">Visión</Label>
                         <Textarea
                             id="vision"
                             value={formData.vision}
                             onChange={(e) => handleChange("vision", e.target.value)}
+                            className="min-h-[100px]"
                         />
                     </div>
                 </div>

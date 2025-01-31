@@ -32,7 +32,7 @@ export const Step3Solicitante = ({ formData, errors, onChange }) => {
 
                 {/* Tipo Identificación */}
                 <div className="space-y-2">
-                    <Label htmlFor="tipo_identificacion_solicitante" className="flex items-center gap-1">
+                    <Label htmlFor="tipo_identificacion_solicitante">
                         Tipo Identificación
                         <span className="text-red-500">*</span>
                     </Label>
@@ -61,7 +61,7 @@ export const Step3Solicitante = ({ formData, errors, onChange }) => {
 
                 {/* Identificación */}
                 <div className="space-y-2">
-                    <Label htmlFor="identificacion_solicitante" className="flex items-center gap-1">
+                    <Label htmlFor="identificacion_solicitante" >
                         Identificación
                         <span className="text-red-500">*</span>
                     </Label>
@@ -79,7 +79,7 @@ export const Step3Solicitante = ({ formData, errors, onChange }) => {
 
                 {/* Primer Nombre */}
                 <div className="space-y-2">
-                    <Label htmlFor="primer_nombre_solicitante" className="flex items-center gap-1">
+                    <Label htmlFor="primer_nombre_solicitante">
                         Primer Nombre
                         <span className="text-red-500">*</span>
                     </Label>
@@ -111,7 +111,7 @@ export const Step3Solicitante = ({ formData, errors, onChange }) => {
 
                 {/* Primer Apellido */}
                 <div className="space-y-2">
-                    <Label htmlFor="primer_apellido_solicitante" className="flex items-center gap-1">
+                    <Label htmlFor="primer_apellido_solicitante">
                         Primer Apellido
                         <span className="text-red-500">*</span>
                     </Label>
@@ -143,7 +143,7 @@ export const Step3Solicitante = ({ formData, errors, onChange }) => {
 
                 {/* Dirección */}
                 <div className="space-y-2">
-                    <Label htmlFor="direccion" className="flex items-center gap-1">
+                    <Label htmlFor="direccion">
                         Dirección
                         <span className="text-red-500">*</span>
                     </Label>

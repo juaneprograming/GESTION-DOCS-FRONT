@@ -10,6 +10,7 @@ import { Step1Solicitud } from "@/app/componentes/step1Solicitud"
 import { Step2Gestor } from "@/app/componentes/step2Gestor"
 import { Step3Solicitante } from "@/app/componentes/step3Solicitante"
 import { useRouter } from "next/navigation"; // Agrega esto al inicio
+import { toast } from "sonner"
 
 export default function MultiStepForm({ onSuccess }) {
   const [step, setStep] = useState(1)
@@ -110,6 +111,7 @@ export default function MultiStepForm({ onSuccess }) {
       const newPqrsdId = response.data?.data?.id;
 
       if (newPqrsdId) {
+        toast.success('PQRSD creada exitosamente');
         router.push(`/pqrsd/consulta/informacionpqrsd?id=${newPqrsdId}`);
       } else {
         console.error("Error: No se recibió el ID de la PQRSD.", response.data);

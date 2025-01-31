@@ -30,6 +30,14 @@ export function EditEntidad({ entidadId, onEntidadActualizada }) {
     vision: ""
   });
 
+  const [originalData, setOriginalData] = useState({
+    nombre: "",
+    nit: "",
+    direccion: "",
+    mision: "",
+    vision: ""
+  });
+
   const fetchEntidadData = useCallback(async () => {
     setIsFetching(true);
     try {
@@ -38,18 +46,22 @@ export function EditEntidad({ entidadId, onEntidadActualizada }) {
         `${process.env.NEXT_PUBLIC_API_URL}/administracion/entidades/${entidadId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      // Ajustar según estructura real de la respuesta
+  
       const entidadData = response.data.data || response.data.entidad || response.data;
-
-      setFormData({
+      
+      // Crear objeto con datos iniciales
+      const initialData = {
         nombre: entidadData.nombre || "",
         nit: entidadData.nit || "",
         direccion: entidadData.direccion || "",
         mision: entidadData.mision || "",
         vision: entidadData.vision || "",
-      });
-
+      };
+  
+      // Actualizar ambos estados
+      setOriginalData(initialData);
+      setFormData(initialData);
+  
     } catch (err) {
       toast.error("Error cargando datos de la entidad");
       console.error("Fetch error:", err);
@@ -71,15 +83,22 @@ export function EditEntidad({ entidadId, onEntidadActualizada }) {
 
 
   const handleSubmit = async () => {
+    // Verificar si hay cambios
+    if (JSON.stringify(formData) === JSON.stringify(originalData)) {
+      toast.info("Ningún campo ha sido modificado");
+      return; // Cancelar el envío
+    }
+  
     setLoading(true);
     setErrors({});
+    
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("Token no encontrado");
       }
-
-      // Preparar payload
+  
+      // Preparar payload solo con campos modificados
       const payload = {
         nombre: formData.nombre,
         nit: formData.nit,
@@ -87,8 +106,8 @@ export function EditEntidad({ entidadId, onEntidadActualizada }) {
         mision: formData.mision,
         vision: formData.vision
       };
-
-      await axios.put(
+  
+      const response = await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}/administracion/entidades/${entidadId}`,
         payload,
         {
@@ -98,13 +117,25 @@ export function EditEntidad({ entidadId, onEntidadActualizada }) {
           }
         }
       );
-
+  
+      // Actualizar datos originales con la respuesta del servidor
+      const updatedData = response.data.data || response.data;
+      setOriginalData({
+        nombre: updatedData.nombre,
+        nit: updatedData.nit,
+        direccion: updatedData.direccion,
+        mision: updatedData.mision,
+        vision: updatedData.vision
+      });
+  
       toast.success("Entidad actualizada exitosamente");
-      if (onEntidadActualizada) onEntidadActualizada(); // Ejecutar después de éxito
+      if (onEntidadActualizada) onEntidadActualizada();
       setOpen(false);
+  
     } catch (error) {
       console.error("Error al actualizar:", error);
-
+  
+      // Manejo de errores
       if (error.response?.data?.errors) {
         setErrors(error.response.data.errors);
       } else {
@@ -113,12 +144,14 @@ export function EditEntidad({ entidadId, onEntidadActualizada }) {
           general: error.response?.data?.message || "Error al actualizar la entidad"
         }));
       }
-      toast.error(`Error al Actualizar: ${error.response?.data?.message || "Error inesperado al actualizar"}`);
+      
+      const errorMessage = error.response?.data?.message || "Error inesperado al actualizar";
+      toast.error(`Error al Actualizar: ${errorMessage}`);
+  
     } finally {
       setLoading(false);
     }
   };
-
 
 
   return (

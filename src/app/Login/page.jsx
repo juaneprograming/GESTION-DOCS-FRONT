@@ -9,7 +9,7 @@ import { LogIn, Lock, Mail } from 'lucide-react';
 import api from '../api/axios';
 
 export default function Login() {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const router = useRouter();
 
@@ -74,11 +74,11 @@ export default function Login() {
             <div className="relative">
               <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
-                type="email"
-                name="email"
-                placeholder="Correo"
+                type="text"
+                name="username"
+                placeholder="Ingrese su Usuario"
                 className="pl-10"
-                value={formData.email}
+                value={formData.username}
                 onChange={handleInputChange}
                 required
               />

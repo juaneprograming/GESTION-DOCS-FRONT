@@ -144,11 +144,12 @@ export function CreatePerfil({ onSuccess }) {
                     </DialogDescription>
                 </DialogHeader>
 
-
                 <div className="grid grid-cols-1 gap-4">
                     {/* Name */}
                     <div className="grid items-center gap-4">
-                        <Label htmlFor="name">Nombre *</Label>
+                        <Label htmlFor="name" className="flex items-center">
+                            Nombre <span className="text-red-500 ml-1">*</span>
+                        </Label>
                         <Input
                             id="name"
                             name="name"
@@ -163,7 +164,9 @@ export function CreatePerfil({ onSuccess }) {
 
                     {/* Descripcion */}
                     <div className="grid items-center gap-4">
-                        <Label htmlFor="descripcion">Descripcion *</Label>
+                        <Label htmlFor="descripcion" className="flex items-center">
+                            Descripcion <span className="text-red-500 ml-1">*</span>
+                        </Label>
                         <Input
                             id="descripcion"
                             name="descripcion"
@@ -178,7 +181,9 @@ export function CreatePerfil({ onSuccess }) {
 
                     {/* Estado */}
                     <div className="grid items-center gap-4">
-                        <Label htmlFor="estado">Estado *</Label>
+                        <Label className="flex items-center">
+                            Estado <span className="text-red-500 ml-1">*</span>
+                        </Label>
                         <Select name="estado" onValueChange={(value) => handleChange("estado", value === "true")}>
                             <SelectTrigger className={errors.estado ? "border-red-500" : ""}>
                                 <SelectValue placeholder="Seleccione el estado" />
@@ -203,7 +208,6 @@ export function CreatePerfil({ onSuccess }) {
                         </Button>
                     </div>
                 </div>
-
             </DialogContent>
         </Dialog>
     );

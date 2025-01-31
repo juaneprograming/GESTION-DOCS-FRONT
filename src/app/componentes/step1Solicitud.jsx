@@ -1,65 +1,76 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useState, useEffect } from "react";
 
+const motivoOptions = {
+    Denuncia: ["Denuncia"],
+    Peticion: ["Derecho de petición", "Derecho de petición de información", "Informes", "Propuesta", "Recurso de reposición", "Solicitud", "Solicitud de servicio", "Solicitud de viabilidad"],
+    Queja: ["Queja"],
+    Reclamo: ["Reclamo"],
+    Sugerencia: ["Sugerencia"],
+    "tramite ambiental": ["Trámite Ambiental"]
+};
 
+export const Step1Solicitud = ({ formData, errors, onChange }) => {
+    const [motivos, setMotivos] = useState([]);
 
-export const Step1Solicitud = ({ formData , errors, onChange }) => {
+    useEffect(() => {
+        setMotivos(motivoOptions[formData.tipo_solicitud] || []);
+        onChange("motivo", ""); // Reinicia el motivo cuando cambia el tipo
+    }, [formData.tipo_solicitud]);
+
     return (
         <div className="w-full max-w-7xl mx-auto p-4">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                 {/* Tipo */}
-                <div className="space-y-2">
-                    <Label htmlFor="tipo_solicitud" className="flex items-center gap-1">
-                        Tipo
-                        <span className="text-red-500">*</span>
-                    </Label>
+                <div className="space-y-2 min-h-[120px]">
+                    <Label htmlFor="tipo_solicitud">Tipo <span className="text-red-500">*</span></Label>
                     <Select 
                         value={formData.tipo_solicitud}  
-                        onValueChange={(value) => onChange('tipo_solicitud', value)}
+                        onValueChange={(value) => onChange("tipo_solicitud", value)}
                         required
                     >
-                        <SelectTrigger id="tipo_solicitud" className={errors.tipo_solicitud ? 'border-red-500' : ''}>
+                        <SelectTrigger id="tipo_solicitud" className={errors.tipo_solicitud ? "border-red-500" : ""}>
                             <SelectValue placeholder="Seleccione" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="denuncia">Denuncia</SelectItem>
-                            <SelectItem value="peticion">Petición</SelectItem>
-                            <SelectItem value="queja">Queja</SelectItem>
-                            <SelectItem value="reclamo">Reclamo</SelectItem>
-                            <SelectItem value="sugerencia">Sugerencia</SelectItem>
-                            <SelectItem value="tramite">Trámite Ambiental</SelectItem>
+                            {Object.keys(motivoOptions).map((tipo) => (
+                                <SelectItem key={tipo} value={tipo}>{tipo.charAt(0).toUpperCase() + tipo.slice(1)}</SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
-                    {errors.tipo && <span className="text-red-500 text-sm">{errors.tipo_solicitud}</span>}
+                    <div className="h-6">
+                        {errors.tipo_solicitud && <span className="text-red-500 text-sm">{errors.tipo_solicitud}</span>}
+                    </div>
                 </div>
 
                 {/* Motivo */}
-                <div className="space-y-2">
-                    <Label htmlFor="motivo" className="flex items-center gap-1">
-                        Motivo
-                        <span className="text-red-500">*</span>
-                    </Label>
+                <div className="space-y-2 min-h-[120px]">
+                    <Label htmlFor="motivo">Motivo <span className="text-red-500">*</span></Label>
                     <Select 
                         value={formData.motivo} 
-                        onValueChange={(value) => onChange('motivo', value)}
+                        onValueChange={(value) => onChange("motivo", value)}
                         required
+                        disabled={motivos.length === 0}
                     >
-                        <SelectTrigger id="motivo" className={errors.motivo ? 'border-red-500' : ''}>
+                        <SelectTrigger id="motivo" className={errors.motivo ? "border-red-500" : ""}>
                             <SelectValue placeholder="Seleccione" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="motivo1">Motivo 1</SelectItem>
-                            <SelectItem value="motivo2">Motivo 2</SelectItem>
-                            <SelectItem value="motivo3">Motivo 3</SelectItem>
+                            {motivos.map((motivo, index) => (
+                                <SelectItem key={index} value={motivo}>{motivo}</SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
-                    {errors.motivo && <span className="text-red-500 text-sm">{errors.motivo}</span>}
+                    <div className="h-6">
+                        {errors.motivo && <span className="text-red-500 text-sm">{errors.motivo}</span>}
+                    </div>
                 </div>
 
                 {/* Medio de Radicación */}
-                <div className="space-y-2">
-                    <Label htmlFor="medio_radicacion" className="flex items-center gap-1">
+                <div className="space-y-2 min-h-[120px]">
+                    <Label htmlFor="medio_radicacion">
                         Medio de Radicación
                         <span className="text-red-500">*</span>
                     </Label>
@@ -77,12 +88,14 @@ export const Step1Solicitud = ({ formData , errors, onChange }) => {
                             <SelectItem value="persona directa">Persona directa</SelectItem>
                         </SelectContent>
                     </Select>
-                    {errors.medio_radicacion && <span className="text-red-500 text-sm">{errors.medio_radicacion}</span>}
+                    <div className="h-6">
+                        {errors.medio_radicacion && <span className="text-red-500 text-sm">{errors.medio_radicacion}</span>}
+                    </div>
                 </div>
 
                 {/* Medio de Respuesta */}
-                <div className="space-y-2">
-                    <Label htmlFor="medio_respuesta" className="flex items-center gap-1">
+                <div className="space-y-2 min-h-[120px]">
+                    <Label htmlFor="medio_respuesta">
                         Medio de respuesta
                         <span className="text-red-500">*</span>
                     </Label>
@@ -99,7 +112,9 @@ export const Step1Solicitud = ({ formData , errors, onChange }) => {
                             <SelectItem value="direccion_correspondencia">Dirección de correspondencia</SelectItem>
                         </SelectContent>
                     </Select>
-                    {errors.medio_respuesta && <span className="text-red-500 text-sm">{errors.medio_respuesta}</span>}
+                    <div className="h-6">
+                        {errors.medio_respuesta && <span className="text-red-500 text-sm">{errors.medio_respuesta}</span>}
+                    </div>
                 </div>
             </div>
 

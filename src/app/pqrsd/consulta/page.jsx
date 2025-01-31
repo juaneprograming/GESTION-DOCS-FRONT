@@ -12,6 +12,7 @@ import { Breadcrumb } from "@/app/componentes/breadcrumb"
 import { VerPqrsd } from "./informacionpqrsd/page"
 import { useRouter } from "next/navigation"
 
+
 const Consulta = () => {
   const [pqrsdList, setPqrsdList] = useState([])
   const [loading, setLoading] = useState(true)
@@ -82,7 +83,7 @@ const Consulta = () => {
         <div className="flex justify-between items-center">
           <div className="space-y-1">
             <h2 className="text-2xl font-semibold tracking-tight">Consulta de PQRSD</h2>
-            <Breadcrumb />
+            <Breadcrumb /> 
           </div>
           <div className="flex gap-2">
             <Button variant="outline" className="gap-2">
@@ -109,12 +110,13 @@ const Consulta = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Identificacion</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Motivo</TableHead>
-                <TableHead>Fecha Radicación</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
+                <TableHead className="text-center">N° Radicado</TableHead>
+                <TableHead className="text-center">Fecha Radicación</TableHead>
+                <TableHead className="text-center">Identificacion</TableHead>
+                <TableHead className="text-center">Tipo</TableHead>
+                <TableHead className="text-center">Motivo</TableHead>
+                <TableHead className="text-center">Estado</TableHead>
+                <TableHead className="text-center">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -139,17 +141,18 @@ const Consulta = () => {
               ) : (
                 filteredPQRSD.map((pqrsd) => (
                   <TableRow key={pqrsd.id}>
-                    <TableCell>{ pqrsd.identificacion_gestor}
-                    </TableCell>
-                    <TableCell>{pqrsd.tipo}</TableCell>
-                    <TableCell>{pqrsd.motivo}</TableCell>
-                    <TableCell>
+                    <TableCell className="text-center">{pqrsd.numero_radicado}</TableCell>
+                    <TableCell className="text-center">
                       {new Date(pqrsd.created_at).toLocaleDateString()}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-center">{ pqrsd.identificacion_gestor}
+                    </TableCell>
+                    <TableCell className="text-center">{pqrsd.tipo_solicitud}</TableCell>
+                    <TableCell className="text-center">{pqrsd.motivo}</TableCell>
+                    <TableCell className="text-center">
                       {getStatusBadge(pqrsd.estado)}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-center">
                       <Button
                         variant="outline"
                         size="sm"

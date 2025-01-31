@@ -47,7 +47,7 @@ export const Step2Gestor = ({ formData, errors, onChange }) => {
 
                 {/* Primer Nombre */}
                 <div className="space-y-2">
-                    <Label htmlFor="primer_nombre_gestor" className="flex items-center gap-1">
+                    <Label htmlFor="primer_nombre_gestor">
                         Primer Nombre
                         <span className="text-red-500">*</span>
                     </Label>
@@ -79,7 +79,7 @@ export const Step2Gestor = ({ formData, errors, onChange }) => {
 
                 {/* Primer Apellido */}
                 <div className="space-y-2">
-                    <Label htmlFor="primer_apellido_gestor" className="flex items-center gap-1">
+                    <Label htmlFor="primer_apellido_gestor">
                         Primer Apellido
                         <span className="text-red-500">*</span>
                     </Label>
@@ -97,7 +97,7 @@ export const Step2Gestor = ({ formData, errors, onChange }) => {
 
                 {/* Segundo Apellido */}
                 <div className="space-y-2">
-                    <Label htmlFor="segundo_apellido_gestor" className="flex items-center gap-1">
+                    <Label htmlFor="segundo_apellido_gestor">
                         Segundo Apellido
                         <span className="text-red-500">*</span>
                     </Label>

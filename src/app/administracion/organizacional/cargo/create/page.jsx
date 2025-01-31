@@ -84,11 +84,14 @@ export function CreateCargo({ onSuccess }) {
                 <div className="grid gap-4 py-4">
                     {/* Nombre */}
                     <div className="grid items-center gap-4">
-                        <Label htmlFor="nombre">Nombre del cargo *</Label>
+                        <Label htmlFor="nombre" className="flex items-center">
+                            Nombre del cargo <span className="text-red-500 ml-1">*</span>
+                        </Label>
                         <Input
                             id="nombre"
                             value={formData.nombre}
                             onChange={(e) => handleChange("nombre", e.target.value)}
+                            className={errors.nombre ? "border-red-500" : ""}
                         />
                         {errors.nombre && (
                             <div className="text-red-500 text-sm">{errors.nombre[0]}</div>
@@ -97,11 +100,14 @@ export function CreateCargo({ onSuccess }) {
 
                     {/* Descripción */}
                     <div className="grid items-center gap-4">
-                        <Label htmlFor="descripcion">Descripción *</Label>
+                        <Label htmlFor="descripcion" className="flex items-center">
+                            Descripción <span className="text-red-500 ml-1">*</span>
+                        </Label>
                         <Input
                             id="descripcion"
                             value={formData.descripcion}
                             onChange={(e) => handleChange("descripcion", e.target.value)}
+                            className={errors.descripcion ? "border-red-500" : ""}
                         />
                         {errors.descripcion && (
                             <div className="text-red-500 text-sm">{errors.descripcion[0]}</div>

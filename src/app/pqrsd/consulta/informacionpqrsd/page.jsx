@@ -14,6 +14,7 @@ import { useSearchParams } from "next/navigation"
 import axios from "axios"
 import { useEffect, useState } from "react"
 import { SolicitanteFormConsulta } from "@/app/componentes/solicitanteformconsulta"
+import { Breadcrumb } from "@/app/componentes/breadcrumb"
 
 export function EditGestion() {
     const searchParams = useSearchParams()
@@ -69,12 +70,8 @@ export function EditGestion() {
             <TooltipProvider>
                 <div className="container mx-auto p-6 space-y-6">
                     <div className="flex justify-between items-center">
-                        <h1 className="text-2xl font-bold">CONSULTA PQRSD</h1>
-                        <div className="flex items-center gap-2">
-                            <span>Gestión de PQRSD</span>
-                            <span>›</span>
-                            <span>Información PQRSD</span>
-                        </div>
+                        <h1 className="text-2xl font-semibold tracking-tight">CONSULTA PQRSD</h1>
+                        <Breadcrumb  />
                     </div>
 
                     {/* Status Indicators */}
