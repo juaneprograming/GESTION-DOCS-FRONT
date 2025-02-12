@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Suspense } from "react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,7 +13,7 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-  TooltipProvider,
+  TooltipProvider,  
 } from "@/components/ui/tooltip";
 import DashboardLayout from "@/app/dashboard/layout";
 import { useSearchParams } from "next/navigation";
@@ -91,6 +92,7 @@ export function EditGestion() {
   };
 
   return (
+    <Suspense fallback={<div>Cargando...</div>}> {/* Envuelve el contenido en Suspense */}
     <DashboardLayout>
       <TooltipProvider>
         <div className="container mx-auto p-6 space-y-6">
@@ -298,6 +300,7 @@ export function EditGestion() {
         </div>
       </TooltipProvider>
     </DashboardLayout>
+    </Suspense>
   );
 }
 
