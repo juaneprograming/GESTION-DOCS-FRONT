@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Navbar } from "@/app/componentes/navbar"
 import { Sidebar } from "@/app/componentes/sidebar"
+import { Suspense } from "react"
 
 export default function DashboardLayout({ children }) {
   const router = useRouter()
@@ -21,6 +22,7 @@ export default function DashboardLayout({ children }) {
   }
 
   return (
+    <Suspense fallback={<div>Cargando...</div>}> {/* Envuelve el contenido en Suspense */}
     <div className="flex h-screen">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex-1 flex flex-col">
@@ -30,5 +32,6 @@ export default function DashboardLayout({ children }) {
         </main>
       </div>
     </div>
+    </Suspense> 
   )
 }
