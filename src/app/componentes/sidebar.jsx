@@ -110,7 +110,7 @@ const gestiondocumental = {
       name: "Gestion de expedientes",
       icon: Lock,
       subItems: [
-        { name: "Informe de expedientes", url: "" },
+        { name: "Informe de expedientes", url: "/gestiondocumental/informeexpediente" },
         { name: "Consulta de documentos", url: "" },
         
       ],
