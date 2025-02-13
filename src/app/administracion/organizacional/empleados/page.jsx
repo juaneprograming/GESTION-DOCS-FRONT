@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import React, { useEffect, useState } from "react"
 import axios from "axios"
@@ -29,7 +29,7 @@ const Empleados = () => {
             headers: { Authorization: `Bearer ${token}` },
           }
         )
-        setEmpleados(response.data)
+        setEmpleados(response.data) // Guardamos toda la respuesta
       } catch (err) {
         console.error("Error fetching empleados:", err)
         setError(err.message)
@@ -41,6 +41,11 @@ const Empleados = () => {
   }, [currentPage, refreshFlag])
 
   const handleRefresh = () => setRefreshFlag((prev) => !prev)
+
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value)
+    setCurrentPage(1) // Resetear a la primera página cuando el usuario busca
+  }
 
   const filteredEmpleados = empleados?.data?.data
     ? empleados.data.data.filter(
@@ -71,7 +76,7 @@ const Empleados = () => {
             placeholder="Buscar por nombre o correo..."
             className="pl-10"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={handleSearch}
           />
         </div>
 
@@ -128,20 +133,20 @@ const Empleados = () => {
 
         <div className="flex items-center justify-between">
           <span className="text-sm text-muted-foreground">
-            Página {empleados?.current_page} de {empleados?.last_page}
+            Página {empleados?.data?.current_page} de {empleados?.data?.last_page}
           </span>
           <div className="flex gap-2">
             <Button
               variant="outline"
-              disabled={!empleados?.prev_page_url}
-              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={!empleados?.data?.prev_page_url}
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             >
               ⟨ Anterior
             </Button>
             <Button
               variant="outline"
-              disabled={!empleados?.next_page_url}
-              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={!empleados?.data?.next_page_url}
+              onClick={() => setCurrentPage((prev) => prev + 1)}
             >
               Siguiente ⟩
             </Button>
