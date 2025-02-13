@@ -55,15 +55,19 @@ const Users = () => {
   return (
     <DashboardLayout>
       <div className="p-6 space-y-6">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-semibold tracking-tight">Usuarios</h2>
-          <Breadcrumb />
+      <div className="flex justify-between items-center">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-semibold tracking-tight">Usuarios</h2>
+            <Breadcrumb />
+          </div>
           <div className="flex gap-2">
             <Button variant="outline" className="gap-2">
               <Download className="h-4 w-4" />
               Exportar
             </Button>
-            <CreateUsuario onSuccess={handleRefresh} />
+            <div>
+              <CreateUsuario onSuccess={handleRefresh} />
+            </div>
           </div>
         </div>
 

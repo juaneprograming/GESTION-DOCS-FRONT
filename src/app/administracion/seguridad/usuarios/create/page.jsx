@@ -33,7 +33,6 @@ const initialFormData = {
     estado: "",
 };
 
-
 export function CreateUsuario({ onSuccess }) {
     const [open, setOpen] = useState(false);
     const [roles, setRoles] = useState([]);
@@ -43,51 +42,47 @@ export function CreateUsuario({ onSuccess }) {
     const [searchTerm, setSearchTerm] = useState("");
     const [formData, setFormData] = useState(initialFormData);
 
+    const fetchRolesAndEmpleados = async () => {
+        try {
+            const token = localStorage.getItem("token");
+
+            const rolesResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/users`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setRoles(rolesResponse.data.data || []);
+
+            const empleadosResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/users/empleados`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setEmpleados(empleadosResponse.data.data || []);
+        } catch (err) {
+            console.error("Error fetching data:", err);
+        }
+    };
+
     useEffect(() => {
-        const fetchRolesAndEmpleados = async () => {
-            try {
-                const token = localStorage.getItem("token");
-
-                const rolesResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/users`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                setRoles(rolesResponse.data.data || []);
-
-                const empleadosResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/users/empleados`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                setEmpleados(empleadosResponse.data.data || []);
-            } catch (err) {
-                console.error("Error fetching data:", err);
-            }
-        };
-
         fetchRolesAndEmpleados();
     }, []);
 
-    // Función para reiniciar todos los estados
     const resetStates = () => {
         setFormData(initialFormData);
         setErrors({});
         setSearchTerm("");
     };
 
-       // Modificar el manejador de cambio del modal
-       const handleOpenChange = (newOpen) => {
+    const handleOpenChange = (newOpen) => {
         if (!newOpen) {
             resetStates();
         }
         setOpen(newOpen);
     };
 
-    
     const handleChange = (field, value) => {
         setFormData({ ...formData, [field]: value });
-        // Limpiar el error específico cuando el usuario empiece a escribir
         if (errors[field]) {
             setErrors((prev) => {
                 const newErrors = { ...prev };
@@ -126,31 +121,21 @@ export function CreateUsuario({ onSuccess }) {
                     'Content-Type': 'application/json'
                 }
             });
-    
+
             toast.success("Usuario creado exitosamente");
+            await fetchRolesAndEmpleados(); // Refrescar la lista de empleados
             onSuccess?.();
-            setFormData({
-                username: "",
-                empleado_id: "",
-                persona: "",
-                email: "",
-                password: "",
-                fecha_expiracion: "",
-                is_admin: "",
-                estado: "",
-            });
+            setFormData(initialFormData);
             setOpen(false);
         } catch (error) {
             if (error.response && error.response.data && error.response.data.errors) {
                 const validationErrors = error.response.data.errors;
                 setErrors(validationErrors);
-    
-                // Mostrar mensaje para username duplicado
+
                 if (validationErrors.username) {
                     toast.error("Este nombre de usuario ya está registrado.");
                 }
-    
-                // Mostrar otros errores de validación
+
                 Object.entries(validationErrors).forEach(([field, messages]) => {
                     if (field !== 'username') {
                         toast.error(messages[0]);
@@ -165,11 +150,11 @@ export function CreateUsuario({ onSuccess }) {
         }
     };
 
-     // Filtrar empleados según el término de búsqueda
-     const filteredEmpleados = empleados.filter((empleado) => {
+    const filteredEmpleados = empleados.filter((empleado) => {
         const fullName = `${empleado.nombre_1} ${empleado.nombre_2} ${empleado.apellido_1} ${empleado.apellido_2}`;
         return fullName.toLowerCase().includes(searchTerm.toLowerCase());
     });
+
     
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
