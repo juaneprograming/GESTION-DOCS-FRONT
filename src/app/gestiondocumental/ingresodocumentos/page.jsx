@@ -13,6 +13,7 @@ import { Command, CommandInput, CommandItem, CommandList } from "@/components/ui
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 import axios from "axios"
+import { toast } from "sonner"
 
 import { format } from "date-fns"
 import { Calendar } from "@/components/ui/calendar"
@@ -185,7 +186,7 @@ const IngresoDocumentos = () => {
         }
       );
 
-      alert("El documento se ha registrado correctamente")
+      toast.success("El documento se ha registrado correctamente")
 
       // Resetear formulario
       setSelectedFile(null)
@@ -200,7 +201,7 @@ const IngresoDocumentos = () => {
       if (error.response && error.response.data.errors && error.response.data.errors.trd_id) {
         alert(`Error: ${error.response.data.errors.trd_id[0]}`);
       } else {
-        alert("Error al guardar el documento.");
+        toast.error("Error al guardar el documento.");
       }
     } finally {
       setLoading(false)
