@@ -1,25 +1,26 @@
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { ActionMenu } from "@/app/componentes/actionmenu"
-import { useSearchParams } from "next/navigation"
-import axios from "axios"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { ActionMenu } from "@/app/componentes/actionmenu";
+import { useSearchParams } from "next/navigation";
+import axios from "axios";
 
 export default function DocumentUpload() {
-    const searchParams = useSearchParams()
-    const id = searchParams.get('id')
-    const [selectedFile, setSelectedFile] = useState(null)
-    const [documents, setDocuments] = useState([])
-    const [documentType, setDocumentType] = useState("")
-    const [observation, setObservation] = useState("")
+    const searchParams = useSearchParams();
+    const id = searchParams.get('id');
+    const entidad = searchParams.get('entidad') || "pqrsd"; // Default a "pqrsd" si no se proporciona
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [documents, setDocuments] = useState([]);
+    const [nombreDocumento, setNombreDocumento] = useState(""); // Reemplaza documentType
+    const [observation, setObservation] = useState("");
 
     const loadDocuments = async () => {
         try {
             const token = localStorage.getItem("token");
             const response = await axios.get(
-                `${process.env.NEXT_PUBLIC_API_URL}/documento/${id}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/${entidad}/${id}/documentos`,
                 {
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -34,30 +35,48 @@ export default function DocumentUpload() {
     };
 
     useEffect(() => {
-        if (id) {
+        if (id && entidad) {
             loadDocuments();
         }
-    }, [id]);
+    }, [id, entidad]);
 
     const handleFileChange = (e) => {
-        setSelectedFile(e.target.files[0]);
-    }
+        const file = e.target.files[0];
+        if (file && file.type !== "application/pdf") {
+            alert("Solo se permiten archivos PDF.");
+            setSelectedFile(null);
+            return;
+        }
+        if (file && file.size > 2 * 1024 * 1024) {
+            alert("El archivo no debe exceder los 2 MB.");
+            setSelectedFile(null);
+            return;
+        }
+        setSelectedFile(file);
+    };
 
     const handleAddDocument = async () => {
-        if (!documentType || !selectedFile) {
-            alert("Por favor seleccione un tipo de documento y un archivo")
-            return
+        // Validación del nombre del documento
+        if (!nombreDocumento) {
+            alert("Por favor ingrese el nombre del documento.");
+            return;
         }
 
-        const formData = new FormData()
-        formData.append('nombre_documento', documentType)
-        formData.append('observacion', observation || '')
-        formData.append('archivo', selectedFile)
+        // Validación del archivo
+        if (!selectedFile) {
+            alert("Por favor seleccione un archivo PDF.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('nombre_documento', nombreDocumento); // Campo obligatorio
+        formData.append('observacion', observation || ''); // Campo opcional
+        formData.append('archivo', selectedFile); // Archivo obligatorio
 
         try {
             const token = localStorage.getItem("token");
             await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/documento/${id}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/${entidad}/${id}/documentos`,
                 formData,
                 {
                     headers: {
@@ -67,54 +86,60 @@ export default function DocumentUpload() {
                 }
             );
 
-            // Clear form fields **AFTER** successful save
-            setDocumentType("")
-            setObservation("")
-            setSelectedFile(null)
+            // Limpiar campos después de guardar exitosamente
+            setNombreDocumento("");
+            setObservation("");
+            setSelectedFile(null);
 
-            // Refresh document list **AFTER** successful save and clearing fields
+            // Recargar la lista de documentos
             loadDocuments();
-
-
         } catch (error) {
-            console.error('Error:', error)
-            alert(error.response?.data?.error || 'Error al cargar el documento')
+            if (error.response && error.response.data && error.response.data.errors) {
+                const errors = Object.values(error.response.data.errors).flat();
+                alert(errors.join("\n"));
+            } else {
+                alert('Error al cargar el documento.');
+            }
         }
-    }
+    };
+
     const handleDelete = (index) => {
-        const newDocuments = documents.filter((_, i) => i !== index)
-        setDocuments(newDocuments)
-    }
-    
+        const newDocuments = documents.filter((_, i) => i !== index);
+        setDocuments(newDocuments);
+    };
+
     return (
         <div className="space-y-6 p-6">
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">Documentos</h2>
+                <h2 className="text-xl font-semibold">
+                    {entidad === 'pqrsd' ? 'PQRSD' : 'Expediente'} - Documentos
+                </h2>
                 <div className="flex items-center gap-4">
                     <ActionMenu />
-                    <Button variant="default" className="bg-[#FFD700] hover:bg-[#FFD700]/90 text-black" onClick={handleAddDocument}>
+                    <Button
+                        variant="default"
+                        className="bg-[#FFD700] hover:bg-[#FFD700]/90 text-black"
+                        onClick={handleAddDocument}
+                        disabled={!nombreDocumento || !selectedFile}
+                    >
                         Adicionar Documentos
                     </Button>
                 </div>
             </div>
-
             <div className="space-y-6">
                 <div className="space-y-2">
-                    <Label htmlFor="documentType">
-                        Tipo de Documento <span className="text-red-500">*</span>
+                    <Label htmlFor="nombreDocumento">
+                        Nombre del Documento <span className="text-red-500">*</span>
                     </Label>
-                    <Select value={documentType} onValueChange={(e) => setDocumentType(e)}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Seleccionar documento" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="dni">DNI</SelectItem>
-                            <SelectItem value="passport">Pasaporte</SelectItem>
-                            <SelectItem value="license">Licencia</SelectItem>
-                        </SelectContent>
-                    </Select>
+                    <input
+                        id="nombreDocumento"
+                        type="text"
+                        className="w-full border rounded-md px-3 py-2"
+                        placeholder="Ingrese el nombre del documento"
+                        value={nombreDocumento}
+                        onChange={(e) => setNombreDocumento(e.target.value)}
+                    />
                 </div>
-
                 <div className="space-y-2">
                     <Label htmlFor="observation">Observación</Label>
                     <Textarea
@@ -125,7 +150,6 @@ export default function DocumentUpload() {
                         onChange={(e) => setObservation(e.target.value)}
                     />
                 </div>
-
                 <div className="space-y-2">
                     <Label>Seleccionar Archivo</Label>
                     <div className="flex items-center gap-4">
@@ -139,32 +163,53 @@ export default function DocumentUpload() {
                         <span className="text-gray-500">
                             {selectedFile ? selectedFile.name : "No se ha seleccionado ningún archivo"}
                         </span>
-
-                        <input id="file-upload" type="file" className="hidden" onChange={handleFileChange} />
+                        <input
+                            id="file-upload"
+                            type="file"
+                            className="hidden"
+                            accept=".pdf"
+                            onChange={handleFileChange}
+                        />
                     </div>
                 </div>
-
                 <div className="overflow-x-auto"></div>
-
                 {documents.length > 0 ? (
                     <div className="overflow-x-auto">
                         <table className="table-auto w-full border-collapse">
                             <thead className="bg-gray-100">
                                 <tr>
-                                    <th className="text-left font-semibold px-4 py-2 border-b dark:border-slate-700">Tipo de Documento</th>
-                                    <th className="text-left font-semibold px-4 py-2 border-b dark:border-slate-700">Observación</th>
-                                    <th className="text-left font-semibold px-4 py-2 border-b dark:border-slate-700">Archivo</th>
-                                    <th className="text-left font-semibold px-4 py-2 border-b dark:border-slate-700">Acción</th>
+                                    <th className="text-left font-semibold px-4 py-2 border-b dark:border-slate-700">
+                                        Nombre del Documento
+                                    </th>
+                                    <th className="text-left font-semibold px-4 py-2 border-b dark:border-slate-700">
+                                        Observación
+                                    </th>
+                                    <th className="text-left font-semibold px-4 py-2 border-b dark:border-slate-700">
+                                        Archivo
+                                    </th>
+                                    <th className="text-left font-semibold px-4 py-2 border-b dark:border-slate-700">
+                                        Acción
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {documents.map((document, index) => (
                                     <tr key={index} className="hover:bg-gray-50 dark:hover:bg-slate-600">
-                                        <td className="px-4 py-2 border-b dark:border-slate-700">{document.nombre_documento}</td>
-                                        <td className="px-4 py-2 border-b dark:border-slate-700">{document.observacion}</td>
-                                        <td className="px-4 py-2 border-b dark:border-slate-700">{document.nombre_original}</td>
                                         <td className="px-4 py-2 border-b dark:border-slate-700">
-                                            <Button variant="destructive" size="sm" onClick={() => handleDelete(index)}>
+                                            {document.nombre_documento}
+                                        </td>
+                                        <td className="px-4 py-2 border-b dark:border-slate-700">
+                                            {document.observacion}
+                                        </td>
+                                        <td className="px-4 py-2 border-b dark:border-slate-700">
+                                            {document.nombre_original}
+                                        </td>
+                                        <td className="px-4 py-2 border-b dark:border-slate-700">
+                                            <Button
+                                                variant="destructive"
+                                                size="sm"
+                                                onClick={() => handleDelete(index)}
+                                            >
                                                 Eliminar
                                             </Button>
                                         </td>
@@ -178,5 +223,5 @@ export default function DocumentUpload() {
                 )}
             </div>
         </div>
-    )
+    );
 }
