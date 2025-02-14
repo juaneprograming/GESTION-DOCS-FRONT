@@ -84,134 +84,172 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#afd8fd]/30 to-white relative overflow-hidden">
-    <div className="absolute inset-0 overflow-hidden">
-      <div className="absolute top-0 left-0 w-96 h-96 bg-[#afd8fd]/20 rounded-full filter blur-3xl transform -translate-x-1/2 -translate-y-1/2" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#afd8fd]/20 rounded-full filter blur-3xl transform translate-x-1/2 translate-y-1/2" />
-    </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 via-white to-purple-100 relative overflow-hidden">
+      {/* Elementos decorativos del fondo */}
+      <motion.div
+        className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-purple-200/30 to-pink-200/30 rounded-full filter blur-3xl"
+        animate={{
+          scale: [1, 1.2, 1],
+          rotate: [0, 90, 0],
+          transition: { duration: 8, repeat: Infinity }
+        }}
+      />
+      <motion.div
+        className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-200/30 to-purple-200/30 rounded-full filter blur-3xl"
+        animate={{
+          scale: [1.2, 1, 1.2],
+          rotate: [90, 0, 90],
+          transition: { duration: 8, repeat: Infinity }
+        }}
+      />
 
-    <div className="container max-w-[1200px] mx-auto px-4">
-      <div className="grid lg:grid-cols-2 gap-12 items-center relative z-10">
-        <Card className="w-full max-w-md mx-auto p-8 bg-white/90 backdrop-blur-sm border-0 shadow-lg">
-          <div className="space-y-6">
-            <div className="text-center space-y-2">
-              <div className="inline-block p-3 rounded-full bg-[#afd8fd]/20 mb-4">
-                <FileText className="w-6 h-6 text-[#0677DB]" />
-              </div>
-              <h1 className="text-2xl font-semibold text-gray-900">
-                Iniciar Sesión
-              </h1>
-              <p className="text-sm text-gray-500">
-                Ingrese sus credenciales para acceder al sistema
-              </p>
-            </div>
-            {error && (
-              <div className="p-3 text-sm text-red-500 bg-red-50 rounded-lg">
-                {error}
-              </div>
-            )}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-4">
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                  <Input
-                    type="text"
-                    name="username"
-                    placeholder="Usuario"
-                    className="pl-10 h-12 bg-white/50 border-gray-200 focus:border-[#afd8fd] focus:ring-[#afd8fd]"
-                    value={formData.username}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                  <Input
-                    type="password"
-                    name="password"
-                    placeholder="Contraseña"
-                    className="pl-10 h-12 bg-white/50 border-gray-200 focus:border-[#afd8fd] focus:ring-[#afd8fd]"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-              </div>
-              <Button
-                type="submit"
-                className="w-full h-12 bg-[#0677DB] hover:bg-[#9ac8f5] text-white transition-all duration-200 ease-in-out transform hover:scale-[1.02]"
+      {/* Contenedor principal */}
+      <motion.div
+        className="w-full max-w-6xl mx-auto p-4 md:p-8 flex flex-col lg:flex-row items-center gap-8 relative z-10"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        {/* Login Form Side */}
+        <motion.div className="flex-1" variants={itemVariants}>
+          <Card className="p-8 shadow-xl bg-white/90 backdrop-blur-sm border-0">
+            <motion.div className="space-y-6" variants={containerVariants}>
+              <motion.div
+                className="space-y-2 text-center"
+                variants={itemVariants}
               >
-                Iniciar Sesión
-              </Button>
-            </form>
-          </div>
-        </Card>
-
-        <div className="hidden lg:block">
-          <div className="relative aspect-square max-w-[500px] mx-auto">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#afd8fd]/20 to-white rounded-2xl p-8">
-              <div className="relative w-full h-full">
-                <div className="absolute bottom-16 left-1/2 -translate-x-1/2 w-80">
-                  <motion.div 
-                    className="h-8 w-32 bg-[#afd8fd] rounded-t-lg mx-auto"
-                    animate={{
-                      rotateX: [-5, 5, -5],
-                      transition: { duration: 2, repeat: Infinity, ease: "easeInOut" }
-                    }}
-                  />
-                  <motion.div 
-                    className="w-full h-48 bg-gradient-to-br from-[#0677DB] to-[#9ac8f5] rounded-tr-lg rounded-b-lg p-4 shadow-lg"
-                    animate={{
-                      rotateX: [-2, 2, -2],
-                      transition: { duration: 2, repeat: Infinity, ease: "easeInOut" }
-                    }}
-                  >
-                    <div className="grid grid-cols-2 gap-2 mt-2">
-                      {[...Array(6)].map((_, i) => (
-                        <div
-                          key={i}
-                          className="h-4 bg-white/20 rounded animate-pulse"
-                          style={{ animationDelay: `${i * 0.1}s` }}
-                        />
-                      ))}
-                    </div>
-                  </motion.div>
+                <div className="inline-block p-3 rounded-full bg-purple-50">
+                  <FileText className="w-6 h-6 text-purple-600" />
                 </div>
+                <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
+                  Iniciar Sesión
+                </h1>
+                <p className="text-sm text-gray-500">
+                  Ingrese sus credenciales para acceder al sistema
+                </p>
+              </motion.div>
 
-                {[...Array(3)].map((_, i) => (
-                  <motion.div
-                    key={i}
-                    className="absolute w-20 h-28 bg-white rounded-lg shadow-lg p-4 flex items-center justify-center"
-                    initial={{ 
-                      x: -50, 
-                      y: 100 + i * 30,
-                      opacity: 0,
-                      scale: 0.8
-                    }}
-                    animate={{
-                      x: [null, 20 + i * 50, 20 + i * 50],
-                      y: [null, 80 + i * 25, 180],
-                      opacity: [null, 1, 0],
-                      scale: [null, 1, 0.8],
-                    }}
-                    transition={{
-                      duration: 4,
+              {error && (
+                <motion.div
+                  className="p-3 text-sm text-red-500 bg-red-50 rounded-lg"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  {error}
+                </motion.div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <motion.div variants={itemVariants} className="space-y-2">
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      type="text"
+                      name="username"
+                      placeholder="Usuario"
+                      className="pl-10 bg-white/50 border-gray-200"
+                      value={formData.username}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                </motion.div>
+
+                <motion.div variants={itemVariants} className="space-y-2">
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      type="password"
+                      name="password"
+                      placeholder="Contraseña"
+                      className="pl-10 bg-white/50 border-gray-200"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                </motion.div>
+
+                <motion.div variants={itemVariants}>
+                  <Button
+                    type="submit"
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white transition-colors"
+                  >
+                    Iniciar Sesión
+                  </Button>
+                </motion.div>
+              </form>
+              <div className="mt-4 text-center text-purple-500">
+
+              <a href="/login/forgot">¿Olvidaste tu Contraseña?</a>
+              </div>
+            </motion.div>
+          </Card>
+        </motion.div>
+
+        {/* Illustration Side */}
+        <motion.div className="flex-1 hidden lg:block" variants={itemVariants}>
+          <motion.div className="relative w-full aspect-square max-w-[500px] mx-auto">
+            {/* Fondo del área de trabajo */}
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-br from-purple-50 to-white rounded-2xl"
+            />
+
+            {/* Mesa de trabajo */}
+            <motion.div
+              className="absolute bottom-10 w-full h-72"
+              animate={floatingAnimation}
+            >
+              {/* Laptop */}
+              <motion.div
+                className=" bottom-0 left-1/2 -translate-x-1/4 w-80 h-48 bg-gray-800 rounded-lg shadow-xl"
+                animate={floatingAnimation}
+              >
+                <div className="absolute inset-2 bg-gradient-to-br from-blue-400 to-purple-400 rounded-md overflow-hidden">
+                  <div className="grid grid-cols-2 gap-2 p-4">
+                    {[...Array(6)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        className="h-4 bg-white/20 rounded"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: i * 0.1 }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Documentos flotantes */}
+              {[...Array(3)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute"
+                  style={{
+                    top: `${20 + i * 25}%`,
+                    left: `${7 + i * 25}%`,
+                    zIndex: 3 - i
+                  }}
+                  animate={{
+                    y: [-5 - i * 2, 5 + i * 2],
+                    rotate: [-5 + i * 2, 5 - i * 2],
+                    transition: {
+                      duration: 2 + i * 0.5,
                       repeat: Infinity,
                       repeatType: "reverse",
-                      ease: "easeInOut",
-                      times: [0, 0.5, 1],
-                      delay: i * 1
-                    }}
-                  >
-                    <FileCheck className="w-8 h-8 text-[#afd8fd]" />
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+                      ease: "easeInOut"
+                    }
+                  }}
+                >
+                  <div className="w-20 h-28 bg-white rounded-lg shadow-lg p-4 flex items-center justify-center">
+                    <FileCheck className="w-8 h-8 text-purple-600" />
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      </motion.div>
     </div>
-  </div>
   )
 }
