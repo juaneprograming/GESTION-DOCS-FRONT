@@ -1,0 +1,257 @@
+'use client';
+
+import React, { useEffect, useState, Suspense } from 'react';
+import axios from 'axios';
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
+import DashboardLayout from "@/app/dashboard/layout";
+import { useSearchParams } from "next/navigation";
+import { Breadcrumb } from "@/app/componentes/breadcrumb";
+import { Button } from '@/components/ui/button';
+import { Download, Eye, FileText, CalendarDays, File } from 'lucide-react';
+import { CreateExpediente } from '../create/page';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
+export function EditExpediente() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
+  const [expedienteData, setExpedienteData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+
+  useEffect(() => {
+    const fetchExpediente = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/expedientes/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setExpedienteData(response.data);
+      } catch (err) {
+        console.error("Error fetching expediente:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) fetchExpediente();
+    else setLoading(false);
+  }, [id]);
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="p-6">Cargando detalles del expediente...</div>
+      </DashboardLayout>
+    );
+  }
+  if (error) {
+    return (
+      <DashboardLayout>
+        <div className="p-6">Error: {error}</div>
+      </DashboardLayout>
+    );
+  }
+
+  const handleRefresh = () => setRefreshFlag((prev) => !prev);
+
+  return (
+    <DashboardLayout>
+      <div className="container mx-auto p-4 space-y-6">
+        <div className="flex justify-between items-center">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-semibold tracking-tight">Expediente</h2>
+            <Breadcrumb />
+          </div>
+        </div>
+
+        <Tabs defaultValue="details" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
+            <TabsTrigger value="details">Detalles</TabsTrigger>
+            <TabsTrigger value="documents">Documentos</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="details" className="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-6">
+            {/* Detalle de expediente */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <FileText className="w-5 h-5 text-blue-600" />
+                  <CardTitle>Detalle de expediente</CardTitle>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.push(`/gestiondocumental/informeexpediente/edit?id=${expedienteData.id}`)}
+                >
+                  Detalles
+                </Button>
+              </CardHeader>
+              <CardContent className="grid gap-4">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                  <div className="text-sm font-medium">N° Expediente</div>
+                  <div className="text-sm">{expedienteData.codigo_expediente}</div>
+
+                  <div className="text-sm font-medium">Nombre</div>
+                  <div className="text-sm">{expedienteData.nombre_expediente}</div>
+
+                  <div className="text-sm font-medium">Serie</div>
+                  <div className="text-sm">{expedienteData.serie}</div>
+
+                  <div className="text-sm font-medium">Subserie</div>
+                  <div className="text-sm">{expedienteData.subserie}</div>
+
+                  <div className="text-sm font-medium">Fecha inicio del expediente</div>
+                  <div className="text-sm">{expedienteData.fecha_expediente}</div>
+
+                  <div className="text-sm font-medium">Dependencia</div>
+                  <div className="text-sm">{expedienteData.dependencia}</div>
+
+                  <div className="text-sm font-medium">Usuario creador</div>
+                  <div className="text-sm">aun no</div>
+
+                  <div className="text-sm font-medium">Estado</div>
+                  <div className="text-sm">
+                    <span
+                      className={`px-2 py-1 rounded-full text-sm ${
+                        expedienteData.estado === 'Cerrado'
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-green-100 text-green-800'
+                      }`}
+                    >
+                      {expedienteData.estado}
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Trazabilidad de expediente */}
+            <Card>
+              <CardHeader className="flex flex-row items-center space-x-2">
+                <CalendarDays className="w-5 h-5 text-blue-600" />
+                <CardTitle>Trazabilidad de expediente</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {/* Estructura visual de la trazabilidad */}
+                  {[
+                    {
+                      date: "2023-08-02 18:17:22",
+                      user: "Hever Suarez",
+                      department: "DEPENDENCIA JURIDICA",
+                      observation: "Se cargó documento con el tipo documental anexos de forma individual al expediente",
+                    },
+                    {
+                      date: "2023-08-02 18:03:19",
+                      user: "Hever Suarez",
+                      department: "DEPENDENCIA JURIDICA",
+                      observation:
+                        "Se excluyó (el)los siguiente(s) documento(s): 202399401018-8.pdf del expediente solicitudes 90",
+                    },
+                    {
+                      date: "2023-08-02 17:55:02",
+                      user: "Hever Suarez",
+                      department: "DEPENDENCIA JURIDICA",
+                      observation: "Se cargó documento con el tipo documental anexos de forma individual al expediente",
+                    },
+                  ].map((item, index) => (
+                    <div key={index} className="relative pl-6 pb-6 last:pb-0">
+                      <div className="absolute left-0 top-2 w-3 h-3 bg-blue-600 rounded-full" />
+                      {index !== 2 && <div className="absolute left-[5px] top-4 w-0.5 h-full bg-gray-200" />}
+                      <div className="space-y-1">
+                        <div className="text-sm text-muted-foreground">{item.date}</div>
+                        <div className="text-sm font-medium">Usuario: {item.user}</div>
+                        <div className="text-sm">Dependencia: {item.department}</div>
+                        <div className="text-sm text-muted-foreground">Observación: {item.observation}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="documents">
+            <Card>
+              <CardHeader className="flex flex-row items-center space-x-2">
+                <File className="w-5 h-5 text-blue-600" />
+                <CardTitle>Documentos del expediente</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nombre del documento</TableHead>
+                      <TableHead>Tipo</TableHead>
+                      <TableHead>Fecha</TableHead>
+                      <TableHead>Tamaño</TableHead>
+                      <TableHead className="text-right">Acciones</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {/* Estructura visual de los documentos */}
+                    {[
+                      {
+                        name: "202399401018-1.pdf",
+                        type: "PDF",
+                        date: "2023-08-02",
+                        size: "1.2 MB",
+                      },
+                      {
+                        name: "202399401018-2.pdf",
+                        type: "PDF",
+                        date: "2023-08-02",
+                        size: "842 KB",
+                      },
+                      {
+                        name: "202399401018-3.pdf",
+                        type: "PDF",
+                        date: "2023-08-02",
+                        size: "1.5 MB",
+                      },
+                    ].map((doc, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="font-medium">{doc.name}</TableCell>
+                        <TableCell>{doc.type}</TableCell>
+                        <TableCell>{doc.date}</TableCell>
+                        <TableCell>{doc.size}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button variant="outline" size="icon">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button variant="outline" size="icon">
+                              <Download className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </DashboardLayout>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <EditExpediente />
+    </Suspense>
+  );
+}

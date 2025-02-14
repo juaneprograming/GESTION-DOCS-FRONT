@@ -9,10 +9,12 @@ import { Download } from 'lucide-react';
 import { Breadcrumb } from '@/app/componentes/breadcrumb';
 import DashboardLayout from '@/app/dashboard/layout';
 import { CreateExpediente } from './create/page';
+import { useRouter } from "next/navigation"
 
 export default function ExpedientesTable() {
   const [expedientes, setExpedientes] = useState([]);
   const [loading, setLoading] = useState(true);
+   const router = useRouter()
 
   useEffect(() => {
     const fetchExpedientes = async () => {
@@ -68,6 +70,7 @@ export default function ExpedientesTable() {
                 <TableHead>Dependencia</TableHead>
                 <TableHead>Usuario creador</TableHead>
                 <TableHead>Estado</TableHead>
+                <TableHead>Detalles</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -91,6 +94,15 @@ export default function ExpedientesTable() {
                     >
                       {expediente.estado}
                     </span>
+                  </TableCell>
+                  <TableCell>
+                  <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => router.push(`/gestiondocumental/informeexpediente/edit?id=${expediente.id}`)}
+                    >
+                      Detalles
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
