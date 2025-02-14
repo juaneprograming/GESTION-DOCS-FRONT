@@ -12,52 +12,53 @@ import { CreateCargo } from "./create/page"
 import { EditCargo } from "./edit/page"
 
 const Cargos = () => {
-  const [cargos, setCargos] = useState(null) // Ahora es un objeto, no un array
+  const [cargos, setCargos] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [searchTerm, setSearchTerm] = useState("")
-  const [currentPage, setCurrentPage] = useState(1);
-  const [refreshFlag, setRefreshFlag] = useState(false) // Estado para forzar actualización
+  const [refreshFlag, setRefreshFlag] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10 // Número de elementos por página
 
   useEffect(() => {
     const fetchCargos = async () => {
       try {
-        setLoading(true);
-        const token = localStorage.getItem("token");
+        setLoading(true)
+        const token = localStorage.getItem("token")
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/administracion/cargos?page=${currentPage}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/administracion/cargos`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
-        );
+        )
 
-        
-
-        setCargos(response.data);
+        setCargos(response.data.data)
       } catch (err) {
-        console.error("Error fetching cargos:", err);
-        setError(err.message);
+        console.error("Error fetching cargos:", err)
+        setError(err.message)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchCargos();
-  }, [currentPage, refreshFlag]);
+    fetchCargos()
+  }, [refreshFlag])
 
-
-  // Función para forzar actualización
   const handleRefresh = () => setRefreshFlag(prev => !prev)
 
-  // Filtrar cargos según búsqueda
-  const filteredCargos = cargos?.data?.data
-    ? cargos.data.data.filter(
-      (cargo) =>
-        cargo.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        cargo.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    : [];
+  const filteredCargos = cargos.filter(
+    (cargo) =>
+      cargo.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      cargo.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
+  // Calcular los índices de los elementos a mostrar en la página actual
+  const indexOfLastItem = currentPage * itemsPerPage
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage
+  const currentItems = filteredCargos.slice(indexOfFirstItem, indexOfLastItem)
+
+  // Cambiar página
+  const paginate = (pageNumber) => setCurrentPage(pageNumber)
 
   return (
     <DashboardLayout>
@@ -119,14 +120,14 @@ const Cargos = () => {
                     Error: {error}
                   </TableCell>
                 </TableRow>
-              ) : filteredCargos.length === 0 ? (
+              ) : currentItems.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={3} className="text-center py-4 text-muted-foreground">
                     No se encontraron cargos
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredCargos.map((cargo) => (
+                currentItems.map((cargo) => (
                   <TableRow key={cargo.id} className="hover:bg-muted/50">
                     <TableCell className="font-medium">{cargo.nombre}</TableCell>
                     <TableCell>{cargo.descripcion}</TableCell>
@@ -143,26 +144,27 @@ const Cargos = () => {
         {/* Pagination */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Página {cargos?.data?.current_page} de {cargos?.data?.last_page}</span>
+            <span className="text-sm text-muted-foreground">
+              Página {currentPage} de {Math.ceil(filteredCargos.length / itemsPerPage)}
+            </span>
           </div>
           <div className="flex gap-2">
             <Button
               variant="outline"
-              disabled={!cargos?.data?.prev_page_url}
-              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              onClick={() => paginate(currentPage - 1)}
             >
               ⟨ Anterior
             </Button>
             <Button
               variant="outline"
-              disabled={!cargos?.data?.next_page_url}
-              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={indexOfLastItem >= filteredCargos.length}
+              onClick={() => paginate(currentPage + 1)}
             >
               Siguiente ⟩
             </Button>
           </div>
         </div>
-
       </div>
     </DashboardLayout>
   )

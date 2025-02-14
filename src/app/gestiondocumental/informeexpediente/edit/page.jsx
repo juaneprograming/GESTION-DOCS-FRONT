@@ -13,6 +13,8 @@ import { Button } from '@/components/ui/button';
 import { Download, Eye, FileText, CalendarDays, File } from 'lucide-react';
 import { CreateExpediente } from '../create/page';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Edit2 } from "lucide-react";
+import { toast } from 'sonner';
 
 export function EditExpediente() {
   const searchParams = useSearchParams();
@@ -20,7 +22,18 @@ export function EditExpediente() {
   const [expedienteData, setExpedienteData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedData, setEditedData] = useState({
+    nombre_expediente: "",
+    serie: "",
+    subserie: "",
+  });
+  const [originalData, setOriginalData] = useState({
+    nombre_expediente: "",
+    serie: "",
+    subserie: "",
+  });
+
 
   useEffect(() => {
     const fetchExpediente = async () => {
@@ -34,7 +47,18 @@ export function EditExpediente() {
             },
           }
         );
-        setExpedienteData(response.data);
+        const data = response.data;
+        setExpedienteData(data);
+        setEditedData({
+          nombre_expediente: data.nombre_expediente || "",
+          serie: data.serie || "",
+          subserie: data.subserie || "",
+        });
+        setOriginalData({
+          nombre_expediente: data.nombre_expediente || "",
+          serie: data.serie || "",
+          subserie: data.subserie || "",
+        });
       } catch (err) {
         console.error("Error fetching expediente:", err);
         setError(err.message);
@@ -46,6 +70,62 @@ export function EditExpediente() {
     if (id) fetchExpediente();
     else setLoading(false);
   }, [id]);
+
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleSave = async () => {
+    const relevantFields = ['nombre_expediente', 'serie', 'subserie'];
+    const hasChanges = relevantFields.some(
+      field => editedData[field] !== originalData[field]
+    );
+
+    if (!hasChanges) {
+      toast.info("No se han realizado cambios.");
+      setIsEditing(false);
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const payload = {
+        nombre_expediente: editedData.nombre_expediente,
+        serie: editedData.serie,
+        subserie: editedData.subserie,
+      };
+
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/expedientes/${id}`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      toast.success("Expediente actualizado exitosamente");
+      setOriginalData(editedData);
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Error al actualizar el expediente:", error);
+      toast.error("Error al actualizar el expediente.");
+    }
+  };
+
+  const handleCancel = () => {
+    setEditedData(originalData);
+    setIsEditing(false);
+  };
+
+  const handleChange = (field, value) => {
+    setEditedData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+  };
 
   if (loading) {
     return (
@@ -69,7 +149,7 @@ export function EditExpediente() {
       <div className="container mx-auto p-4 space-y-6">
         <div className="flex justify-between items-center">
           <div className="space-y-1">
-            <h2 className="text-2xl font-semibold tracking-tight">Expediente</h2>
+            <h2 className="text-4xl font-semibold tracking-tight">Expediente</h2>
             <Breadcrumb />
           </div>
         </div>
@@ -88,27 +168,62 @@ export function EditExpediente() {
                   <FileText className="w-5 h-5 text-blue-600" />
                   <CardTitle>Detalle de expediente</CardTitle>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => router.push(`/gestiondocumental/informeexpediente/edit?id=${expedienteData.id}`)}
-                >
-                  Detalles
-                </Button>
+                {isEditing ? (
+                  <div>
+                    <Button variant="outline" size="sm" onClick={handleSave}>
+                      Guardar
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={handleCancel}>
+                      Cancelar
+                    </Button>
+                  </div>
+                ) : (
+                  <Button variant="outline" size="sm" onClick={handleEdit}>
+                    <Edit2 className="h-4 w-4" />
+                    Editar
+                  </Button>
+                )}
               </CardHeader>
               <CardContent className="grid gap-4">
                 <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                   <div className="text-sm font-medium">N° Expediente</div>
-                  <div className="text-sm">{expedienteData.codigo_expediente}</div>
+
+                  <div className="text-sm font-medium">Nombre</div>
+                  {isEditing ? (
+                    <Input
+                      type="text"
+                      value={editedData.nombre_expediente}
+                      onChange={(e) => handleChange("nombre_expediente", e.target.value)}
+                    />
+                  ) : (
+                    <div className="text-sm">{expedienteData.nombre_expediente}</div>
+                  )}
+
 
                   <div className="text-sm font-medium">Nombre</div>
                   <div className="text-sm">{expedienteData.nombre_expediente}</div>
 
                   <div className="text-sm font-medium">Serie</div>
-                  <div className="text-sm">{expedienteData.serie}</div>
+                  {isEditing ? (
+                    <Input
+                      type="text"
+                      value={editedData.serie}
+                      onChange={(e) => handleChange("serie", e.target.value)}
+                    />
+                  ) : (
+                    <div className="text-sm">{expedienteData.serie}</div>
+                  )}
 
                   <div className="text-sm font-medium">Subserie</div>
-                  <div className="text-sm">{expedienteData.subserie}</div>
+                  {isEditing ? (
+                    <Input
+                      type="text"
+                      value={editedData.subserie}
+                      onChange={(e) => handleChange("subserie", e.target.value)}
+                    />
+                  ) : (
+                    <div className="text-sm">{expedienteData.subserie}</div>
+                  )}
 
                   <div className="text-sm font-medium">Fecha inicio del expediente</div>
                   <div className="text-sm">{expedienteData.fecha_expediente}</div>
@@ -122,11 +237,10 @@ export function EditExpediente() {
                   <div className="text-sm font-medium">Estado</div>
                   <div className="text-sm">
                     <span
-                      className={`px-2 py-1 rounded-full text-sm ${
-                        expedienteData.estado === 'Cerrado'
+                      className={`px-2 py-1 rounded-full text-sm ${expedienteData.estado === 'Cerrado'
                           ? 'bg-red-100 text-red-800'
                           : 'bg-green-100 text-green-800'
-                      }`}
+                        }`}
                     >
                       {expedienteData.estado}
                     </span>
