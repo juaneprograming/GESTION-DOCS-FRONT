@@ -109,6 +109,10 @@ export function EditExpediente() {
 
       toast.success("Expediente actualizado exitosamente");
       setOriginalData(editedData);
+      setExpedienteData((prevData) => ({
+        ...prevData,
+        ...editedData,
+      }));
       setIsEditing(false);
     } catch (error) {
       console.error("Error al actualizar el expediente:", error);
@@ -187,60 +191,62 @@ export function EditExpediente() {
               </CardHeader>
               <CardContent className="grid gap-4">
                 <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                  {/* N° Expediente */}
+
                   <div className="text-sm font-medium">N° Expediente</div>
+                  <div className="text-sm">{expedienteData.codigo_expediente}</div>
 
-                  <div className="text-sm font-medium">Nombre</div>
-                  {isEditing ? (
-                    <Input
-                      type="text"
-                      value={editedData.nombre_expediente}
-                      onChange={(e) => handleChange("nombre_expediente", e.target.value)}
-                    />
-                  ) : (
-                    <div className="text-sm">{expedienteData.nombre_expediente}</div>
-                  )}
-
-
+                  {/* Nombre */}
                   <div className="text-sm font-medium">Nombre</div>
                   <div className="text-sm">{expedienteData.nombre_expediente}</div>
 
+                  {/* Serie */}
                   <div className="text-sm font-medium">Serie</div>
-                  {isEditing ? (
-                    <Input
-                      type="text"
-                      value={editedData.serie}
-                      onChange={(e) => handleChange("serie", e.target.value)}
-                    />
-                  ) : (
-                    <div className="text-sm">{expedienteData.serie}</div>
-                  )}
+                  <div>
+                    {isEditing ? (
+                      <Input
+                        type="text"
+                        value={editedData.serie}
+                        onChange={(e) => handleChange("serie", e.target.value)}
+                      />
+                    ) : (
+                      <div className="text-sm">{expedienteData.serie}</div>
+                    )}
+                  </div>
 
+                  {/* Subserie */}
                   <div className="text-sm font-medium">Subserie</div>
-                  {isEditing ? (
-                    <Input
-                      type="text"
-                      value={editedData.subserie}
-                      onChange={(e) => handleChange("subserie", e.target.value)}
-                    />
-                  ) : (
-                    <div className="text-sm">{expedienteData.subserie}</div>
-                  )}
+                  <div>
+                    {isEditing ? (
+                      <Input
+                        type="text"
+                        value={editedData.subserie}
+                        onChange={(e) => handleChange("subserie", e.target.value)}
+                      />
+                    ) : (
+                      <div className="text-sm">{expedienteData.subserie}</div>
+                    )}
+                  </div>
 
+                  {/* Fecha inicio del expediente */}
                   <div className="text-sm font-medium">Fecha inicio del expediente</div>
                   <div className="text-sm">{expedienteData.fecha_expediente}</div>
 
+                  {/* Dependencia */}
                   <div className="text-sm font-medium">Dependencia</div>
                   <div className="text-sm">{expedienteData.dependencia}</div>
 
+                  {/* Usuario creador */}
                   <div className="text-sm font-medium">Usuario creador</div>
                   <div className="text-sm">aun no</div>
 
+                  {/* Estado */}
                   <div className="text-sm font-medium">Estado</div>
                   <div className="text-sm">
                     <span
                       className={`px-2 py-1 rounded-full text-sm ${expedienteData.estado === 'Cerrado'
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-green-100 text-green-800'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-green-100 text-green-800'
                         }`}
                     >
                       {expedienteData.estado}
