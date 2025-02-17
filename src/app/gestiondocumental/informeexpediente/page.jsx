@@ -15,6 +15,7 @@ export default function ExpedientesTable() {
   const [expedientes, setExpedientes] = useState([]);
   const [loading, setLoading] = useState(true);
    const router = useRouter()
+   const [refreshFlag, setRefreshFlag] = useState(false);
 
   useEffect(() => {
     const fetchExpedientes = async () => {
@@ -34,7 +35,7 @@ export default function ExpedientesTable() {
     };
 
     fetchExpedientes();
-  }, []);
+  }, [refreshFlag]);
 
   const handleRefresh = () => setRefreshFlag((prev) => !prev)
   

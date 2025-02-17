@@ -58,16 +58,22 @@ export function CreateExpediente({ onSuccess }) {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/expedientes`, formData, {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/expedientes`, formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
-            toast.success('Expediente creado exitosamente');
-            onSuccess?.();
-            setFormData(initialFormData);
-            setOpen(false);
+    
+            // Verificar si la respuesta es exitosa
+            if (response.status === 200 || response.status === 201) {
+                toast.success('Expediente creado exitosamente');
+                onSuccess?.();
+                setFormData(initialFormData);
+                setOpen(false);
+            } else {
+                toast.error('Error al guardar el expediente');
+            }
         } catch (error) {
             if (error.response && error.response.data && error.response.data.errors) {
                 const validationErrors = error.response.data.errors;
@@ -82,6 +88,7 @@ export function CreateExpediente({ onSuccess }) {
             setLoading(false);
         }
     };
+    
 
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
