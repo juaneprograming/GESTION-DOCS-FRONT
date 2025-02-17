@@ -84,10 +84,10 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 via-white to-purple-100 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-100 via-white to-green-100 relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden">
         <motion.div 
-          className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-purple-200/30 to-pink-200/30 rounded-full filter blur-3xl"
+          className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-green-200/30 to-pink-200/30 rounded-full filter blur-3xl"
           animate={{
             scale: [1, 1.2, 1],
             rotate: [0, 90, 0],
@@ -95,7 +95,7 @@ export default function Login() {
           }}
         />
         <motion.div 
-          className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-200/30 to-purple-200/30 rounded-full filter blur-3xl"
+          className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-200/30 to-green-200/30 rounded-full filter blur-3xl"
           animate={{
             scale: [1.2, 1, 1.2],
             rotate: [90, 0, 90],
@@ -109,8 +109,8 @@ export default function Login() {
           <Card className="w-full max-w-md mx-auto p-8 bg-white/90 backdrop-blur-sm border-0 shadow-lg">
             <div className="space-y-6">
               <div className="text-center space-y-2">
-                <div className="inline-block p-3 rounded-full bg-purple-50 mb-4">
-                  <FileText className="w-6 h-6 text-purple-600" />
+                <div className="inline-block p-3 rounded-full bg-green-50 mb-4">
+                  <FileText className="w-6 h-6 text-green-600" />
                 </div>
                 <h1 className="text-2xl font-semibold text-gray-900">
                   Iniciar Sesión
@@ -132,7 +132,7 @@ export default function Login() {
                       type="text"
                       name="username"
                       placeholder="Usuario"
-                      className="pl-10 h-12 bg-white/50 border-gray-200 focus:border-purple-300 focus:ring-purple-300"
+                      className="pl-10 h-12 bg-white/50 border-gray-200 focus:border-green-300 focus:ring-green-300"
                       value={formData.username}
                       onChange={handleInputChange}
                       required
@@ -144,7 +144,7 @@ export default function Login() {
                       type="password"
                       name="password"
                       placeholder="Contraseña"
-                      className="pl-10 h-12 bg-white/50 border-gray-200 focus:border-purple-300 focus:ring-purple-300"
+                      className="pl-10 h-12 bg-white/50 border-gray-200 focus:border-green-300 focus:ring-green-300"
                       value={formData.password}
                       onChange={handleInputChange}
                       required
@@ -153,12 +153,12 @@ export default function Login() {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full h-12 bg-purple-600 hover:bg-purple-700 text-white transition-all duration-200 ease-in-out transform hover:scale-[1.02]"
+                  className="w-full h-12 bg-green-600 hover:bg-green-700 text-white transition-all duration-200 ease-in-out transform hover:scale-[1.02]"
                 >
                   Iniciar Sesión
                 </Button>
               </form>
-              <div className="mt-4 text-center text-purple-500">
+              <div className="mt-4 text-center text-green-500">
                 <a href="/login/forgot">¿Olvidaste tu Contraseña?</a>
               </div>
             </div>
@@ -166,18 +166,18 @@ export default function Login() {
 
           <div className="hidden lg:block">
             <div className="relative aspect-square max-w-[500px] mx-auto">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-white rounded-2xl p-8">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-white rounded-2xl p-8">
                 <div className="relative w-full h-full">
                   <div className="absolute bottom-16 left-1/2 -translate-x-1/2 w-80">
                     <motion.div 
-                      className="h-8 w-32 bg-purple-200 rounded-t-lg mx-auto"
+                      className="h-8 w-32 bg-green-200 rounded-t-lg mx-auto"
                       animate={{
                         rotateX: [-5, 5, -5],
                         transition: { duration: 2, repeat: Infinity, ease: "easeInOut" }
                       }}
                     />
                     <motion.div 
-                      className="w-full h-48 bg-gradient-to-br from-purple-600 to-purple-400 rounded-tr-lg rounded-b-lg p-4 shadow-lg"
+                      className="w-full h-48 bg-gradient-to-br from-green-600 to-green-400 rounded-tr-lg rounded-b-lg p-4 shadow-lg"
                       animate={{
                         rotateX: [-2, 2, -2],
                         transition: { duration: 2, repeat: Infinity, ease: "easeInOut" }
@@ -220,7 +220,7 @@ export default function Login() {
                         delay: i * 1
                       }}
                     >
-                      <FileCheck className="w-8 h-8 text-purple-600" />
+                      <FileCheck className="w-8 h-8 text-green-600" />
                     </motion.div>
                   ))}
                 </div>
