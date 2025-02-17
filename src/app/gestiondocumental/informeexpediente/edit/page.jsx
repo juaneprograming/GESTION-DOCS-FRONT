@@ -15,6 +15,7 @@ import { CreateExpediente } from '../create/page';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Edit2 } from "lucide-react";
 import { toast } from 'sonner';
+import UploadDocumentModal from './uploadDocumentModal';
 
 export function EditExpediente() {
   const searchParams = useSearchParams();
@@ -301,6 +302,7 @@ export function EditExpediente() {
                 <File className="w-5 h-5 text-blue-600" />
                 <CardTitle>Documentos del expediente</CardTitle>
               </CardHeader>
+              <UploadDocumentModal/>
               <CardContent>
                 <Table>
                   <TableHeader>
