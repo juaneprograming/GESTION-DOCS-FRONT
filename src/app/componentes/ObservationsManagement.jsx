@@ -87,7 +87,7 @@ export default function ObservationsManagement({ pqrsdId }) {
             alert("Error: No se pudo identificar el archivo a descargar.");
             return;
         }
-    
+
         try {
             const token = localStorage.getItem("token");
             const response = await axios.get(
@@ -99,7 +99,7 @@ export default function ObservationsManagement({ pqrsdId }) {
                     responseType: "blob", // Importante para manejar archivos binarios
                 }
             );
-    
+
             // Crear un enlace temporal para descargar el archivo
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement("a");
@@ -188,7 +188,7 @@ export default function ObservationsManagement({ pqrsdId }) {
                                                 <TableCell>{fileFormat}</TableCell>
                                                 <TableCell>
                                                     <a
-                                                        href={`${process.env.NEXT_PUBLIC_API_URL}/storage/${doc.ruta}`}
+                                                        href={doc.url} // Usar la URL de S3
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         className="text-blue-600 hover:text-blue-800"
