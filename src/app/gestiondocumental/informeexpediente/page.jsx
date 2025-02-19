@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation"
 export default function ExpedientesTable() {
   const [expedientes, setExpedientes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshFlag, setRefreshFlag] = useState(false)
    const router = useRouter()
    const [refreshFlag, setRefreshFlag] = useState(false);
 
