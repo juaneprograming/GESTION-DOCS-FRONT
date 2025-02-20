@@ -21,7 +21,6 @@ export function EditExpediente() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const [expedienteData, setExpedienteData] = useState(null);
-  const [trazabilidadData, setTrazabilidadData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -47,7 +46,6 @@ export function EditExpediente() {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-
           }
         );
         const data = response.data;
@@ -73,36 +71,6 @@ export function EditExpediente() {
     if (id) fetchExpediente();
     else setLoading(false);
   }, [id]);
-
-  // Nuevo useEffect para fetching de trazabilidad
-  useEffect(() => {
-    const fetchTrazabilidad = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/expedientes/${id}/trazabilidad`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        // console.log("Respuesta de trazabilidad:", response.data);
-
-        setTrazabilidadData(response.data.data);
-  
-        
-      } catch (err) {
-        console.error("Error fetching trazabilidad:", err);
-        // Aquí puedes decidir si quieres manejar el error de manera específica o dejarlo pasar
-      }
-    };
-
-    if (id && expedienteData) {
-      fetchTrazabilidad();
-    }
-  }
-    , [id, expedienteData]);
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -296,15 +264,36 @@ export function EditExpediente() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  {trazabilidadData.map((item, index) => (
+                  {/* Estructura visual de la trazabilidad */}
+                  {[
+                    {
+                      date: "2023-08-02 18:17:22",
+                      user: "Hever Suarez",
+                      department: "DEPENDENCIA JURIDICA",
+                      observation: "Se cargó documento con el tipo documental anexos de forma individual al expediente",
+                    },
+                    {
+                      date: "2023-08-02 18:03:19",
+                      user: "Hever Suarez",
+                      department: "DEPENDENCIA JURIDICA",
+                      observation:
+                        "Se excluyó (el)los siguiente(s) documento(s): 202399401018-8.pdf del expediente solicitudes 90",
+                    },
+                    {
+                      date: "2023-08-02 17:55:02",
+                      user: "Hever Suarez",
+                      department: "DEPENDENCIA JURIDICA",
+                      observation: "Se cargó documento con el tipo documental anexos de forma individual al expediente",
+                    },
+                  ].map((item, index) => (
                     <div key={index} className="relative pl-6 pb-6 last:pb-0">
                       <div className="absolute left-0 top-2 w-3 h-3 bg-blue-600 rounded-full" />
-                      {index !== trazabilidadData.length - 1 && <div className="absolute left-[5px] top-4 w-0.5 h-full bg-gray-200" />}
+                      {index !== 2 && <div className="absolute left-[5px] top-4 w-0.5 h-full bg-gray-200" />}
                       <div className="space-y-1">
-                        <div className="text-sm text-muted-foreground">{new Date(item.fecha_subida).toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' })}</div>
-                        <div className="text-sm font-medium">  Usuario: {item.username || "Desconocido"}</div>
-                        <div className="text-sm">Dependencia: {item.dependencia}</div>
-                        <div className="text-sm text-muted-foreground">Observación: {item.comentarios}</div>
+                        <div className="text-sm text-muted-foreground">{item.date}</div>
+                        <div className="text-sm font-medium">Usuario: {item.user}</div>
+                        <div className="text-sm">Dependencia: {item.department}</div>
+                        <div className="text-sm text-muted-foreground">Observación: {item.observation}</div>
                       </div>
                     </div>
                   ))}
@@ -319,7 +308,7 @@ export function EditExpediente() {
                 <File className="w-5 h-5 text-blue-600" />
                 <CardTitle>Documentos del expediente</CardTitle>
               </CardHeader>
-              <UploadDocumentModal />
+              <UploadDocumentModal/>
               <CardContent>
                 <Table>
                   <TableHeader>
