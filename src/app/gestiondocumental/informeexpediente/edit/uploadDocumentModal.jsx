@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -9,12 +9,14 @@ import axios from 'axios';
 import { toast } from 'sonner';
 import { useSearchParams } from 'next/navigation';
 
-export function UploadDocumentModal({ expedienteId, onUploadSuccess }) {
+export function UploadDocumentModal({ onUploadSuccess }) {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
-  const entidad = searchParams.get('entidad')
+  const entidad = searchParams.get('entidad') || "expediente";
+
   const [file, setFile] = useState(null);
   const [documentName, setDocumentName] = useState('');
+  const [observacion, setObservacion] = useState('');
   const [open, setOpen] = useState(false);
 
   const handleFileChange = (event) => {
@@ -30,55 +32,69 @@ export function UploadDocumentModal({ expedienteId, onUploadSuccess }) {
     const formData = new FormData();
     formData.append('archivo', file);
     formData.append('nombre_documento', documentName);
-    formData.append('expediente_id', expedienteId);
+    formData.append('observacion', observacion);
 
     try {
       const token = localStorage.getItem('token');
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/expedientes/${id}/${entidad}/documentos`,
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/${entidad}/${id}/documentos`,
         formData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data'
-          }
+            'Content-Type': 'multipart/form-data',
+          },
         }
       );
+
+      // Notificar al componente padre sobre el nuevo documento
+      if (onUploadSuccess) onUploadSuccess(response.data.documento);
+
       toast.success('Documento subido con éxito');
       setFile(null);
       setDocumentName('');
+      setObservacion('');
       setOpen(false);
-      if (onUploadSuccess) onUploadSuccess();
     } catch (error) {
       toast.error('Error al subir el documento');
       console.error(error);
     }
   };
- 
-  useEffect(() => {
-    if (id && entidad) {
-      loadDocuments();
-    }
-  }, [id, entidad]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
+      {/* Botón para abrir el modal */}
       <Button variant="primary" className="gap-2" onClick={() => setOpen(true)}>
         <Upload className="h-4 w-4" />
         Subir Documento
       </Button>
+
+      {/* Contenido del modal */}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Subir nuevo documento</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
+          {/* Campo para el nombre del documento */}
           <Input
             type="text"
             placeholder="Nombre del documento"
             value={documentName}
             onChange={(e) => setDocumentName(e.target.value)}
           />
+
+          {/* Campo para la observación */}
+          <Input
+            type="text"
+            placeholder="Observación"
+            value={observacion}
+            onChange={(e) => setObservacion(e.target.value)}
+          />
+
+          {/* Campo para seleccionar el archivo */}
           <Input type="file" name="archivo" onChange={handleFileChange} />
+
+          {/* Botón para cargar el documento */}
           <Button onClick={handleUpload} className="w-full">
             Cargar Documento
           </Button>

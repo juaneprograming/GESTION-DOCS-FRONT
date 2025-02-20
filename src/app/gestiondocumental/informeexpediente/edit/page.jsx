@@ -20,6 +20,7 @@ import UploadDocumentModal from './uploadDocumentModal';
 export function EditExpediente() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
+  const entidad = searchParams.get('entidad') || "expediente";
   const [expedienteData, setExpedienteData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -34,13 +35,16 @@ export function EditExpediente() {
     serie: "",
     subserie: "",
   });
+  const [documentos, setDocumentos] = useState([]);
 
 
   useEffect(() => {
-    const fetchExpediente = async () => {
+    const fetchExpedienteAndDocuments = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get(
+
+        // Obtener el expediente
+        const expedienteResponse = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/expedientes/${id}`,
           {
             headers: {
@@ -48,27 +52,40 @@ export function EditExpediente() {
             },
           }
         );
-        const data = response.data;
-        setExpedienteData(data);
+        const expedienteData = expedienteResponse.data;
+
+        // Obtener los documentos
+        const documentosResponse = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/${entidad}/${id}/documentos`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const documentosData = documentosResponse.data.documentos;
+
+        setExpedienteData(expedienteData);
         setEditedData({
-          nombre_expediente: data.nombre_expediente || "",
-          serie: data.serie || "",
-          subserie: data.subserie || "",
+          nombre_expediente: expedienteData.nombre_expediente || "",
+          serie: expedienteData.serie || "",
+          subserie: expedienteData.subserie || "",
         });
         setOriginalData({
-          nombre_expediente: data.nombre_expediente || "",
-          serie: data.serie || "",
-          subserie: data.subserie || "",
+          nombre_expediente: expedienteData.nombre_expediente || "",
+          serie: expedienteData.serie || "",
+          subserie: expedienteData.subserie || "",
         });
+        setDocumentos(documentosData); // Guardar documentos en el estado
       } catch (err) {
-        console.error("Error fetching expediente:", err);
+        console.error("Error fetching expediente and documents:", err);
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
 
-    if (id) fetchExpediente();
+    if (id) fetchExpedienteAndDocuments();
     else setLoading(false);
   }, [id]);
 
@@ -308,7 +325,12 @@ export function EditExpediente() {
                 <File className="w-5 h-5 text-blue-600" />
                 <CardTitle>Documentos del expediente</CardTitle>
               </CardHeader>
-              <UploadDocumentModal/>
+              <UploadDocumentModal
+                  expedienteId={id}
+                  onUploadSuccess={(newDocumento) => {
+                    setDocumentos([...documentos, newDocumento]);                   
+                  }}
+                />
               <CardContent>
                 <Table>
                   <TableHeader>
@@ -317,45 +339,23 @@ export function EditExpediente() {
                       <TableHead>Tipo</TableHead>
                       <TableHead>Fecha</TableHead>
                       <TableHead>Tamaño</TableHead>
-                      <TableHead className="text-right">Acciones</TableHead>
+                      <TableHead>Acciones</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {/* Estructura visual de los documentos */}
-                    {[
-                      {
-                        name: "202399401018-1.pdf",
-                        type: "PDF",
-                        date: "2023-08-02",
-                        size: "1.2 MB",
-                      },
-                      {
-                        name: "202399401018-2.pdf",
-                        type: "PDF",
-                        date: "2023-08-02",
-                        size: "842 KB",
-                      },
-                      {
-                        name: "202399401018-3.pdf",
-                        type: "PDF",
-                        date: "2023-08-02",
-                        size: "1.5 MB",
-                      },
-                    ].map((doc, index) => (
-                      <TableRow key={index}>
-                        <TableCell className="font-medium">{doc.name}</TableCell>
-                        <TableCell>{doc.type}</TableCell>
-                        <TableCell>{doc.date}</TableCell>
-                        <TableCell>{doc.size}</TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button variant="outline" size="icon">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button variant="outline" size="icon">
-                              <Download className="h-4 w-4" />
-                            </Button>
-                          </div>
+                    {documentos.map((doc) => (
+                      <TableRow key={doc.id}>
+                        <TableCell>{doc.nombre_documento}</TableCell>
+                        <TableCell>{doc.nombre_original.split('.').pop().toUpperCase()}</TableCell>
+                        <TableCell>{new Date(doc.created_at).toLocaleDateString()}</TableCell>
+                        <TableCell>{(doc.tamaño / 1024).toFixed(2)} KB</TableCell>
+                        <TableCell>
+                          <Button variant="ghost" onClick={() => window.open(doc.url, '_blank')}>
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" onClick={() => downloadFile(doc.ruta)}>
+                            <Download className="h-4 w-4" />
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
