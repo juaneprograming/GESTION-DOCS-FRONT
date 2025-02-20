@@ -66,11 +66,11 @@ export default function ExpedientesTable() {
                 <TableHead className="w-14">#</TableHead>
                 <TableHead>N° Expediente</TableHead>
                 <TableHead>Nombre</TableHead>
-                <TableHead>Serie</TableHead>
-                <TableHead>Subserie</TableHead>
-                <TableHead>Fecha inicio del expediente</TableHead>
-                <TableHead>Dependencia</TableHead>
-                <TableHead>Usuario creador</TableHead>
+                <TableHead className="text-center">Serie</TableHead>
+                <TableHead className="text-center">Subserie</TableHead>
+                <TableHead className="text-center">Fecha inicio del expediente</TableHead>
+                <TableHead className="text-center">Dependencia</TableHead>
+                <TableHead className="text-center">Usuario creador</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead>Detalles</TableHead>
               </TableRow>
@@ -81,11 +81,11 @@ export default function ExpedientesTable() {
                   <TableCell className="font-medium">{index + 1}</TableCell>
                   <TableCell>{expediente.codigo_expediente}</TableCell>
                   <TableCell>{expediente.nombre_expediente}</TableCell>
-                  <TableCell>{expediente.serie}</TableCell>
-                  <TableCell>{expediente.subserie}</TableCell>
-                  <TableCell>{expediente.fecha_expediente}</TableCell>
-                  <TableCell>{expediente.dependencia}</TableCell>
-                  <TableCell>aun no</TableCell>
+                  <TableCell className="text-center">{expediente.serie}</TableCell>
+                  <TableCell className="text-center">{expediente.subserie}</TableCell>
+                  <TableCell className="text-center">{expediente.fecha_expediente}</TableCell>
+                  <TableCell className="text-center">{expediente.dependencia}</TableCell>
+                  <TableCell className="text-center">aun no</TableCell>
                   <TableCell>
                     <span
                       className={`px-2 py-1 rounded-full text-sm ${

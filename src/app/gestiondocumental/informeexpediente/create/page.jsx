@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { Textarea } from '@/components/ui/textarea';
 
 const initialFormData = {
     codigo_expediente: '',
@@ -92,168 +93,158 @@ export function CreateExpediente({ onSuccess }) {
 
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogTrigger asChild>
-                <Button className="gap-2">
-                    <Plus className="h-4 w-4" />
-                    Nuevo Expediente
-                </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
-                <DialogHeader>
-                    <DialogTitle>Crear Expediente</DialogTitle>
-                    <DialogDescription>
-                        Por favor, completa los campos necesarios para crear un nuevo expediente.
-                    </DialogDescription>
-                </DialogHeader>
-
-                <div className="grid gap-4 py-4">
-                    <div className="grid items-center gap-2">
-                        <Label htmlFor="codigo_expediente">Código del Expediente</Label>
+        <DialogTrigger asChild>
+            <Button variant="default" >
+                <Plus className="mr-2 h-4 w-4" />
+                Nuevo Expediente
+            </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[800px] md:max-w-[1000px]"> {/* Increased width for wider layout */}
+            <DialogHeader>
+                <DialogTitle>Crear Expediente</DialogTitle>
+                <DialogDescription>
+                    Por favor, completa los campos necesarios para crear un nuevo expediente.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+                {/* 3-Column Layout for Most Fields */}
+                <div className="grid grid-cols-3 gap-4">
+                    <div>
+                        <Label htmlFor="codigo_expediente">Código</Label>
                         <Input
                             id="codigo_expediente"
-                            name="codigo_expediente"
                             value={formData.codigo_expediente}
                             onChange={(e) => handleChange('codigo_expediente', e.target.value)}
                             className={errors.codigo_expediente ? 'border-red-500' : ''}
                         />
                         {errors.codigo_expediente && (
-                            <div className="text-red-500 text-sm">{errors.codigo_expediente}</div>
+                            <p className="text-red-500 text-sm">{errors.codigo_expediente}</p>
                         )}
                     </div>
-
-                    <div className="grid items-center gap-2">
-                        <Label htmlFor="nombre_expediente">Nombre del Expediente</Label>
+                    <div>
+                        <Label htmlFor="nombre_expediente">Nombre</Label>
                         <Input
                             id="nombre_expediente"
-                            name="nombre_expediente"
                             value={formData.nombre_expediente}
                             onChange={(e) => handleChange('nombre_expediente', e.target.value)}
                             className={errors.nombre_expediente ? 'border-red-500' : ''}
                         />
                         {errors.nombre_expediente && (
-                            <div className="text-red-500 text-sm">{errors.nombre_expediente}</div>
+                            <p className="text-red-500 text-sm">{errors.nombre_expediente}</p>
                         )}
                     </div>
-
-                    <div className="grid items-center gap-2">
-                        <Label htmlFor="fecha_expediente">Fecha del Expediente</Label>
+                    <div>
+                        <Label htmlFor="fecha_expediente">Fecha</Label>
                         <Input
                             id="fecha_expediente"
-                            name="fecha_expediente"
                             type="date"
                             value={formData.fecha_expediente}
                             onChange={(e) => handleChange('fecha_expediente', e.target.value)}
                             className={errors.fecha_expediente ? 'border-red-500' : ''}
                         />
                         {errors.fecha_expediente && (
-                            <div className="text-red-500 text-sm">{errors.fecha_expediente}</div>
+                            <p className="text-red-500 text-sm">{errors.fecha_expediente}</p>
                         )}
                     </div>
+                </div>
 
-                    <div className="grid items-center gap-2">
+                <div className="grid grid-cols-3 gap-4">
+                    <div>
                         <Label htmlFor="serie">Serie</Label>
                         <Input
                             id="serie"
-                            name="serie"
                             value={formData.serie}
                             onChange={(e) => handleChange('serie', e.target.value)}
                             className={errors.serie ? 'border-red-500' : ''}
                         />
                         {errors.serie && (
-                            <div className="text-red-500 text-sm">{errors.serie}</div>
+                            <p className="text-red-500 text-sm">{errors.serie}</p>
                         )}
                     </div>
-
-                    <div className="grid items-center gap-2">
+                    <div>
                         <Label htmlFor="subserie">Subserie</Label>
                         <Input
                             id="subserie"
-                            name="subserie"
                             value={formData.subserie}
                             onChange={(e) => handleChange('subserie', e.target.value)}
                             className={errors.subserie ? 'border-red-500' : ''}
                         />
                         {errors.subserie && (
-                            <div className="text-red-500 text-sm">{errors.subserie}</div>
+                            <p className="text-red-500 text-sm">{errors.subserie}</p>
                         )}
                     </div>
-
-                    <div className="grid items-center gap-2">
+                    <div>
                         <Label htmlFor="dependencia">Dependencia</Label>
                         <Input
                             id="dependencia"
-                            name="dependencia"
                             value={formData.dependencia}
                             onChange={(e) => handleChange('dependencia', e.target.value)}
                             className={errors.dependencia ? 'border-red-500' : ''}
                         />
                         {errors.dependencia && (
-                            <div className="text-red-500 text-sm">{errors.dependencia}</div>
+                            <p className="text-red-500 text-sm">{errors.dependencia}</p>
                         )}
                     </div>
+                </div>
 
-                    <div className="grid items-center gap-2">
+                <div className="grid grid-cols-3 gap-4">
+                    <div>
                         <Label htmlFor="dependencia_gestion">Dependencia Gestión</Label>
                         <Input
                             id="dependencia_gestion"
-                            name="dependencia_gestion"
                             value={formData.dependencia_gestion}
                             onChange={(e) => handleChange('dependencia_gestion', e.target.value)}
                             className={errors.dependencia_gestion ? 'border-red-500' : ''}
                         />
                         {errors.dependencia_gestion && (
-                            <div className="text-red-500 text-sm">{errors.dependencia_gestion}</div>
+                            <p className="text-red-500 text-sm">{errors.dependencia_gestion}</p>
                         )}
                     </div>
-
-                    <div className="grid items-center gap-2">
+                    <div>
                         <Label htmlFor="funcionario">Funcionario</Label>
                         <Input
                             id="funcionario"
-                            name="funcionario"
                             value={formData.funcionario}
                             onChange={(e) => handleChange('funcionario', e.target.value)}
                             className={errors.funcionario ? 'border-red-500' : ''}
                         />
                         {errors.funcionario && (
-                            <div className="text-red-500 text-sm">{errors.funcionario}</div>
+                            <p className="text-red-500 text-sm">{errors.funcionario}</p>
                         )}
                     </div>
-
-                    <div className="grid items-center gap-2">
-                        <Label htmlFor="descripcion">Descripción</Label>
-                        <Input
-                            id="descripcion"
-                            name="descripcion"
-                            value={formData.descripcion}
-                            onChange={(e) => handleChange('descripcion', e.target.value)}
-                            className={errors.descripcion ? 'border-red-500' : ''}
-                        />
-                        {errors.descripcion && (
-                            <div className="text-red-500 text-sm">{errors.descripcion}</div>
-                        )}
-                    </div>
-
-                    <div className="grid items-center gap-2">
+                    <div>
                         <Label htmlFor="estado">Estado</Label>
                         <Input
                             id="estado"
-                            name="estado"
                             value={formData.estado}
                             onChange={(e) => handleChange('estado', e.target.value)}
                         />
                     </div>
                 </div>
 
-                <div className="flex justify-end space-x-2">
-                    <Button variant="outline" onClick={() => setOpen(false)}>
-                        Cancelar
-                    </Button>
-                    <Button onClick={handleSubmit} disabled={loading}>
-                        {loading ? 'Guardando...' : 'Guardar'}
-                    </Button>
+                {/* Full-width Description */}
+                <div className="grid gap-4">
+                    <div>
+                        <Label htmlFor="descripcion">Descripción</Label>
+                        <Textarea
+                            id="descripcion"
+                            value={formData.descripcion}
+                            onChange={(e) => handleChange('descripcion', e.target.value)}
+                            className={`min-h-[100px] ${errors.descripcion ? 'border-red-500' : ''}`}
+                        />
+                        {errors.descripcion && (
+                            <p className="text-red-500 text-sm">{errors.descripcion}</p>
+                        )}
+                    </div>
                 </div>
-            </DialogContent>
-        </Dialog>
+            </div>
+            <div className="flex justify-end space-x-2">
+                <Button className="border" variant="primary" onClick={() => setOpen(false)}>Cancelar</Button>
+                <Button onClick={handleSubmit} disabled={loading}>
+                    {loading ? 'Guardando...' : 'Guardar'}
+                </Button>
+            </div>
+        </DialogContent>
+    </Dialog>
     );
 }

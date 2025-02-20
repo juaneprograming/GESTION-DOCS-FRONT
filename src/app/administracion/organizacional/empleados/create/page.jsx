@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import axios from "axios";
 import { toast } from 'sonner';
+import Image from "next/image"
 
 export function CreateEmpleado({ onEmpleadoCreado }) {
   const [open, setOpen] = useState(false);
@@ -23,6 +24,7 @@ export function CreateEmpleado({ onEmpleadoCreado }) {
   const [cargos, setCargos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [photoPreview, setPhotoPreview] = useState(null)
 
   const [formData, setFormData] = useState({
     nombre_1: "",
@@ -36,6 +38,7 @@ export function CreateEmpleado({ onEmpleadoCreado }) {
     cargo_id: "",
     sede_id: "",
     area_id: "",
+    foto: null,
   });
 
   useEffect(() => {
@@ -88,57 +91,86 @@ export function CreateEmpleado({ onEmpleadoCreado }) {
     }
   };
 
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      setFormData((prev) => ({ ...prev, foto: file }))
+      setPhotoPreview(URL.createObjectURL(file))
+    }
+  }
+
   const handleSubmit = async () => {
     setLoading(true);
     try {
-        const token = localStorage.getItem('token');
-        await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}/administracion/empleados`,
-            formData,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                },
-                withCredentials: true,
-            }
-        );
-        setOpen(false);
-        setFormData({
-            nombre_1: "",
-            nombre_2: "",
-            apellido_1: "",
-            apellido_2: "",
-            tipo_identificacion: "",
-            numero_identificacion: "",
-            correo: "",
-            telefono: "",
-            cargo_id: "",
-            sede_id: "",
-            area_id: "",
-        });
-        toast.success("Empleado creado exitosamente");
-        onEmpleadoCreado && onEmpleadoCreado();
-    } catch (error) {
-        if (error.response?.data?.errors) {
-            const validationErrors = error.response.data.errors;
-            setErrors(validationErrors);
-
-            if (validationErrors.correo) {
-                toast.error("Este correo ya está registrado.");
-            }
-
-            Object.entries(validationErrors).forEach(([field, messages]) => {
-                if (field !== 'correo') {
-                    toast.error(messages[0]);
-                }
-            });
-        } else {
-            toast.error(`Error al crear el empleado: ${error.response?.data?.message || 'Error en la creación del empleado'}`);
-        }
-    } finally {
+      if (!validateForm()) {
+        toast.error("Por favor, complete todos los campos requeridos.");
         setLoading(false);
+        return;
+      }
+
+      const token = localStorage.getItem('token');
+      const formDataToSend = new FormData();
+
+      // Añade todos los campos de texto a FormData
+      Object.keys(formData).forEach(key => {
+        if (key !== 'foto') {
+          formDataToSend.append(key, formData[key]);
+        }
+      });
+
+      // Añade la foto si existe
+      if (formData.foto) {
+        formDataToSend.append('foto', formData.foto);
+      }
+
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/administracion/empleados`,
+        formDataToSend,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Accept': 'application/json',
+          },
+          withCredentials: true,
+        }
+      );
+
+      setOpen(false);
+      setFormData({
+        nombre_1: "",
+        nombre_2: "",
+        apellido_1: "",
+        apellido_2: "",
+        tipo_identificacion: "",
+        numero_identificacion: "",
+        correo: "",
+        telefono: "",
+        cargo_id: "",
+        sede_id: "",
+        area_id: "",
+        foto: null,
+      });
+      toast.success("Empleado creado exitosamente");
+      onEmpleadoCreado && onEmpleadoCreado();
+    } catch (error) {
+      if (error.response?.data?.errors) {
+        const validationErrors = error.response.data.errors;
+        setErrors(validationErrors);
+
+        if (validationErrors.correo) {
+          toast.error("Este correo ya está registrado.");
+        }
+
+        Object.entries(validationErrors).forEach(([field, messages]) => {
+          if (field !== 'correo') {
+            toast.error(messages[0]);
+          }
+        });
+      } else {
+        toast.error(`Error al crear el empleado: ${error.response?.data?.message || 'Error en la creación del empleado'}`);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -338,7 +370,32 @@ export function CreateEmpleado({ onEmpleadoCreado }) {
           {errors.cargo_id && <span className="text-red-500 text-sm absolute -bottom-5">{errors.cargo_id}</span>}
         </div>
       </div>
-      
+              <div className="flex items-center gap-12">
+                <div className="w-[300px]">
+                  <Label htmlFor="foto" className="text-sm">
+                    Foto
+                  </Label>
+                  <Input
+                    id="foto"
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoUpload}
+                    className="cursor-pointer h-8"
+                  />
+                </div>
+                {photoPreview && (
+              <div className="mt-2">
+                <Image
+                  src={photoPreview}
+                  alt="Foto de perfil"
+                  width={100}
+                  height={100}
+                  className="rounded-lg object-cover" 
+                />
+              </div>
+            )}
+              </div>
+              
       <div className="flex justify-end space-x-2">
         <Button variant="outline" onClick={() => setOpen(false)} disabled={loading}>
           Cancelar

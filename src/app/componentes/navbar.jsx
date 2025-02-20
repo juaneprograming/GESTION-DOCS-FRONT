@@ -161,9 +161,9 @@ export function Navbar({ onToggleSidebar }) {
               onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
               className={`h-8 w-8 rounded-full overflow-hidden flex items-center justify-center ${bgColor} text-white font-bold text-lg`}
             >
-              {user?.profile_image ? (
+              {user?.empleado?.foto ? (
                 <img
-                  src={user.profile_image}
+                  src={user.empleado.foto}
                   alt="User avatar"
                   className="h-full w-full object-cover"
                 />
@@ -177,9 +177,9 @@ export function Navbar({ onToggleSidebar }) {
               <div className="absolute right-0 mt-2 w-auto min-w-[200px] max-w-[90vw] bg-white rounded-lg shadow-lg border py-1 z-50">
                 <div className="px-4 py-3 border-b">
                   <div className="flex items-center space-x-3">
-                    {user?.profile_image ? (
+                    {user?.empleado?.foto ? (
                       <img
-                        src={user.profile_image}
+                        src={user.empleado.foto}
                         alt="User avatar"
                         className="h-10 w-10 rounded-full object-cover"
                       />

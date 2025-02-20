@@ -12,6 +12,7 @@ import { Breadcrumb } from "@/app/componentes/breadcrumb"
 import { CreatePerfil } from "@/app/administracion/seguridad/perfiles/create/page"
 import { EditPerfil } from "@/app/administracion/seguridad/perfiles/edit/page"
 import AsignarUsuarios from "@/app/componentes/asignarUsuarios"
+import { ArrowLeft } from 'lucide-react';
 
 const Perfiles = () => {
   const [profiles, setProfiles] = useState([])
@@ -88,6 +89,7 @@ const Perfiles = () => {
               </>
             ) : (
               <Button variant="outline" onClick={() => setCurrentStep('list')}>
+                <ArrowLeft className="h-4 w-4" />
                 Regresar al Listado
               </Button>
             )}
