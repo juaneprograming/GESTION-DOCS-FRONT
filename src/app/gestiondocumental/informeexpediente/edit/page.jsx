@@ -379,12 +379,15 @@ export function EditExpediente() {
                 <File className="w-5 h-5 text-blue-600" />
                 <CardTitle>Documentos del expediente</CardTitle>
               </CardHeader>
-              <UploadDocumentModal
-                expedienteId={id}
-                onUploadSuccess={(newDocumento) => {
-                  setDocumentos([...documentos, newDocumento]);
-                }}
-              />
+              <div className="flex justify-end p-4">
+                <UploadDocumentModal
+                  expedienteId={id}
+                  onUploadSuccess={(newDocumento) => {
+                    setDocumentos([...documentos, newDocumento]);
+                  }}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-md border-2 border-black hover:bg-blue-600 transition-colors"
+                />
+              </div>
               <CardContent>
                 <Table>
                   <TableHeader>

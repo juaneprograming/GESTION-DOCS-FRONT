@@ -64,7 +64,11 @@ export function UploadDocumentModal({ onUploadSuccess }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       {/* Botón para abrir el modal */}
-      <Button variant="primary" className="gap-2" onClick={() => setOpen(true)}>
+      <Button
+        variant="primary"
+        className="gap-2 bg-black text-white border-2 border-black hover:bg-white hover:text-black hover:shadow-lg hover:scale-105 transition-all duration-300"
+        onClick={() => setOpen(true)}
+      >
         <Upload className="h-4 w-4" />
         Subir Documento
       </Button>
