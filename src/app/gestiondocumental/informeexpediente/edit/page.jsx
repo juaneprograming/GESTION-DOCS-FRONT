@@ -37,9 +37,30 @@ export function EditExpediente() {
   });
   const [documentos, setDocumentos] = useState([]);
 
-  const viewDocument = (url) => {
-    window.open(url, '_blank');
+  const viewDocument = async (filename) => {
+    try {
+      const token = localStorage.getItem("token");
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+      const response = await axios.get(
+        `${baseUrl}/expedientes/${id}/descargar/${filename}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          responseType: 'blob', // Importante para recibir el archivo binario
+        }
+      );
+
+      // Crear un objeto Blob y su URL
+      const file = new Blob([response.data], { type: "application/pdf" });
+      const fileURL = URL.createObjectURL(file);
+
+      // Abrir en una nueva pestaña
+      window.open(fileURL, '_blank');
+    } catch (error) {
+      console.error("Error al visualizar el documento:", error);
+      toast.error("Error al visualizar el documento.");
+    }
   };
+
 
   const downloadFile = async (filename) => {
     try {
@@ -383,9 +404,10 @@ export function EditExpediente() {
                         <TableCell>{new Date(doc.created_at).toLocaleDateString()}</TableCell>
                         <TableCell>{(doc.tamaño / 1024).toFixed(2)} KB</TableCell>
                         <TableCell>
-                          <Button variant="ghost" onClick={() => viewDocument(doc.url)}>
+                          <Button variant="ghost" onClick={() => viewDocument(doc.nombre_documento)}>
                             <Eye className="h-4 w-4" />
                           </Button>
+
                           <Button variant="ghost" onClick={() => downloadFile(doc.nombre_documento)}>
                             <Download className="h-4 w-4" />
                           </Button>
