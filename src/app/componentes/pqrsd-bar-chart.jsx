@@ -1,10 +1,30 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect } from "react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Array de meses
 const months = [
@@ -20,7 +40,7 @@ const months = [
   { value: "10", label: "Octubre" },
   { value: "11", label: "Noviembre" },
   { value: "12", label: "Diciembre" },
-]
+];
 
 const tiposPQRSD = [
   { value: "todos", label: "Todos los tipos" },
@@ -29,74 +49,100 @@ const tiposPQRSD = [
   { value: "Reclamo", label: "Reclamo" },
   { value: "Sugerencia", label: "Sugerencia" },
   { value: "Denuncia", label: "Denuncia" },
-]
+];
 
 const estadoColors = {
   radicadas: "hsl(var(--primary))",
   distribucion: "hsl(var(--warning))",
   finalizadas: "hsl(var(--success))",
-}
+};
 
 export default function PqrsdBarChart() {
-  const [data, setData] = useState([])
-  const [filteredData, setFilteredData] = useState([])
-  const [selectedTipo, setSelectedTipo] = useState("todos")
-  const [selectedMonth, setSelectedMonth] = useState("todos")
-  const [selectedYear, setSelectedYear] = useState("todos")
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [years, setYears] = useState([])
+  const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [selectedTipo, setSelectedTipo] = useState("todos");
+  const [selectedMonth, setSelectedMonth] = useState("todos");
+  const [selectedYear, setSelectedYear] = useState("todos");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [years, setYears] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+
+      const token = localStorage.getItem("token"); // O sessionStorage si prefieres
+
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pqrsdEstadisticas`)
-        const jsonData = await response.json()
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/getDashboardData`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`, // Se incluye el token
+            },
+          }
+        );
 
-        // Establecer los años disponibles
-        setYears(jsonData.years)
-        setData(jsonData.pqrsdPorMes)
+        if (response.status === 401) {
+          setError("No autorizado. Verifica tu sesión.");
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.statusText}`);
+        }
+
+        const jsonData = await response.json();
+
+        setYears(jsonData.years);
+        setData(jsonData.pqrsdPorMes);
       } catch (err) {
-        console.error("Error fetching statistics:", err)
-        setError("Failed to load statistics")
+        console.error("Error fetching statistics:", err);
+        setError("Error al cargar estadísticas");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchData()
-  }, [])
+    fetchData();
+  }, []);
 
   useEffect(() => {
-    if (!data.length) return
+    if (!data.length) return;
 
-    let processedData = data
+    let processedData = data;
 
     if (selectedTipo !== "todos") {
-      processedData = processedData.filter((item) => item.tipo_solicitud === selectedTipo)
+      processedData = processedData.filter(
+        (item) => item.tipo_solicitud === selectedTipo
+      );
     }
 
     if (selectedMonth !== "todos") {
-      processedData = processedData.filter((item) => item.mes === selectedMonth)
+      processedData = processedData.filter((item) => item.mes === selectedMonth);
     }
 
     if (selectedYear !== "todos") {
-      processedData = processedData.filter((item) => item.mes.startsWith(selectedYear))
+      processedData = processedData.filter((item) =>
+        item.mes.startsWith(selectedYear)
+      );
     }
 
-    setFilteredData(processedData)
-  }, [data, selectedTipo, selectedMonth, selectedYear])
+    setFilteredData(processedData);
+  }, [data, selectedTipo, selectedMonth, selectedYear]);
 
-  if (loading) return <div>Loading...</div>
-  if (error) return <div>{error}</div>
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div className="text-red-500">{error}</div>;
 
-  const uniqueMonths = [...new Set(data.map((item) => item.mes))]
+  const uniqueMonths = [...new Set(data.map((item) => item.mes))];
 
-  // Función para mapear el valor del mes a su nombre
   const getMonthName = (monthValue) => {
-    const month = months.find((m) => m.value === monthValue)
-    return month ? month.label : monthValue
-  }
+    const month = months.find((m) => m.value === monthValue);
+    return month ? month.label : monthValue;
+  };
 
   return (
     <Card>
@@ -139,7 +185,7 @@ export default function PqrsdBarChart() {
               <SelectItem value="todos">Todos los meses</SelectItem>
               {uniqueMonths.map((month) => (
                 <SelectItem key={month} value={month}>
-                  {getMonthName(month)} {/* Muestra el nombre del mes */}
+                  {getMonthName(month)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -149,9 +195,12 @@ export default function PqrsdBarChart() {
       <CardContent>
         <div className="h-[350px]">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+            <BarChart
+              data={filteredData}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="mes" tickFormatter={getMonthName} /> {/* Muestra el nombre del mes */}
+              <XAxis dataKey="mes" tickFormatter={getMonthName} />
               <YAxis label={{ value: "Cantidad de PQRSD", angle: -90, position: "insideLeft" }} />
               <Tooltip />
               <Legend />
@@ -163,5 +212,5 @@ export default function PqrsdBarChart() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
