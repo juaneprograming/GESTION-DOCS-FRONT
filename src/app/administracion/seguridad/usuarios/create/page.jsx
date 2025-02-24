@@ -155,7 +155,7 @@ export function CreateUsuario({ onSuccess }) {
         return fullName.toLowerCase().includes(searchTerm.toLowerCase());
     });
 
-    
+
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
@@ -173,21 +173,6 @@ export function CreateUsuario({ onSuccess }) {
                 </DialogHeader>
 
                 <div className="grid gap-4 py-4 grid-cols-2">
-                    {/* Username */}
-                    <div className="grid items-center gap-4">
-                        <Label htmlFor="username">Username</Label>
-                        <Input
-                            id="username"
-                            name="username"
-                            value={formData.username}
-                            onChange={(e) => handleChange("username", e.target.value)}
-                            className={errors.username ? "border-red-500" : ""}
-                        />
-                        {errors.username && (
-                            <div className="text-red-500 mt-1 text-sm">{errors.username}</div>
-                        )}
-                    </div>
-
                     {/* Empleado Selection */}
                     <div className="grid items-center gap-4">
                         <Label htmlFor="empleado_id">Empleado Disponible</Label>
@@ -215,6 +200,21 @@ export function CreateUsuario({ onSuccess }) {
                                 ))}
                             </SelectContent>
                         </Select>
+                    </div>
+
+                    {/* Username */}
+                    <div className="grid items-center gap-4">
+                        <Label htmlFor="username">Username</Label>
+                        <Input
+                            id="username"
+                            name="username"
+                            value={formData.username}
+                            onChange={(e) => handleChange("username", e.target.value)}
+                            className={errors.username ? "border-red-500" : ""}
+                        />
+                        {errors.username && (
+                            <div className="text-red-500 mt-1 text-sm">{errors.username}</div>
+                        )}
                     </div>
 
                     {/* Nombre del empleado */}

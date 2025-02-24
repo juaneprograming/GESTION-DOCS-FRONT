@@ -70,7 +70,7 @@ const OrganigramaGoJS = () => {
                 opacity: 0.9,
               },
               new go.Binding("text", "employees", (e) =>
-                `${e} ${e === 1 ? "colaborador" : "colaboradores"}`
+                `${e} ${e === 1 ? "Empleado" : "Empleados"}`
               )
             )
           )
