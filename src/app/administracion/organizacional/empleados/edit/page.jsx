@@ -49,7 +49,8 @@ export function EditEmpleado({ empleadoId, onEmpleadoActualizado }) {
         telefono: "",
         cargo_id: "",
         sede_id: "",
-        area_id: ""
+        area_id: "",
+        foto:"",
     });
 
     const fetchDataWithCache = useCallback(async (endpoint, cacheKey) => {
@@ -197,12 +198,20 @@ export function EditEmpleado({ empleadoId, onEmpleadoActualizado }) {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/administracion/empleados/${empleadoId}`, formData, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+            const dataToSend = {
+                ...formData,
+                foto: null // Aseguramos que la foto siempre se envíe como null
+            };
+            await axios.put(
+                `${process.env.NEXT_PUBLIC_API_URL}/administracion/empleados/${empleadoId}`, 
+                dataToSend, // Enviamos dataToSend en lugar de formData
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
                 }
-            });
+            );
             toast.success("Empleado actualizado exitosamente");
             onEmpleadoActualizado?.();
             setCache(prev => ({ ...prev, [empleadoId]: formData }));

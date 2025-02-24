@@ -19,6 +19,7 @@ import UploadDocumentModal from './uploadDocumentModal';
 
 export function EditExpediente() {
   const searchParams = useSearchParams();
+  const [trazabilidad, setTrazabilidad] = useState([]);
   const id = searchParams.get("id");
   const entidad = searchParams.get('entidad') || "expediente";
   const [expedienteData, setExpedienteData] = useState(null);
@@ -130,6 +131,7 @@ export function EditExpediente() {
           serie: expedienteData.serie || "",
           subserie: expedienteData.subserie || "",
         });
+        await fetchTrazabilidad();
         setDocumentos(documentosData); // Guardar documentos en el estado
       } catch (err) {
         console.error("Error fetching expediente and documents:", err);
@@ -142,6 +144,26 @@ export function EditExpediente() {
     if (id) fetchExpedienteAndDocuments();
     else setLoading(false);
   }, [id]);
+
+  const fetchTrazabilidad = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/expedientes/${id}/trazabilidad`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log('Datos de trazabilidad:', response.data);
+      setTrazabilidad(response.data);
+    } catch (error) {
+      console.error("Error al obtener la trazabilidad:", error);
+      toast.error("Error al cargar la trazabilidad del expediente");
+    }
+  };
+
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -335,39 +357,34 @@ export function EditExpediente() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  {/* Estructura visual de la trazabilidad */}
-                  {[
-                    {
-                      date: "2023-08-02 18:17:22",
-                      user: "Hever Suarez",
-                      department: "DEPENDENCIA JURIDICA",
-                      observation: "Se cargó documento con el tipo documental anexos de forma individual al expediente",
-                    },
-                    {
-                      date: "2023-08-02 18:03:19",
-                      user: "Hever Suarez",
-                      department: "DEPENDENCIA JURIDICA",
-                      observation:
-                        "Se excluyó (el)los siguiente(s) documento(s): 202399401018-8.pdf del expediente solicitudes 90",
-                    },
-                    {
-                      date: "2023-08-02 17:55:02",
-                      user: "Hever Suarez",
-                      department: "DEPENDENCIA JURIDICA",
-                      observation: "Se cargó documento con el tipo documental anexos de forma individual al expediente",
-                    },
-                  ].map((item, index) => (
-                    <div key={index} className="relative pl-6 pb-6 last:pb-0">
-                      <div className="absolute left-0 top-2 w-3 h-3 bg-blue-600 rounded-full" />
-                      {index !== 2 && <div className="absolute left-[5px] top-4 w-0.5 h-full bg-gray-200" />}
-                      <div className="space-y-1">
-                        <div className="text-sm text-muted-foreground">{item.date}</div>
-                        <div className="text-sm font-medium">Usuario: {item.user}</div>
-                        <div className="text-sm">Dependencia: {item.department}</div>
-                        <div className="text-sm text-muted-foreground">Observación: {item.observation}</div>
+                {trazabilidad.length === 0 ? (
+                    <div className="text-center text-gray-500">No hay registros de trazabilidad</div>
+                  ) : (
+                    trazabilidad.map((item, index) => (
+                      <div key={index} className="relative pl-6 pb-6 last:pb-0">
+                        <div className="absolute left-0 top-2 w-3 h-3 bg-blue-600 rounded-full" />
+                        {index !== trazabilidad.length - 1 && (
+                          <div className="absolute left-[5px] top-4 w-0.5 h-full bg-gray-200" />
+                        )}
+                        <div className="space-y-1">
+                          <div className="text-sm text-muted-foreground">
+                            {new Date(item.created_at).toLocaleString()}
+                          </div>
+                          <div className="text-sm font-medium">
+                            Usuario: {item.usuario ? item.usuario.username : 'Usuario no disponible'}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Acción: {item.accion}
+                          </div>
+                          {item.descripcion && (
+                            <div className="text-sm text-muted-foreground">
+                              Descripción: {item.descripcion}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
