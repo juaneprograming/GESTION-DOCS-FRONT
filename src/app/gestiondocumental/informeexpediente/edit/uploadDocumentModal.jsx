@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import { useSearchParams } from 'next/navigation';
 import { Progress } from "@/components/ui/progress";
 
-export function UploadDocumentModal({ onUploadSuccess }) {
+export function UploadDocumentModal({ onUploadSuccess, setDocumentosRefresh }) {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const entidad = searchParams.get('entidad') || "expediente";
@@ -85,7 +85,8 @@ export function UploadDocumentModal({ onUploadSuccess }) {
         setFile(null);
         setDocumentName('');
         setObservacion('');
-        setUploadProgress(0); // Reseteamos el progreso
+        setUploadProgress(0);
+        setDocumentosRefresh(prev => !prev); // Actualizar el estado para refrescar
         setOpen(false);
       }, 500);
     } catch (error) {

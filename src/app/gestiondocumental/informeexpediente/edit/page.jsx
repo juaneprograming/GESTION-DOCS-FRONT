@@ -27,6 +27,7 @@ export function EditExpediente() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [documentosRefresh, setDocumentosRefresh] = useState(false);
   const [trazabilidadRefreshFlag, setTrazabilidadRefreshFlag] = useState(false);
   const [editedData, setEditedData] = useState({
     nombre_expediente: "",
@@ -224,6 +225,12 @@ export function EditExpediente() {
     }
   }, [id, trazabilidadRefreshFlag]);
 
+  useEffect(() => {
+    if (id) {
+      fetchTrazabilidad();
+    }
+  }, [id, documentosRefresh]);
+
   const handleCancel = () => {
     setEditedData(originalData);
     setIsEditing(false);
@@ -271,7 +278,7 @@ export function EditExpediente() {
 
           <TabsContent value="details" className="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-6">
             {/* Detalle de expediente */}
-            <Card className="h-fit">
+            <Card className="h-full">
             <CardHeader className="flex flex-row items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <FileText className="w-5 h-5 text-blue-600" />
@@ -293,7 +300,7 @@ export function EditExpediente() {
                   </Button>
                 )}
               </CardHeader>
-              <CardContent className="grid gap-4 max-h-[600px] overflow-y-auto">
+              <CardContent className="grid gap-4">
                 <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                   {/* N° Expediente */}
 
@@ -434,6 +441,7 @@ export function EditExpediente() {
                   onUploadSuccess={(newDocumento) => {
                     setDocumentos([...documentos, newDocumento]);
                   }}
+                  setDocumentosRefresh={setDocumentosRefresh}
                   className="bg-blue-500 text-white px-4 py-2 rounded-md border-2 border-black hover:bg-blue-600 transition-colors"
                 />
               </div>
