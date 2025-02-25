@@ -342,7 +342,7 @@ export function EditExpediente() {
 
                   {/* Usuario creador */}
                   <div className="text-sm font-medium">Usuario creador</div>
-                  <div className="text-sm">aun no</div>
+                  <div className="text-sm">{expedienteData.funcionario}</div>
 
                   {/* Estado */}
                   <div className="text-sm font-medium">Estado</div>
