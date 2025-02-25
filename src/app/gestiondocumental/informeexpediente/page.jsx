@@ -85,7 +85,7 @@ export default function ExpedientesTable() {
                   <TableCell className="text-center">{expediente.subserie}</TableCell>
                   <TableCell className="text-center">{expediente.fecha_expediente}</TableCell>
                   <TableCell className="text-center">{expediente.dependencia}</TableCell>
-                  <TableCell className="text-center">aun no</TableCell>
+                  <TableCell className="text-center">{expediente.usuario?.name || expediente.funcionario || 'No asignado'}</TableCell>
                   <TableCell>
                     <span
                       className={`px-2 py-1 rounded-full text-sm ${

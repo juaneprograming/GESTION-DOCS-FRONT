@@ -16,6 +16,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Edit2 } from "lucide-react";
 import { toast } from 'sonner';
 import UploadDocumentModal from './uploadDocumentModal';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export function EditExpediente() {
   const searchParams = useSearchParams();
@@ -26,6 +27,7 @@ export function EditExpediente() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [trazabilidadRefreshFlag, setTrazabilidadRefreshFlag] = useState(false);
   const [editedData, setEditedData] = useState({
     nombre_expediente: "",
     serie: "",
@@ -207,11 +209,20 @@ export function EditExpediente() {
         ...editedData,
       }));
       setIsEditing(false);
+        // Actualizar la trazabilidad después de guardar cambios
+        await fetchTrazabilidad();
+        setTrazabilidadRefreshFlag(prev => !prev);
     } catch (error) {
       console.error("Error al actualizar el expediente:", error);
       toast.error("Error al actualizar el expediente.");
     }
   };
+
+  useEffect(() => {
+    if (id) {
+      fetchTrazabilidad();
+    }
+  }, [id, trazabilidadRefreshFlag]);
 
   const handleCancel = () => {
     setEditedData(originalData);
@@ -260,8 +271,8 @@ export function EditExpediente() {
 
           <TabsContent value="details" className="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-6">
             {/* Detalle de expediente */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
+            <Card className="h-fit">
+            <CardHeader className="flex flex-row items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <FileText className="w-5 h-5 text-blue-600" />
                   <CardTitle>Detalle de expediente</CardTitle>
@@ -282,7 +293,7 @@ export function EditExpediente() {
                   </Button>
                 )}
               </CardHeader>
-              <CardContent className="grid gap-4">
+              <CardContent className="grid gap-4 max-h-[600px] overflow-y-auto">
                 <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                   {/* N° Expediente */}
 
@@ -351,40 +362,61 @@ export function EditExpediente() {
 
             {/* Trazabilidad de expediente */}
             <Card>
-              <CardHeader className="flex flex-row items-center space-x-2">
-                <CalendarDays className="w-5 h-5 text-blue-600" />
+            <CardHeader className="flex flex-row items-center space-x-2">
+            <CalendarDays className="w-5 h-5 text-blue-600" />
                 <CardTitle>Trazabilidad de expediente</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-6">
-                {trazabilidad.length === 0 ? (
-                    <div className="text-center text-gray-500">No hay registros de trazabilidad</div>
-                  ) : (
-                    trazabilidad.map((item, index) => (
-                      <div key={index} className="relative pl-6 pb-6 last:pb-0">
-                        <div className="absolute left-0 top-2 w-3 h-3 bg-blue-600 rounded-full" />
-                        {index !== trazabilidad.length - 1 && (
-                          <div className="absolute left-[5px] top-4 w-0.5 h-full bg-gray-200" />
-                        )}
-                        <div className="space-y-1">
-                          <div className="text-sm text-muted-foreground">
-                            {new Date(item.created_at).toLocaleString()}
-                          </div>
-                          <div className="text-sm font-medium">
-                            Usuario: {item.usuario ? item.usuario.username : 'Usuario no disponible'}
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            Acción: {item.accion}
-                          </div>
-                          {item.descripcion && (
-                            <div className="text-sm text-muted-foreground">
-                              Descripción: {item.descripcion}
-                            </div>
+              <div className="space-y-6 max-h-[310px] overflow-y-auto pr-2">
+                  <AnimatePresence>
+                    {trazabilidad.length === 0 ? (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="text-center text-gray-500"
+                      >
+                        No hay registros de trazabilidad
+                      </motion.div>
+                    ) : (
+                      trazabilidad.map((item, index) => (
+                        <motion.div
+                          key={item.id || index}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -20 }}
+                          transition={{ duration: 0.3, delay: index * 0.1 }}
+                          className="relative pl-6 pb-6 last:pb-0"
+                        >
+                          <div className="absolute left-0 top-2 w-3 h-3 bg-blue-600 rounded-full" />
+                          {index !== trazabilidad.length - 1 && (
+                            <div className="absolute left-[5px] top-4 w-0.5 h-full bg-gray-200" />
                           )}
-                        </div>
-                      </div>
-                    ))
-                  )}
+                          <motion.div 
+                            className="space-y-1"
+                            initial={{ x: -20 }}
+                            animate={{ x: 0 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <div className="text-sm text-muted-foreground">
+                              {new Date(item.created_at).toLocaleString()}
+                            </div>
+                            <div className="text-sm font-medium">
+                              Usuario: {item.usuario ? item.usuario.username : 'Usuario no disponible'}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              Acción: {item.accion}
+                            </div>
+                            {item.descripcion && (
+                              <div className="text-sm text-muted-foreground">
+                                Descripción: {item.descripcion}
+                              </div>
+                            )}
+                          </motion.div>
+                        </motion.div>
+                      ))
+                    )}
+                  </AnimatePresence>
                 </div>
               </CardContent>
             </Card>

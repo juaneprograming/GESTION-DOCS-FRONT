@@ -8,6 +8,7 @@ import { Upload } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { useSearchParams } from 'next/navigation';
+import { Progress } from "@/components/ui/progress";
 
 export function UploadDocumentModal({ onUploadSuccess }) {
   const searchParams = useSearchParams();
@@ -18,9 +19,16 @@ export function UploadDocumentModal({ onUploadSuccess }) {
   const [documentName, setDocumentName] = useState('');
   const [observacion, setObservacion] = useState('');
   const [open, setOpen] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleFileChange = (event) => {
-    setFile(event.target.files[0]);
+    const selectedFile = event.target.files[0];
+    setFile(selectedFile);
+    // Mostrar el tamaño del archivo seleccionado
+    if (selectedFile) {
+      const fileSizeInMB = (selectedFile.size / (1024 * 1024)).toFixed(2);
+      console.log(`Tamaño del archivo: ${fileSizeInMB} MB`);
+    }
   };
 
   const handleUpload = async () => {
@@ -35,6 +43,7 @@ export function UploadDocumentModal({ onUploadSuccess }) {
     formData.append('observacion', observacion);
 
     try {
+      setUploadProgress(1);
       const token = localStorage.getItem('token');
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/${entidad}/${id}/documentos`,
@@ -44,18 +53,43 @@ export function UploadDocumentModal({ onUploadSuccess }) {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data',
           },
+          onUploadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              // Calculamos el progreso basado en el tamaño del archivo
+              const loaded = progressEvent.loaded;
+              const total = progressEvent.total;
+              
+              // Ajustamos la velocidad del progreso según el tamaño del archivo
+              const fileSizeInMB = total / (1024 * 1024);
+              let delay = 0;
+              
+              // Ajustamos el delay según el tamaño
+              if (fileSizeInMB < 1) delay = 100; // archivos pequeños
+              else if (fileSizeInMB < 5) delay = 200; // archivos medianos
+              else delay = 300; // archivos grandes
+              
+              const percentCompleted = Math.round((loaded * 100) / total);
+              
+              setTimeout(() => {
+                setUploadProgress(percentCompleted);
+              }, delay);
+            }
+          },
         }
       );
+      setUploadProgress(100);
 
-      // Notificar al componente padre sobre el nuevo documento
-      if (onUploadSuccess) onUploadSuccess(response.data.documento);
-
-      toast.success('Documento subido con éxito');
-      setFile(null);
-      setDocumentName('');
-      setObservacion('');
-      setOpen(false);
+      setTimeout(() => {
+        if (onUploadSuccess) onUploadSuccess(response.data.documento);
+        toast.success('Documento subido con éxito');
+        setFile(null);
+        setDocumentName('');
+        setObservacion('');
+        setUploadProgress(0); // Reseteamos el progreso
+        setOpen(false);
+      }, 500);
     } catch (error) {
+      setUploadProgress(0);
       toast.error('Error al subir el documento');
       console.error(error);
     }
@@ -99,9 +133,26 @@ export function UploadDocumentModal({ onUploadSuccess }) {
           <Input type="file" name="archivo" onChange={handleFileChange} />
 
           {/* Botón para cargar el documento */}
-          <Button onClick={handleUpload} className="w-full">
-            Cargar Documento
-          </Button>
+          <div className="space-y-2">
+            {uploadProgress > 0 && uploadProgress < 100 && (
+              <div className="w-full space-y-1">
+                <Progress value={uploadProgress} className="w-full h-2" />
+                <p className="text-sm text-center text-muted-foreground">
+                  Subiendo... {uploadProgress}%
+                </p>
+              </div>
+            )}
+            <Button
+              onClick={handleUpload}
+              className="w-full"
+              disabled={uploadProgress > 0 && uploadProgress < 100}
+            >
+              {uploadProgress > 0 && uploadProgress < 100
+                ? 'Subiendo documento...'
+                : 'Cargar Documento'
+              }
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
