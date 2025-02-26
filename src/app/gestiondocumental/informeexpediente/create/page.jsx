@@ -106,23 +106,11 @@ export function CreateExpediente({ onSuccess }) {
                     Por favor, completa los campos necesarios para crear un nuevo expediente.
                 </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-                {/* 3-Column Layout for Most Fields */}
-                <div className="grid grid-cols-3 gap-4">
-                    <div>
-                        <Label htmlFor="codigo_expediente">Código</Label>
-                        <Input
-                            id="codigo_expediente"
-                            value={formData.codigo_expediente}
-                            onChange={(e) => handleChange('codigo_expediente', e.target.value)}
-                            className={errors.codigo_expediente ? 'border-red-500' : ''}
-                        />
-                        {errors.codigo_expediente && (
-                            <p className="text-red-500 text-sm">{errors.codigo_expediente}</p>
-                        )}
-                    </div>
-                    <div>
-                        <Label htmlFor="nombre_expediente">Nombre</Label>
+            <div className="grid gap-6 py-4">
+                {/* Primera fila - Nombre y Fecha */}
+                <div className="grid grid-cols-2 gap-6">
+                    <div className="col-span-1">
+                        <Label htmlFor="nombre_expediente">Nombre del Expediente</Label>
                         <Input
                             id="nombre_expediente"
                             value={formData.nombre_expediente}
@@ -133,8 +121,8 @@ export function CreateExpediente({ onSuccess }) {
                             <p className="text-red-500 text-sm">{errors.nombre_expediente}</p>
                         )}
                     </div>
-                    <div>
-                        <Label htmlFor="fecha_expediente">Fecha</Label>
+                    <div className="col-span-1">
+                        <Label htmlFor="fecha_expediente">Fecha de Creación</Label>
                         <Input
                             id="fecha_expediente"
                             type="date"
@@ -148,9 +136,10 @@ export function CreateExpediente({ onSuccess }) {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
+                {/* Segunda fila - Serie y Subserie */}
+                <div className="grid grid-cols-2 gap-6">
                     <div>
-                        <Label htmlFor="serie">Serie</Label>
+                        <Label htmlFor="serie">Serie Documental</Label>
                         <Input
                             id="serie"
                             value={formData.serie}
@@ -162,7 +151,7 @@ export function CreateExpediente({ onSuccess }) {
                         )}
                     </div>
                     <div>
-                        <Label htmlFor="subserie">Subserie</Label>
+                        <Label htmlFor="subserie">Subserie Documental</Label>
                         <Input
                             id="subserie"
                             value={formData.subserie}
@@ -173,6 +162,10 @@ export function CreateExpediente({ onSuccess }) {
                             <p className="text-red-500 text-sm">{errors.subserie}</p>
                         )}
                     </div>
+                </div>
+
+                {/* Tercera fila - Dependencias y Estado */}
+                <div className="grid grid-cols-3 gap-6">
                     <div>
                         <Label htmlFor="dependencia">Dependencia</Label>
                         <Input
@@ -185,11 +178,8 @@ export function CreateExpediente({ onSuccess }) {
                             <p className="text-red-500 text-sm">{errors.dependencia}</p>
                         )}
                     </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-4">
                     <div>
-                        <Label htmlFor="dependencia_gestion">Dependencia Gestión</Label>
+                        <Label htmlFor="dependencia_gestion">Dependencia de Gestión</Label>
                         <Input
                             id="dependencia_gestion"
                             value={formData.dependencia_gestion}
@@ -201,41 +191,30 @@ export function CreateExpediente({ onSuccess }) {
                         )}
                     </div>
                     <div>
-                        <Label htmlFor="funcionario">Funcionario</Label>
-                        <Input
-                            id="funcionario"
-                            value={formData.funcionario}
-                            onChange={(e) => handleChange('funcionario', e.target.value)}
-                            className={errors.funcionario ? 'border-red-500' : ''}
-                        />
-                        {errors.funcionario && (
-                            <p className="text-red-500 text-sm">{errors.funcionario}</p>
-                        )}
-                    </div>
-                    <div>
-                        <Label htmlFor="estado">Estado</Label>
+                        <Label htmlFor="estado">Estado del Expediente</Label>
                         <Input
                             id="estado"
                             value={formData.estado}
                             onChange={(e) => handleChange('estado', e.target.value)}
+                            disabled
+                            className="bg-gray-50"
                         />
                     </div>
                 </div>
 
-                {/* Full-width Description */}
-                <div className="grid gap-4">
-                    <div>
-                        <Label htmlFor="descripcion">Descripción</Label>
-                        <Textarea
-                            id="descripcion"
-                            value={formData.descripcion}
-                            onChange={(e) => handleChange('descripcion', e.target.value)}
-                            className={`min-h-[100px] ${errors.descripcion ? 'border-red-500' : ''}`}
-                        />
-                        {errors.descripcion && (
-                            <p className="text-red-500 text-sm">{errors.descripcion}</p>
-                        )}
-                    </div>
+                {/* Cuarta fila - Descripción */}
+                <div>
+                    <Label htmlFor="descripcion">Descripción del Expediente</Label>
+                    <Textarea
+                        id="descripcion"
+                        value={formData.descripcion}
+                        onChange={(e) => handleChange('descripcion', e.target.value)}
+                        className={`min-h-[100px] ${errors.descripcion ? 'border-red-500' : ''}`}
+                        placeholder="Ingrese una descripción detallada del expediente..."
+                    />
+                    {errors.descripcion && (
+                        <p className="text-red-500 text-sm">{errors.descripcion}</p>
+                    )}
                 </div>
             </div>
             <div className="flex justify-end space-x-2">

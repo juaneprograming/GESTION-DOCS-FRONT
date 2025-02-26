@@ -17,6 +17,8 @@ import { Edit2 } from "lucide-react";
 import { toast } from 'sonner';
 import UploadDocumentModal from './uploadDocumentModal';
 import { motion, AnimatePresence } from 'framer-motion';
+import { UserRoundPen, FilePlus, FileArchive } from 'lucide-react';
+
 
 export function EditExpediente() {
   const searchParams = useSearchParams();
@@ -210,9 +212,9 @@ export function EditExpediente() {
         ...editedData,
       }));
       setIsEditing(false);
-        // Actualizar la trazabilidad después de guardar cambios
-        await fetchTrazabilidad();
-        setTrazabilidadRefreshFlag(prev => !prev);
+      // Actualizar la trazabilidad después de guardar cambios
+      await fetchTrazabilidad();
+      setTrazabilidadRefreshFlag(prev => !prev);
     } catch (error) {
       console.error("Error al actualizar el expediente:", error);
       toast.error("Error al actualizar el expediente.");
@@ -265,7 +267,7 @@ export function EditExpediente() {
       <div className="container mx-auto p-4 space-y-6">
         <div className="flex justify-between items-center">
           <div className="space-y-1">
-            <h2 className="text-4xl font-semibold tracking-tight">Expediente</h2>
+            <h2 className="text-4xl font-semibold tracking-tight">Expediente {expedienteData.codigo_expediente}</h2>
             <Breadcrumb />
           </div>
         </div>
@@ -279,7 +281,7 @@ export function EditExpediente() {
           <TabsContent value="details" className="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-6">
             {/* Detalle de expediente */}
             <Card className="h-full">
-            <CardHeader className="flex flex-row items-center justify-between">
+              <CardHeader className="flex flex-row items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <FileText className="w-5 h-5 text-blue-600" />
                   <CardTitle>Detalle de expediente</CardTitle>
@@ -369,12 +371,12 @@ export function EditExpediente() {
 
             {/* Trazabilidad de expediente */}
             <Card>
-            <CardHeader className="flex flex-row items-center space-x-2">
-            <CalendarDays className="w-5 h-5 text-blue-600" />
+              <CardHeader className="flex flex-row items-center space-x-2">
+                <CalendarDays className="w-5 h-5 text-blue-600" />
                 <CardTitle>Trazabilidad de expediente</CardTitle>
               </CardHeader>
               <CardContent>
-              <div className="space-y-6 max-h-[310px] overflow-y-auto pr-2">
+                <div className="space-y-6 max-h-[310px] overflow-y-auto pr-2">
                   <AnimatePresence>
                     {trazabilidad.length === 0 ? (
                       <motion.div
@@ -399,15 +401,26 @@ export function EditExpediente() {
                           {index !== trazabilidad.length - 1 && (
                             <div className="absolute left-[5px] top-4 w-0.5 h-full bg-gray-200" />
                           )}
-                          <motion.div 
+                          <motion.div
                             className="space-y-1"
                             initial={{ x: -20 }}
                             animate={{ x: 0 }}
                             transition={{ duration: 0.2 }}
-                          >
-                            <div className="text-sm text-muted-foreground">
-                              {new Date(item.created_at).toLocaleString()}
-                            </div>
+                          >  
+                          {/* iconos para la trazabilidad */}
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                {new Date(item.created_at).toLocaleString()}
+                                {item.accion === 'Creación' && (
+                                  <FilePlus className="h-4 w-4 text-green-500" />
+                                )}
+                                {item.accion === 'Actualización' && (
+                                  <UserRoundPen className="h-4 w-4 text-blue-500" />
+                                )}
+                                {item.accion.toLowerCase().includes('documento') && (
+                                  <FileArchive className="h-4 w-4 text-orange-500" />
+                                )}
+                              </div>
+                              {/* fin de seccion iconos */}
                             <div className="text-sm font-medium">
                               Usuario: {item.usuario ? item.usuario.username : 'Usuario no disponible'}
                             </div>
