@@ -14,7 +14,7 @@ import {
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/app/api/axios";
-// import echo from "@/utils/echo"; // Importa la configuración de Laravel Echo
+
 
 export function Navbar({ onToggleSidebar }) {
   const [user, setUser] = useState(null);
@@ -22,7 +22,7 @@ export function Navbar({ onToggleSidebar }) {
   const [notificationsDropdownOpen, setNotificationsDropdownOpen] = useState(false); // Estado para el menú de notificaciones
   const [bgColor, setBgColor] = useState("bg-gray-200");
   const router = useRouter();
-  // const [notifications, setNotifications] = useState([]); // Estado para almacenar las notificaciones
+  const [notifications, setNotifications] = useState([]); // Estado para almacenar las notificaciones
 
   useEffect(() => {
     fetchUserData();
@@ -123,7 +123,6 @@ export function Navbar({ onToggleSidebar }) {
               className="relative p-2 hover:bg-gray-100 rounded-full"
             >
               <Bell className="h-5 w-5 text-black" />
-              
               {notifications.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                   {notifications.length}
@@ -174,47 +173,49 @@ export function Navbar({ onToggleSidebar }) {
               )}
             </button>
             {profileDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-auto min-w-[200px] max-w-[90vw] bg-white rounded-lg shadow-lg border py-1 z-50">
+              <div className="absolute right-0 mt-2 w-auto min-w-[200px] max-w-[300px] bg-white rounded-lg shadow-lg border py-1 z-50">
                 <div className="px-4 py-3 border-b">
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-start space-x-3">
                     {user?.empleado?.foto ? (
                       <img
                         src={user.empleado.foto}
                         alt="User avatar"
-                        className="h-10 w-10 rounded-full object-cover"
+                        className="h-10 w-10 rounded-full object-cover flex-shrink-0"
                       />
                     ) : user?.username ? (
                       <div
-                        className={`h-10 w-10 flex items-center justify-center rounded-full ${bgColor} text-white font-bold text-lg`}
+                        className={`h-10 w-10 flex items-center justify-center rounded-full ${bgColor} text-white font-bold text-lg flex-shrink-0`}
                       >
                         {user.username.charAt(0).toUpperCase()}
                       </div>
                     ) : (
                       ""
                     )}
-                    <div>
-                      <div className="font-medium text-black">
+                    <div className="min-w-0">
+                      <div className="font-medium text-black truncate">
                         {user?.username || ""}
                       </div>
-                      <div className="text-sm text-black">{user?.email || ""}</div>
+                      <div className="text-sm text-black truncate">
+                        {user?.email || ""}
+                      </div>
                     </div>
                   </div>
                 </div>
-                <button className="w-full px-4 py-2 text-left text-sm text-black hover:bg-gray-50 flex items-center space-x-2 whitespace-nowrap">
-                  <User className="h-4 w-4 text-black" />
-                  <span>Mi Perfil</span>
+                <button className="w-full px-4 py-2 text-left text-sm text-black hover:bg-gray-50 flex items-center space-x-2">
+                  <User className="h-4 w-4 text-black flex-shrink-0" />
+                  <span className="truncate">Mi Perfil</span>
                 </button>
-                <button className="w-full px-4 py-2 text-left text-sm text-black hover:bg-gray-50 flex items-center space-x-2 whitespace-nowrap">
-                  <Settings className="h-4 w-4 text-black" />
-                  <span>Configuración</span>
+                <button className="w-full px-4 py-2 text-left text-sm text-black hover:bg-gray-50 flex items-center space-x-2">
+                  <Settings className="h-4 w-4 text-black flex-shrink-0" />
+                  <span className="truncate">Configuración</span>
                 </button>
                 <div className="border-t my-1"></div>
                 <button
                   onClick={handleLogout}
-                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center space-x-2 text-red-600 whitespace-nowrap"
+                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center space-x-2 text-red-600"
                 >
-                  <LogOut className="h-4 w-4 text-red-600" />
-                  <span>Cerrar Sesión</span>
+                  <LogOut className="h-4 w-4 text-red-600 flex-shrink-0" />
+                  <span className="truncate">Cerrar Sesión</span>
                 </button>
               </div>
             )}
