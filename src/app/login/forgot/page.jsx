@@ -18,9 +18,17 @@ export default function ForgotPassword() {
   const [codeTimer, setCodeTimer] = useState(0)
   const [resendDisabled, setResendDisabled] = useState(false)
   const [resendTimer, setResendTimer] = useState(0)
-  const [resendCount, setResendCount] = useState(() => Number(localStorage.getItem("resendCount")) || 0)
+  const [resendCount, setResendCount] = useState(0)
   const [blocked, setBlocked] = useState(false)
   const router = useRouter()
+
+   // Usa useEffect para acceder a localStorage solo en el lado del cliente
+  useEffect(() => {
+    // Verifica si estamos en el navegador
+    if (typeof window !== 'undefined') {
+      setResendCount(Number(localStorage.getItem("resendCount")) || 0)
+    }
+  }, [])
 
   useEffect(() => {
     if (resendCount >= 2) {
