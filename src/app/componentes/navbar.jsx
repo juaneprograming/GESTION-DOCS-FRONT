@@ -14,6 +14,8 @@ import {
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/app/api/axios";
+// import Pusher from "pusher-js";
+import ProfileModal from "./ProfileModal";
 
 
 export function Navbar({ onToggleSidebar }) {
@@ -21,27 +23,33 @@ export function Navbar({ onToggleSidebar }) {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false); // Estado para el menú del perfil
   const [notificationsDropdownOpen, setNotificationsDropdownOpen] = useState(false); // Estado para el menú de notificaciones
   const [bgColor, setBgColor] = useState("bg-gray-200");
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
   const router = useRouter();
   const [notifications, setNotifications] = useState([]); // Estado para almacenar las notificaciones
 
   useEffect(() => {
     fetchUserData();
     generateRandomColor();
+    
+    // if (typeof window !== "undefined") {
+    //   const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_APP_KEY, {
+    //     cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
+    //     useTLS: true,
+    //   });
+  
+    //   const channel = pusher.subscribe("pqrsd-channel");
+      
+    //   channel.bind("new-pqrs", (data) => {
+    //     console.log("Datos brutos:", data); 
+    //     console.log("📢 Notificación recibida:", data.data); // Acceder a data.data
+    //     setNotifications((prev) => [data.data, ...prev]); // Almacenar datos sin la clave 'data'
+    //   });
+  
+    //   return () => {
+    //     pusher.unsubscribe("pqrsd-channel");
+    //   };
+    // }
   }, []);
-
-  // useEffect(() => {
-  //   const channel = echo.channel("pqrsd-channel");
-
-  //   channel.listen("new-pqrs", (data) => {
-  //     console.log("📢 Notificación recibida:", data);
-  //     setNotifications((prev) => [...prev, data.pqrsData]);
-  //   });
-
-
-  //   return () => {
-  //     echo.leaveChannel("pqrsd-channel");
-  //   };
-  // }, []);
 
   const fetchUserData = async () => {
     try {
@@ -74,6 +82,16 @@ export function Navbar({ onToggleSidebar }) {
     router.push("/login");
   };
 
+  const handleProfileModalClose = (updated) => {
+    setProfileModalOpen(false)
+    setProfileDropdownOpen(false)
+
+    // Si se actualizó el perfil, refrescar los datos del usuario
+    if (updated) {
+      fetchUserData()
+    }
+  }
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       // Cerrar el menú del perfil si se hace clic fuera
@@ -97,6 +115,7 @@ export function Navbar({ onToggleSidebar }) {
   }, [profileDropdownOpen, notificationsDropdownOpen]);
 
   return (
+    <>
     <nav className="border-b bg-white">
       <div className="flex h-[60px] items-center px-4 justify-between">
         {/* Botón de Menú (Solo visible en dispositivos móviles) */}
@@ -136,13 +155,11 @@ export function Navbar({ onToggleSidebar }) {
                   <h3 className="font-medium text-black mb-2">Notificaciones</h3>
                   {notifications.length > 0 ? (
                     <ul>
-                      {notifications.map((notification, index) => (
-                        <li key={index} className="text-sm text-black mb-2">
+                      {notifications.map((notification) => (
+                        <li key={notification.id}>
                           <strong>{notification.asunto_solicitud}</strong>
                           <br />
-                          <span className="text-gray-500">
-                            {notification.numero_radicado}
-                          </span>
+                          <span>{notification.numero_radicado}</span>
                         </li>
                       ))}
                     </ul>
@@ -201,10 +218,15 @@ export function Navbar({ onToggleSidebar }) {
                     </div>
                   </div>
                 </div>
-                <button className="w-full px-4 py-2 text-left text-sm text-black hover:bg-gray-50 flex items-center space-x-2">
-                  <User className="h-4 w-4 text-black flex-shrink-0" />
-                  <span className="truncate">Mi Perfil</span>
-                </button>
+                <button
+                    onClick={() => {
+                      setProfileModalOpen(true)
+                    }}
+                    className="w-full px-4 py-2 text-left text-sm text-black hover:bg-gray-50 flex items-center space-x-2"
+                  >
+                    <User className="h-4 w-4 text-black flex-shrink-0" />
+                    <span className="truncate">Mi Perfil</span>
+                  </button>
                 <button className="w-full px-4 py-2 text-left text-sm text-black hover:bg-gray-50 flex items-center space-x-2">
                   <Settings className="h-4 w-4 text-black flex-shrink-0" />
                   <span className="truncate">Configuración</span>
@@ -223,5 +245,8 @@ export function Navbar({ onToggleSidebar }) {
         </div>
       </div>
     </nav>
+      {/* Modal de Perfil */}
+      <ProfileModal isOpen={profileModalOpen} onClose={handleProfileModalClose} user={user} />
+    </>
   );
 }

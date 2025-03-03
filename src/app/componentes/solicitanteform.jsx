@@ -222,7 +222,7 @@ export function SolicitanteForm({}) {
               <Label htmlFor="direccion">Dirección Notificación</Label>
               <Input
                 id="direccion"
-                readOnly
+                readOnly={!isEditing}
                 value={solicitanteData?.direccion || ''}
                 onChange={(e) => setSolicitanteData({ ...solicitanteData, direccion: e.target.value })}
               />
