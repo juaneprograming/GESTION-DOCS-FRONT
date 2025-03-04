@@ -29,10 +29,14 @@ import {
 import { cn } from "@/lib/utils";
 import axios from "axios";
 import { toast } from "sonner";
-
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
+
+// Componentes hijos
+import ContratoForm from "@/app/componentes/ContratoForm";
+import ConvenioForm from "@/app/componentes/ConvenioForm";
+import HojaVidaForm from "@/app/componentes/HojaVidaForm";
 
 const IngresoDocumentos = () => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -114,6 +118,11 @@ const IngresoDocumentos = () => {
     { value: "3", label: "Subserie Hojas de Vida" },
   ];
 
+  // Handlers para actualizar estados desde hijos
+  const handleDataChange = (setter) => (field, value) => {
+    setter((prev) => ({ ...prev, [field]: value }));
+  };
+
   const handleFileChange = (event) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -146,20 +155,15 @@ const IngresoDocumentos = () => {
     setLoading(true);
 
     if (!selectedSubserie) {
-        alert("Debes seleccionar una subserie TRD antes de guardar.");
-        setLoading(false);
-        return;
+      alert("Debes seleccionar una subserie TRD antes de guardar.");
+      setLoading(false);
+      return;
     }
 
     if (!selectedFile) {
-        alert("Debes adjuntar un archivo antes de enviar el formulario.");
-        setLoading(false);
-        return;
-    }
-    if (!selectedSubserie) {
-        alert("Debes seleccionar una subserie TRD antes de guardar.");
-        setLoading(false);
-        return;
+      alert("Debes adjuntar un archivo antes de enviar el formulario.");
+      setLoading(false);
+      return;
     }
 
     const formData = new FormData();
@@ -172,88 +176,49 @@ const IngresoDocumentos = () => {
     formData.append("comentarios", e.target.asunto.value);
 
     // Agregar datos específicos según el tipo de documento
-    switch (tipoDocumento) {
-        case "contrato":
-            formData.append("numero_contrato", contratoData.numero_contrato);
-            formData.append("fecha_firma", contratoData.fecha_firma);
-            formData.append("empresa_involucrada", contratoData.empresa_involucrada);
-            formData.append("anio", contratoData.anio);
-            formData.append("valor_contrato", contratoData.valor_contrato);
-            formData.append("objeto", contratoData.objeto);
-            formData.append("obligaciones_contratista", contratoData.obligaciones_contratista);
-            formData.append("plazo_ejecucion", contratoData.plazo_ejecucion);
-            formData.append("estado", contratoData.estado);
-            break;
+    const dataMap = {
+      contrato: contratoData,
+      convenio: convenioData,
+      hv: hojaVidaData,
+    };
 
-        case "convenio":
-            formData.append("numero_convenio", convenioData.numero_convenio);
-            formData.append("tipo_convenio", convenioData.tipo_convenio);
-            formData.append("entidad_publica", convenioData.entidad_publica);
-            formData.append("entidad_privada", convenioData.entidad_privada);
-            formData.append("fecha_firma", convenioData.fecha_firma);
-            formData.append("fecha_inicio", convenioData.fecha_inicio);
-            formData.append("fecha_fin", convenioData.fecha_fin);
-            formData.append("objeto", convenioData.objeto);
-            formData.append("valor_total", convenioData.valor_total);
-            formData.append("aporte_entidad_publica", convenioData.aporte_entidad_publica);
-            formData.append("aporte_entidad_privada", convenioData.aporte_entidad_privada);
-            formData.append("estado", convenioData.estado);
-            break;
-
-        case "hv":
-            formData.append("nombres", hojaVidaData.nombres);
-            formData.append("apellidos", hojaVidaData.apellidos);
-            formData.append("tipo_identificacion", hojaVidaData.tipo_identificacion);
-            formData.append("numero_documento", hojaVidaData.numero_documento);
-            formData.append("fecha_nacimiento", format(hojaVidaData.fecha_nacimiento, "yyyy-MM-dd"));
-            formData.append("lugar_nacimiento", hojaVidaData.lugar_nacimiento);
-            formData.append("direccion", hojaVidaData.direccion);
-            formData.append("telefono", hojaVidaData.telefono);
-            formData.append("email", hojaVidaData.email);
-            formData.append("nivel_educativo", hojaVidaData.nivel_educativo);
-            formData.append("titulo_obtenido", hojaVidaData.titulo_obtenido);
-            formData.append("institucion_educativa", hojaVidaData.institucion_educativa);
-            formData.append("experiencia_laboral", hojaVidaData.experiencia_laboral);
-            formData.append("posicion", hojaVidaData.posicion);
-            formData.append("fecha_ingreso", format(hojaVidaData.fecha_ingreso, "yyyy-MM-dd"));
-            // formData.append("trd_id", hojaVidaData.trd_id);
-            formData.append("trd_id", selectedSubserie); // Use selectedSubserie here
-            break;
-    }
+    Object.entries(dataMap[tipoDocumento]).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
 
     try {
-        const token = localStorage.getItem("token");
-        await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}/historico`,
-            formData,
-            {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                    Authorization: `Bearer ${token}`,
-                },
-            }
-        );
-
-        toast.success("El documento se ha registrado correctamente");
-
-        // Resetear formulario
-        setSelectedFile(null);
-        setPreviewUrl(null);
-        e.target.reset();
-        setTipoDocumento("");
-        setSelectedSection("");
-        setSelectedSerie("");
-        setSelectedSubserie("");
-    } catch (error) {
-        if (error.response && error.response.data.errors && error.response.data.errors.trd_id) {
-            alert(`Error: ${error.response.data.errors.trd_id[0]}`);
-        } else {
-            toast.error("Error al guardar el documento.");
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/historico`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
         }
+      );
+
+      toast.success("El documento se ha registrado correctamente");
+
+      // Resetear formulario
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      e.target.reset();
+      setTipoDocumento("");
+      setSelectedSection("");
+      setSelectedSerie("");
+      setSelectedSubserie("");
+    } catch (error) {
+      if (error.response && error.response.data.errors && error.response.data.errors.trd_id) {
+        alert(`Error: ${error.response.data.errors.trd_id[0]}`);
+      } else {
+        toast.error("Error al guardar el documento.");
+      }
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
 
   useEffect(() => {
     return () => {
@@ -313,146 +278,52 @@ const IngresoDocumentos = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-4">
               {/* Sección TRD */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4">
+                {[
+                  { label: "Sección TRD *", state: openSection, setState: setOpenSection, selected: selectedSection, setSelected: setSelectedSection, items: sections },
+                  { label: "Serie TRD", state: openSerie, setState: setOpenSerie, selected: selectedSerie, setSelected: setSelectedSerie, items: series },
+                  { label: "Subserie TRD *", state: openSubserie, setState: setOpenSubserie, selected: selectedSubserie, setSelected: setSelectedSubserie, items: subseries },
+                ].map(({ label, state, setState, selected, setSelected, items }) => (
+                  <div key={label} className="space-y-2">
+                    <Label>{label}</Label>
+                    <Popover open={state} onOpenChange={setState}>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="w-full justify-between">
+                          {selected ? items.find((s) => s.value === selected)?.label : `Seleccionar ${label.toLowerCase()}`}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="p-0">
+                        <Command>
+                          <CommandInput placeholder={`Buscar ${label.toLowerCase()}...`} />
+                          <CommandList>
+                            {items.map((item) => (
+                              <CommandItem key={item.value} onSelect={() => { setSelected(item.value); setState(false); }}>
+                                <Check className={cn("mr-2 h-4 w-4", selected === item.value ? "opacity-100" : "opacity-0")} />
+                                {item.label}
+                              </CommandItem>
+                            ))}
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                ))}
                 <div className="space-y-2">
-                  <Label>Sección TRD *</Label>
-                  <Popover open={openSection} onOpenChange={setOpenSection}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-between"
-                      >
-                        {selectedSection
-                          ? sections.find((s) => s.value === selectedSection)
-                              ?.label
-                          : "Seleccionar sección"}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="p-0">
-                      <Command>
-                        <CommandInput placeholder="Buscar sección..." />
-                        <CommandList>
-                          {sections.map((section) => (
-                            <CommandItem
-                              key={section.value}
-                              onSelect={() => {
-                                setSelectedSection(section.value);
-                                setOpenSection(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  selectedSection === section.value
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              {section.label}
-                            </CommandItem>
-                          ))}
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
+                  <Label htmlFor="nombreArchivo">Nombre de Archivo *</Label>
+                  <Input
+                    type="text"
+                    id="nombreArchivo"
+                    required
+                    value={selectedFile?.name || ""}
+                    onChange={(e) => setSelectedFile({ ...selectedFile, name: e.target.value })}
+                    readOnly
+                  />
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Serie TRD</Label>
-                  <Popover open={openSerie} onOpenChange={setOpenSerie}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-between"
-                      >
-                        {selectedSerie
-                          ? series.find((s) => s.value === selectedSerie)?.label
-                          : "Seleccionar serie"}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="p-0">
-                      <Command>
-                        <CommandInput placeholder="Buscar serie..." />
-                        <CommandList>
-                          {series.map((serie) => (
-                            <CommandItem
-                              key={serie.value}
-                              onSelect={() => {
-                                setSelectedSerie(serie.value);
-                                setOpenSerie(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  selectedSerie === serie.value
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              {serie.label}
-                            </CommandItem>
-                          ))}
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Subserie TRD *</Label>
-                  <Popover open={openSubserie} onOpenChange={setOpenSubserie}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-between"
-                      >
-                        {selectedSubserie
-                          ? subseries.find((s) => s.value === selectedSubserie)
-                              ?.label
-                          : "Seleccionar subserie"}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="p-0">
-                      <Command>
-                        <CommandInput placeholder="Buscar subserie..." />
-                        <CommandList>
-                          {subseries.map((subserie) => (
-                            <CommandItem
-                              key={subserie.value}
-                              onSelect={() => {
-                                setSelectedSubserie(subserie.value);
-                                setOpenSubserie(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  selectedSubserie === subserie.value
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              {subserie.label}
-                            </CommandItem>
-                          ))}
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="tipoDocumento">Tipo de Documento *</Label>
-                  <Select
-                    value={tipoDocumento}
-                    onValueChange={setTipoDocumento}
-                    required
-                  >
+                  <Select value={tipoDocumento} onValueChange={setTipoDocumento} required>
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccionar tipo" />
                     </SelectTrigger>
@@ -463,484 +334,18 @@ const IngresoDocumentos = () => {
                     </SelectContent>
                   </Select>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="nombreArchivo">Nombre de Archivo *</Label>
-                  <Input
-                    type="text"
-                    id="nombreArchivo"
-                    required
-                    value={selectedFile?.name || ""}
-                    onChange={(e) =>
-                      setSelectedFile({ ...selectedFile, name: e.target.value })
-                    }
-                    readOnly
-                  />
-                </div>
-
-                {/* Campos específicos por tipo de documento */}
-                {tipoDocumento === 'contrato' && (
-  <>
-    <div className="space-y-2">
-      <Label>Número del contrato *</Label>
-      <Input
-        value={contratoData.numero_contrato}
-        onChange={(e) => setContratoData({ ...contratoData, numero_contrato: e.target.value })}
-        required
-      />
-    </div>
-
-    <div className="space-y-2">
-      <Label>Fecha de firma *</Label>
-      <Input type="date"
-        value={contratoData.fecha_firma}
-        onChange={(e) => setContratoData({ ...contratoData, fecha_firma: e.target.value })}
-        required
-      />
-    </div>
-
-    <div className="space-y-2">
-      <Label>Empresa involucrada (NIT) *</Label>
-      <Input
-        value={contratoData.empresa_involucrada}
-        onChange={(e) => setContratoData({ ...contratoData, empresa_involucrada: e.target.value })}
-        required
-      />
-    </div>
-
-    <div className="space-y-2">
-      <Label>Año *</Label>
-      <Input type="number"
-        value={contratoData.anio}
-        onChange={(e) => setContratoData({ ...contratoData, anio: e.target.value })}
-        required
-      />
-    </div>
-
-    <div className="space-y-2">
-      <Label>Valor del contrato *</Label>
-      <Input type="number"
-        value={contratoData.valor_contrato}
-        onChange={(e) => setContratoData({ ...contratoData, valor_contrato: e.target.value })}
-        required
-      />
-    </div>
-
-    <div className="space-y-2">
-      <Label>Objeto *</Label>
-      <Input
-        value={contratoData.objeto}
-        onChange={(e) => setContratoData({ ...contratoData, objeto: e.target.value })}
-        required
-      />
-    </div>
-
-    <div className="space-y-2">
-      <Label>Obligaciones del contratista *</Label>
-      <Input
-        value={contratoData.obligaciones_contratista}
-        onChange={(e) => setContratoData({ ...contratoData, obligaciones_contratista: e.target.value })}
-        required
-      />
-    </div>
-
-    <div className="space-y-2">
-      <Label>Plazo de ejecución *</Label>
-      <Input
-        value={contratoData.plazo_ejecucion}
-        onChange={(e) => setContratoData({ ...contratoData, plazo_ejecucion: e.target.value })}
-        required
-      />
-    </div>
-  </>
-)}
-
-{tipoDocumento === "convenio" && (
-  <>
-    <div className="space-y-2">
-      <Label>Número del convenio *</Label>
-      <Input
-        value={convenioData.numero_convenio}
-        onChange={(e) =>
-          setConvenioData({
-            ...convenioData,
-            numero_convenio: e.target.value,
-          })
-        }
-        required
-      />
-    </div>
-    <div className="space-y-2">
-      <Label>Tipo de convenio *</Label>
-      <Select
-        value={convenioData.tipo_convenio}
-        onValueChange={(value) =>
-          setConvenioData({
-            ...convenioData,
-            tipo_convenio: value,
-          })
-        }
-        required
-      >
-        <SelectTrigger>
-          <SelectValue placeholder="Seleccionar tipo" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="Colaboracion">Colaboración</SelectItem>
-          <SelectItem value="Asociacion">Asociación</SelectItem>
-        </SelectContent>
-      </Select>
-    </div>
-    <div className="space-y-2">
-      <Label>Entidad pública</Label>
-      <Input
-        value={convenioData.entidad_publica}
-        onChange={(e) =>
-          setConvenioData({
-            ...convenioData,
-            entidad_publica: e.target.value,
-          })
-        }
-      />
-    </div>
-    <div className="space-y-2">
-      <Label>Entidad privada</Label>
-      <Input
-        value={convenioData.entidad_privada}
-        onChange={(e) =>
-          setConvenioData({
-            ...convenioData,
-            entidad_privada: e.target.value,
-          })
-        }
-      />
-    </div>
-    <div className="space-y-2">
-      <Label>Fecha de firma *</Label>
-      <Input
-        type="date"
-        value={convenioData.fecha_firma}
-        onChange={(e) =>
-          setConvenioData({
-            ...convenioData,
-            fecha_firma: e.target.value,
-          })
-        }
-        required
-      />
-    </div>
-    <div className="space-y-2">
-      <Label>Fecha de inicio *</Label>
-      <Input
-        type="date"
-        value={convenioData.fecha_inicio}
-        onChange={(e) =>
-          setConvenioData({
-            ...convenioData,
-            fecha_inicio: e.target.value,
-          })
-        }
-        required
-      />
-    </div>
-    <div className="space-y-2">
-      <Label>Fecha de fin *</Label>
-      <Input
-        type="date"
-        value={convenioData.fecha_fin}
-        onChange={(e) =>
-          setConvenioData({
-            ...convenioData,
-            fecha_fin: e.target.value,
-          })
-        }
-        required
-      />
-    </div>
-    <div className="space-y-2">
-      <Label>Objeto *</Label>
-      <Input
-        value={convenioData.objeto}
-        onChange={(e) =>
-          setConvenioData({
-            ...convenioData,
-            objeto: e.target.value,
-          })
-        }
-        required
-      />
-    </div>
-    <div className="space-y-2">
-      <Label>Valor total *</Label>
-      <Input
-        type="number"
-        value={convenioData.valor_total}
-        onChange={(e) =>
-          setConvenioData({
-            ...convenioData,
-            valor_total: e.target.value,
-          })
-        }
-        required
-      />
-    </div>
-    <div className="space-y-2">
-      <Label>Aporte entidad pública</Label>
-      <Input
-        type="number"
-        value={convenioData.aporte_entidad_publica}
-        onChange={(e) =>
-          setConvenioData({
-            ...convenioData,
-            aporte_entidad_publica: e.target.value,
-          })
-        }
-      />
-    </div>
-    <div className="space-y-2">
-      <Label>Aporte entidad privada</Label>
-      <Input
-        type="number"
-        value={convenioData.aporte_entidad_privada}
-        onChange={(e) =>
-          setConvenioData({
-            ...convenioData,
-            aporte_entidad_privada: e.target.value,
-          })
-        }
-      />
-    </div>
-    <div className="space-y-2">
-      <Label>Estado *</Label>
-      <Select
-        value={convenioData.estado}
-        onValueChange={(value) =>
-          setConvenioData({
-            ...convenioData,
-            estado: value,
-          })
-        }
-        required
-      >
-        <SelectTrigger>
-          <SelectValue placeholder="Seleccionar estado" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="Activo">Activo</SelectItem>
-          <SelectItem value="Finalizado">Finalizado</SelectItem>
-          <SelectItem value="Rescindido">Rescindido</SelectItem>
-          <SelectItem value="Suspendido">Suspendido</SelectItem>
-        </SelectContent>
-      </Select>
-    </div>
-  </>
-)}
-
-
-{tipoDocumento === "hv" && (
-  <>
-    <div className="space-y-2">
-      <Label>Nombres *</Label>
-      <Input
-        value={hojaVidaData.nombres}
-        onChange={(e) =>
-          setHojaVidaData({
-            ...hojaVidaData,
-            nombres: e.target.value,
-          })
-        }
-        required
-      />
-    </div>
-    <div className="space-y-2">
-      <Label>Apellidos *</Label>
-      <Input
-        value={hojaVidaData.apellidos}
-        onChange={(e) =>
-          setHojaVidaData({
-            ...hojaVidaData,
-            apellidos: e.target.value,
-          })
-        }
-        required
-      />
-    </div>
-    <div className="space-y-2">
-      <Label>Tipo de Documento *</Label>
-      <Select
-        value={hojaVidaData.tipo_identificacion}
-        onValueChange={(value) =>
-          setHojaVidaData({
-            ...hojaVidaData,
-            tipo_identificacion: value,
-          })
-        }
-        required
-      >
-        <SelectTrigger>
-          <SelectValue placeholder="Seleccionar tipo" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="CC">CC</SelectItem>
-          <SelectItem value="CE">CE</SelectItem>
-          {/* <SelectItem value="TI">TI</SelectItem> */}
-          <SelectItem value="PAS">Pasaporte</SelectItem>
-        </SelectContent>
-      </Select>
-    </div>
-    <div className="space-y-2">
-      <Label>Número de Documento *</Label>
-      <Input
-        value={hojaVidaData.numero_documento}
-        onChange={(e) =>
-          setHojaVidaData({
-            ...hojaVidaData,
-            numero_documento: e.target.value,
-          })
-        }
-        required
-      />
-    </div>
-    <div className="space-y-2">
-      <Label>Fecha de Nacimiento *</Label>
-      <Input
-        type="date"
-        value={hojaVidaData.fecha_nacimiento}
-        onChange={(e) =>
-          setHojaVidaData({
-            ...hojaVidaData,
-            fecha_nacimiento: e.target.value,
-          })
-        }
-        required
-      />
-    </div>
-    <div className="space-y-2">
-      <Label>Lugar de Nacimiento</Label>
-      <Input
-        value={hojaVidaData.lugar_nacimiento}
-        onChange={(e) =>
-          setHojaVidaData({
-            ...hojaVidaData,
-            lugar_nacimiento: e.target.value,
-          })
-        }
-      />
-    </div>
-    <div className="space-y-2">
-      <Label>Dirección</Label>
-      <Input
-        value={hojaVidaData.direccion}
-        onChange={(e) =>
-          setHojaVidaData({
-            ...hojaVidaData,
-            direccion: e.target.value,
-          })
-        }
-      />
-    </div>
-    <div className="space-y-2">
-      <Label>Teléfono</Label>
-      <Input
-        value={hojaVidaData.telefono}
-        onChange={(e) =>
-          setHojaVidaData({
-            ...hojaVidaData,
-            telefono: e.target.value,
-          })
-        }
-      />
-    </div>
-    <div className="space-y-2">
-      <Label>Email</Label>
-      <Input
-        type="email"
-        value={hojaVidaData.email}
-        onChange={(e) =>
-          setHojaVidaData({
-            ...hojaVidaData,
-            email: e.target.value,
-          })
-        }
-      />
-    </div>
-    <div className="space-y-2">
-      <Label>Nivel Educativo</Label>
-      <Input
-        value={hojaVidaData.nivel_educativo}
-        onChange={(e) =>
-          setHojaVidaData({
-            ...hojaVidaData,
-            nivel_educativo: e.target.value,
-          })
-        }
-      />
-    </div>
-    <div className="space-y-2">
-      <Label>Título Obtenido</Label>
-      <Input
-        value={hojaVidaData.titulo_obtenido}
-        onChange={(e) =>
-          setHojaVidaData({
-            ...hojaVidaData,
-            titulo_obtenido: e.target.value,
-          })
-        }
-      />
-    </div>
-    <div className="space-y-2">
-      <Label>Institución Educativa</Label>
-      <Input
-        value={hojaVidaData.institucion_educativa}
-        onChange={(e) =>
-          setHojaVidaData({
-            ...hojaVidaData,
-            institucion_educativa: e.target.value,
-          })
-        }
-      />
-    </div>
-    <div className="space-y-2">
-      <Label>Experiencia Laboral</Label>
-      <Input
-        value={hojaVidaData.experiencia_laboral}
-        onChange={(e) =>
-          setHojaVidaData({
-            ...hojaVidaData,
-            experiencia_laboral: e.target.value,
-          })
-        }
-      />
-    </div>
-    <div className="space-y-2">
-      <Label>Posición</Label>
-      <Input
-        value={hojaVidaData.posicion}
-        onChange={(e) =>
-          setHojaVidaData({
-            ...hojaVidaData,
-            posicion: e.target.value,
-          })
-        }
-      />
-    </div>
-    <div className="space-y-2">
-      <Label>Fecha de Ingreso</Label>
-      <Input
-        type="date"
-        value={hojaVidaData.fecha_ingreso}
-        onChange={(e) =>
-          setHojaVidaData({
-            ...hojaVidaData,
-            fecha_ingreso: e.target.value,
-          })
-        }
-      />
-    </div>
-  </>
-)}
-
               </div>
+
+              {/* Campos específicos por tipo de documento */}
+              {tipoDocumento === 'contrato' && (
+                <ContratoForm data={contratoData} onChange={handleDataChange(setContratoData)} />
+              )}
+              {tipoDocumento === 'convenio' && (
+                <ConvenioForm data={convenioData} onChange={handleDataChange(setConvenioData)} />
+              )}
+              {tipoDocumento === 'hv' && (
+                <HojaVidaForm data={hojaVidaData} onChange={handleDataChange(setHojaVidaData)} />
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="asunto">Asunto/Comentarios *</Label>
