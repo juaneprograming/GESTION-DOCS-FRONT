@@ -1,24 +1,18 @@
 "use client";
-import React, { useState } from "react";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import React, { useState, useEffect } from "react"; // Importa useEffect
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 import { MessageSquarePlus } from "lucide-react";
 import axios from "axios";
-import { useSearchParams } from "next/navigation";
 
-export function Observaciones({ onSuccess }) {
-    const [open, setOpen] = useState(false);
-    const searchParams = useSearchParams();
-    const id = searchParams.get("id"); // ID del PQRSD
+export function Observaciones({ open, onOpenChange, onSuccess, pqrsdId }) {  // Recibe open, onOpenChange y pqrsdId como props
     const [errors, setErrors] = useState({});
     const [files, setFiles] = useState([]);
     const [formData, setFormData] = useState({
@@ -70,7 +64,7 @@ export function Observaciones({ onSuccess }) {
 
             // Llamar al endpoint para crear la observación
             const response = await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/pqrsd/${id}/observaciones`,
+                `${process.env.NEXT_PUBLIC_API_URL}/pqrsd/${pqrsdId}/observaciones`, // Usa pqrsdId
                 formDataToSend,
                 {
                     headers: {
@@ -81,7 +75,7 @@ export function Observaciones({ onSuccess }) {
             );
 
             // Cerrar el modal y resetear el formulario
-            setOpen(false);
+            onOpenChange(false);
             setFormData({ descripcion: "" });
             setFiles([]);
             setErrors({});
@@ -99,13 +93,7 @@ export function Observaciones({ onSuccess }) {
     };
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button className="gap-2">
-                    <MessageSquarePlus className="h-4 w-4 mr-2" />
-                    Nueva Observación
-                </Button>
-            </DialogTrigger>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[600px]">
                 <div className="p-6 bg-white">
                     <DialogHeader className="pb-4 mb-4 border-b border-gray-200">
