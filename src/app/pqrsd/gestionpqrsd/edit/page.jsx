@@ -19,7 +19,7 @@ import {
 import DashboardLayout from "@/app/dashboard/layout";
 import { useSearchParams } from "next/navigation";
 import axios from "axios";
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, Suspense, useCallback } from "react";
 import { toast } from "sonner";
 
 export function EditGestion() {
@@ -31,31 +31,31 @@ export function EditGestion() {
   const [isEditing, setIsEditing] = useState(false);
   const [originalData, setOriginalData] = useState(null); // Guardar una copia inicial de los datos
 
-  useEffect(() => {
-    const fetchPQRSD = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/pqrsd/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setPqrsdData(response.data);
-        setOriginalData({ ...response.data }); // Guardar una copia inicial de los datos
-      } catch (err) {
-        console.error("Error fetching PQRSD:", err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchPQRSD = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/pqrsd/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setPqrsdData(response.data);
+      setOriginalData({ ...response.data }); // Guardar una copia inicial de los datos
+    } catch (err) {
+      console.error("Error fetching PQRSD:", err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
 
+  useEffect(() => {
     if (id) fetchPQRSD();
     else setLoading(false);
-  }, [id]);
+  }, [id, fetchPQRSD]);
 
   const handleEditClick = () => {
     setIsEditing(true); // Habilitar el modo edición
@@ -65,6 +65,24 @@ export function EditGestion() {
     console.log("ID recibido:", id);
   }, [id]);
 
+
+  const estadoAColor = {
+    'RADICADA': 'bg-green-500',
+    'EN_DISTRIBUCION': 'bg-red-500',
+    'EN_TRAMITE': 'bg-gray-300',
+    'FINALIZADA': 'bg-blue-500', // o el color que desees
+    'EN_ESPERA': 'bg-yellow-500', // o el color que desees
+  };
+  
+  const estadoAEtapa = {
+    'RADICADA': 'Radicación',
+    'EN_DISTRIBUCION': 'TGN - Distribución',
+    'EN_TRAMITE': 'TGN - Trámite',
+    'FINALIZADA': 'Finalizada',
+    'EN_ESPERA': 'En Espera',
+  };
+  
+
   const handleSave = async () => {
     try {
       // Verificar que los datos originales y actuales estén disponibles
@@ -73,21 +91,21 @@ export function EditGestion() {
         toast.error("Ocurrió un error al comparar los datos.");
         return;
       }
-  
+
       // Comparar los datos originales con los datos actuales
       const hasChanges = Object.keys(originalData).some(
         (key) => originalData[key] !== pqrsdData[key]
       );
-  
+
       if (!hasChanges) {
         // Si no hay cambios, mostrar un mensaje informativo
         toast.info("No se ha modificado ningún campo.");
         setIsEditing(false); // Desactivar el modo edición
         return;
       }
-  
+
       const token = localStorage.getItem("token");
-  
+
       // Enviar solo los campos editables al backend
       const transformedData = {
         form_type: "solicitud",
@@ -99,9 +117,9 @@ export function EditGestion() {
         fecha_radicado: pqrsdData.fecha_radicado, // Asegúrate de incluir este campo
         fecha_inicio: pqrsdData.created_at,
       };
-  
+
       console.log("Datos enviados al backend:", transformedData);
-  
+
       await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}/pqrsd/${id}`,
         transformedData,
@@ -111,10 +129,11 @@ export function EditGestion() {
           },
         }
       );
-  
+
       setIsEditing(false); // Desactivar el modo edición después de guardar
       setOriginalData({ ...pqrsdData }); // Actualizar los datos originales
       toast.success("Datos actualizados correctamente");
+      fetchPQRSD(); // Refresh the data after a successful save
     } catch (err) {
       let errorMessage = "Ocurrió un error desconocido";
       if (err.response) {
@@ -130,6 +149,10 @@ export function EditGestion() {
       console.error("Error updating PQRSD data:", errorMessage);
       toast.error(errorMessage);
     }
+  };
+
+  const handleRefresh = () => {
+    fetchPQRSD();
   };
 
   if (loading) {
@@ -178,71 +201,41 @@ export function EditGestion() {
             </div>
           </div>
 
-          {/* Status Indicators */}
-          <div className="flex justify-center items-center gap-4 py-2">
+                    {/* Status Indicators */}
+                    <div className="flex justify-center items-center gap-4 py-2">
             <Tooltip>
               <TooltipTrigger>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                  <span>Iniciada</span>
+                  <div className={`w-3 h-3 rounded-full ${estadoAColor[pqrsdData?.estado] || 'bg-gray-200'}`}></div>
+                  <span>{estadoAEtapa[pqrsdData?.estado] || 'Desconocido'}</span>
                 </div>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Estado inicial de la solicitud</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                  <span>Ejecutando</span>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Solicitud en proceso de gestión</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                  <span>Finalizada</span>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Solicitud completada</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-gray-300"></div>
-                  <span>En Espera</span>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Solicitud pendiente de acción</p>
+                <p>Estado actual de la solicitud: {pqrsdData?.estado || 'Desconocido'}</p>
               </TooltipContent>
             </Tooltip>
           </div>
 
-          {/* Workflow Status */}
-          <div className="flex justify-between items-center px-20">
+
+                    {/* Workflow Status */}
+                    <div className="flex justify-between items-center px-20">
             <div className="text-center">
-              <div className="w-8 h-8 rounded-full bg-green-500 mx-auto mb-2"></div>
+              <div className={`w-8 h-8 rounded-full ${pqrsdData?.estado === 'RADICADA' ? 'bg-green-500' : 'bg-gray-300'} mx-auto mb-2`}></div>
               <span>Radicación</span>
             </div>
             <div className="flex-1 h-1 bg-gray-200 mx-4"></div>
             <div className="text-center">
-              <div className="w-8 h-8 rounded-full bg-red-500 mx-auto mb-2"></div>
+              <div className={`w-8 h-8 rounded-full ${pqrsdData?.estado === 'EN_DISTRIBUCION' ? 'bg-red-500' : 'bg-gray-300'} mx-auto mb-2`}></div>
               <span>TGN - Distribución</span>
             </div>
             <div className="flex-1 h-1 bg-gray-200 mx-4"></div>
             <div className="text-center">
-              <div className="w-8 h-8 rounded-full bg-gray-300 mx-auto mb-2"></div>
+              <div className={`w-8 h-8 rounded-full ${pqrsdData?.estado === 'EN_TRAMITE' ? 'bg-gray-300' : 'bg-gray-300'} mx-auto mb-2`}></div>
               <span>TGN - Trámite</span>
             </div>
+             {/* Agrega más etapas según sea necesario */}
           </div>
+
 
           {/* Main Content */}
           <Card>
@@ -279,7 +272,7 @@ export function EditGestion() {
                           Editar Información
                         </Button>
                       )}
-                      <ActionMenu pqrsd={id} />
+                      <ActionMenu pqrsd={id} handleRefresh={handleRefresh} />
                     </div>
                   </div>
 
@@ -302,7 +295,10 @@ export function EditGestion() {
                           value={pqrsdData.asunto_solicitud || ""}
                           disabled={!isEditing}
                           onChange={(e) =>
-                            setPqrsdData({ ...pqrsdData, asunto_solicitud: e.target.value })
+                            setPqrsdData({
+                              ...pqrsdData,
+                              asunto_solicitud: e.target.value,
+                            })
                           }
                         />
                       </div>
@@ -312,13 +308,18 @@ export function EditGestion() {
                           value={pqrsdData.tipo_solicitud || ""}
                           disabled={!isEditing}
                           onChange={(e) =>
-                            setPqrsdData({ ...pqrsdData, tipo_solicitud: e.target.value })
+                            setPqrsdData({
+                              ...pqrsdData,
+                              tipo_solicitud: e.target.value,
+                            })
                           }
                         />
                       </div>
                       <div>
                         <label className="text-sm font-medium">Estado</label>
-                        <Input value={pqrsdData.estado || ""} readOnly
+                        <Input
+                          value={pqrsdData.estado || ""}
+                          readOnly
                           onChange={(e) =>
                             setPqrsdData({ ...pqrsdData, estado: e.target.value })
                           }
@@ -330,7 +331,8 @@ export function EditGestion() {
                     <div className="space-y-4">
                       <div>
                         <label className="text-sm font-medium">Motivo</label>
-                        <Input value={pqrsdData.motivo || ""} 
+                        <Input
+                          value={pqrsdData.motivo || ""}
                           disabled={!isEditing}
                           onChange={(e) =>
                             setPqrsdData({ ...pqrsdData, motivo: e.target.value })
@@ -348,7 +350,10 @@ export function EditGestion() {
                             ).toLocaleDateString() || ""
                           }
                           onChange={(e) =>
-                            setPqrsdData({ ...pqrsdData, fecha_radicado: e.target.value })
+                            setPqrsdData({
+                              ...pqrsdData,
+                              fecha_radicado: e.target.value,
+                            })
                           }
                           readOnly
                         />
@@ -361,7 +366,10 @@ export function EditGestion() {
                           value={pqrsdData.medio_radicacion || ""}
                           disabled={!isEditing}
                           onChange={(e) =>
-                            setPqrsdData({ ...pqrsdData, medio_radicacion: e.target.value })
+                            setPqrsdData({
+                              ...pqrsdData,
+                              medio_radicacion: e.target.value,
+                            })
                           }
                         />
                       </div>
@@ -371,12 +379,14 @@ export function EditGestion() {
                         </label>
                         <Input
                           value={
-                            new Date(
-                              pqrsdData.created_at
-                            ).toLocaleDateString() || ""
+                            new Date(pqrsdData.created_at).toLocaleDateString() ||
+                            ""
                           }
                           onChange={(e) =>
-                            setPqrsdData({ ...pqrsdData, created_at: e.target.value })
+                            setPqrsdData({
+                              ...pqrsdData,
+                              created_at: e.target.value,
+                            })
                           }
                           readOnly
                         />
@@ -388,7 +398,7 @@ export function EditGestion() {
                 <TabsContent value="gestor" className="mt-6">
                   <div className="flex justify-between items-start mb-4">
                     <h2 className="text-xl font-semibold">Datos del Gestor</h2>
-                    <ActionMenu />
+                    <ActionMenu pqrsd={id} handleRefresh={handleRefresh} />
                   </div>
                   <GestorForm />
                 </TabsContent>
@@ -397,7 +407,7 @@ export function EditGestion() {
                     <h2 className="text-xl font-semibold">
                       Datos del Solicitante
                     </h2>
-                    <ActionMenu />
+                    <ActionMenu  pqrsd={id} handleRefresh={handleRefresh}/>
                   </div>
                   <SolicitanteForm />
                 </TabsContent>
