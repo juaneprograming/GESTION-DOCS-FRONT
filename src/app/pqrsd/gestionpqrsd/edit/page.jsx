@@ -221,17 +221,17 @@ export function EditGestion() {
                     {/* Workflow Status */}
                     <div className="flex justify-between items-center px-20">
             <div className="text-center">
-              <div className={`w-8 h-8 rounded-full ${pqrsdData?.estado === 'RADICADA' ? 'bg-green-500' : 'bg-gray-300'} mx-auto mb-2`}></div>
+              <div className={`w-8 h-8 rounded-full ${pqrsdData?.estado === 'RADICADA' ? 'bg-green-500 animate-pulse' : 'bg-gray-300'} mx-auto mb-2`}></div>
               <span>Radicación</span>
             </div>
             <div className="flex-1 h-1 bg-gray-200 mx-4"></div>
             <div className="text-center">
-              <div className={`w-8 h-8 rounded-full ${pqrsdData?.estado === 'EN_DISTRIBUCION' ? 'bg-red-500' : 'bg-gray-300'} mx-auto mb-2`}></div>
+              <div className={`w-8 h-8 rounded-full ${pqrsdData?.estado === 'EN_DISTRIBUCION' ? 'bg-red-500 animate-pulse' : 'bg-gray-300'} mx-auto mb-2`}></div>
               <span>TGN - Distribución</span>
             </div>
             <div className="flex-1 h-1 bg-gray-200 mx-4"></div>
             <div className="text-center">
-              <div className={`w-8 h-8 rounded-full ${pqrsdData?.estado === 'EN_TRAMITE' ? 'bg-gray-300' : 'bg-gray-300'} mx-auto mb-2`}></div>
+              <div className={`w-8 h-8 rounded-full ${pqrsdData?.estado === 'EN_TRAMITE' ? 'bg-blue-500 animate-pulse' : 'bg-gray-300'} mx-auto mb-2`}></div>
               <span>TGN - Trámite</span>
             </div>
              {/* Agrega más etapas según sea necesario */}
