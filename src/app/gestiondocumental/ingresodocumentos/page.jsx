@@ -97,7 +97,6 @@ const IngresoDocumentos = () => {
     experiencia_laboral: "",
     posicion: "",
     fecha_ingreso: "",
-    trd_id: "",
   });
 
   // Datos de ejemplo (debes reemplazar con llamadas a tu API)
