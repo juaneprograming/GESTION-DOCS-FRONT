@@ -15,6 +15,7 @@ import axios from "axios";
 import { useEffect, useState, Suspense } from "react";
 import { SolicitanteFormConsulta } from "@/app/componentes/solicitanteformconsulta";
 import { Breadcrumb } from "@/app/componentes/breadcrumb";
+import TraceTable from "@/app/componentes/trace-table";
 
 export function EditGestion() {
   const searchParams = useSearchParams();
@@ -94,72 +95,6 @@ export function EditGestion() {
               INFORMACION PQRSD
             </h1>
             <Breadcrumb />
-          </div>
-
-          {/* Status Indicators */}
-          <div className="flex justify-center items-center gap-4 py-4">
-            <Tooltip>
-              <TooltipTrigger>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                  <span>Iniciada</span>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Estado inicial de la solicitud</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                  <span>Ejecutando</span>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Solicitud en proceso de gestión</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                  <span>Finalizada</span>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Solicitud completada</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-gray-300"></div>
-                  <span>En Espera</span>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Solicitud pendiente de acción</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-
-          {/* Workflow Status */}
-          <div className="flex justify-between items-center px-20">
-            <div className="text-center">
-              <div className="w-8 h-8 rounded-full bg-green-500 mx-auto mb-2"></div>
-              <span>Radicación</span>
-            </div>
-            <div className="flex-1 h-1 bg-gray-200 mx-4"></div>
-            <div className="text-center">
-              <div className="w-8 h-8 rounded-full bg-red-500 mx-auto mb-2"></div>
-              <span>TGN - Distribución</span>
-            </div>
-            <div className="flex-1 h-1 bg-gray-200 mx-4"></div>
-            <div className="text-center">
-              <div className="w-8 h-8 rounded-full bg-gray-300 mx-auto mb-2"></div>
-              <span>TGN - Trámite</span>
-            </div>
           </div>
 
           {/* Main Content */}
@@ -279,12 +214,13 @@ export function EditGestion() {
                     Contenido de Documentos
                   </div>
                 </TabsContent>
+                {/* Seccion Traza */}
                 <TabsContent value="traza" className="mt-6">
                   <div className="flex justify-between items-start mb-4">
-                    <h2 className="text-xl font-semibold">Traza</h2>
+                  <div className="text-left mb-4 text-xl font-semibold text-primary">Contenido de la Traza</div>
                   </div>
                   <div className="p-4 text-center text-muted-foreground">
-                    Contenido de la Traza
+                  <TraceTable />
                   </div>
                 </TabsContent>
               </Tabs>

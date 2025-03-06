@@ -21,6 +21,7 @@ import { useSearchParams } from "next/navigation";
 import axios from "axios";
 import { useEffect, useState, Suspense, useCallback } from "react";
 import { toast } from "sonner";
+import TraceTable from "@/app/componentes/trace-table";
 
 export function EditGestion() {
   const searchParams = useSearchParams();
@@ -68,7 +69,7 @@ export function EditGestion() {
 
   const estadoAColor = {
     'RADICADA': 'bg-green-500',
-    'EN_DISTRIBUCION': 'bg-red-500',
+    'EN DISTRIBUCION': 'bg-red-500',
     'EN_TRAMITE': 'bg-gray-300',
     'FINALIZADA': 'bg-blue-500', // o el color que desees
     'EN_ESPERA': 'bg-yellow-500', // o el color que desees
@@ -76,7 +77,7 @@ export function EditGestion() {
   
   const estadoAEtapa = {
     'RADICADA': 'Radicación',
-    'EN_DISTRIBUCION': 'TGN - Distribución',
+    'EN DISTRIBUCION': 'TGN - Distribución',
     'EN_TRAMITE': 'TGN - Trámite',
     'FINALIZADA': 'Finalizada',
     'EN_ESPERA': 'En Espera',
@@ -251,6 +252,7 @@ export function EditGestion() {
                   </TabsTrigger>
                   <TabsTrigger value="documentos">Documentos</TabsTrigger>
                   <TabsTrigger value="observaciones">Observaciones</TabsTrigger>
+                  <TabsTrigger value="traza">Traza</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="solicitud" className="space-y-4 mt-6">
@@ -416,6 +418,9 @@ export function EditGestion() {
                 </TabsContent>
                 <TabsContent value="observaciones" className="mt-6">
                   <Observationsmanagment />
+                </TabsContent>
+                <TabsContent value="traza" className="mt-6">
+                  <TraceTable />
                 </TabsContent>
               </Tabs>
             </CardContent>
