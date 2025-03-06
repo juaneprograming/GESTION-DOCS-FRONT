@@ -31,6 +31,8 @@ export default function Login() {
       // Almacenar el token en localStorage
       localStorage.setItem('token', response.data.token);
 
+      document.cookie = `token=${response.data.token}; path=/`;
+
       console.log('Token almacenado:', response.data.token);
 
         // Establecer flag para mostrar la notificación después de la redirección
