@@ -166,35 +166,32 @@ const IngresoDocumentos = () => {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("tipo_documento", tipoDocumento);
-    formData.append("nombre_documento", e.target.nombreArchivo.value);
-    formData.append("trd_id", selectedSubserie);
-    formData.append("asunto", e.target.asunto.value);
-    formData.append("ruta_archivo", selectedFile);
-    formData.append("version", "1");
-    formData.append("comentarios", e.target.asunto.value);
-
-    // Agregar datos específicos según el tipo de documento
-    const dataMap = {
-      contrato: contratoData,
-      convenio: convenioData,
-      hv: hojaVidaData,
-    };
-
-    Object.entries(dataMap[tipoDocumento]).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
-
     try {
+      const formData = new FormData();
+      formData.append("tipo_documento", tipoDocumento);
+      formData.append("nombre_documento", selectedFile.name); // Nombre del archivo
+      formData.append("trd_id", selectedSubserie);
+      formData.append("observacion", e.target.asunto.value);
+      formData.append("archivo", selectedFile); // Adjuntar archivo
+
+      // Agregar datos específicos según el tipo de documento
+      const dataMap = {
+        contrato: contratoData,
+        convenio: convenioData,
+        hv: hojaVidaData,
+      };
+
+      Object.entries(dataMap[tipoDocumento] || {}).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+
       const token = localStorage.getItem("token");
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/historico`,
         formData,
         {
           headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`, // Sin Content-Type
           },
         }
       );
@@ -210,11 +207,8 @@ const IngresoDocumentos = () => {
       setSelectedSerie("");
       setSelectedSubserie("");
     } catch (error) {
-      if (error.response && error.response.data.errors && error.response.data.errors.trd_id) {
-        alert(`Error: ${error.response.data.errors.trd_id[0]}`);
-      } else {
-        toast.error("Error al guardar el documento.");
-      }
+      console.error("Error:", error);
+      toast.error("Error al guardar el documento.");
     } finally {
       setLoading(false);
     }
