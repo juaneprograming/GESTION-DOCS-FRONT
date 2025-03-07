@@ -76,8 +76,8 @@ export default function Dashboard() {
             </Section>
           )}
 
-          {/* Sección específica para "Pqr radicador" */}
-          {role === "Pqr radicador" && (
+          {/* Sección específica para "Pqr radicador" y "Distribuidor" */}
+          {(role === "Pqr radicador" || role === "Distribucion") && (
             <Section title="📝 PQRSD Asignadas">
               <MetricCard title="Total PQRSD Asignadas" value={pqrsdData?.pqrsdAsignadas} icon={<FileText className="w-8 h-8 text-purple-500" />} />
               <MetricCard title="PQRSD en Proceso" value={pqrsdData?.pqrsdEnProceso} icon={<MessageSquare className="w-8 h-8 text-yellow-500" />} />
