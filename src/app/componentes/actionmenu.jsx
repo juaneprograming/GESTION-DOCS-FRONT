@@ -41,52 +41,6 @@ import {
         console.error("Error en la gestión de distribución:", error);
         alert("Ocurrió un error al procesar la solicitud.");
       }
-<<<<<<< Updated upstream
-  };
-
-  const handlePrintRadicado = async () => {
-    try {
-        const token = localStorage.getItem("token");
-        const response = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}/pqrsd/${pqrsd}/imprimir`,
-            {
-                headers: { Authorization: `Bearer ${token}` },
-                responseType: "blob",
-            }
-        );
-
-        // Verificar tipo de contenido
-        if (response.headers["content-type"] !== "application/pdf") {
-            throw new Error("Respuesta no es un PDF");
-        }
-
-        // Crear enlace de descarga
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", `radicado-${pqrsd}.pdf`);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-
-    } catch (error) {
-        // Manejar errores de PDF
-        if (error.response && error.response.data instanceof Blob) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                const errorData = JSON.parse(reader.result);
-                console.error("Error del servidor:", errorData.error);
-            };
-            reader.readAsText(error.response.data);
-        } else {
-            console.error("Error al imprimir radicado:", error.message);
-        }
-    }
-};
-
-  return (
-      <DropdownMenu>
-=======
     };
   
     const handleDownloadSticker = async () => {
@@ -99,7 +53,7 @@ import {
             responseType: "blob",
           }
         );
-  
+        
         if (response.headers["content-type"] !== "application/pdf") {
           throw new Error("Respuesta no es un PDF");
         }
@@ -119,7 +73,6 @@ import {
     return (
       <>
         <DropdownMenu>
->>>>>>> Stashed changes
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="icon">
               <Plus className="h-4 w-4" />
@@ -127,24 +80,6 @@ import {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-<<<<<<< Updated upstream
-              <DropdownMenuItem onClick={handleDownloadSticker}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Imprimir Sticker
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handlePrintRadicado}>
-                  <Printer className="h-4 w-4 mr-2" />
-                  Imprimir Radicado
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleSendToDistribution}>
-                  <Send className="h-4 w-4 mr-2" />
-                  Enviar a distribución
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setOpenObservaciones(true)}> {/* Abre el modal */}
-                  <Send className="h-4 w-4 mr-2" />
-                  Nueva Observacion
-              </DropdownMenuItem>
-=======
             <DropdownMenuItem onClick={handleDownloadSticker}>
               <Download className="h-4 w-4 mr-2" />
               Imprimir Sticker
@@ -166,7 +101,6 @@ import {
               <Send className="h-4 w-4 mr-2" />
               Nueva Observación
             </DropdownMenuItem>
->>>>>>> Stashed changes
           </DropdownMenuContent>
         </DropdownMenu>
   
@@ -179,7 +113,7 @@ import {
                 usuarios.map((user) => (
                   <Label key={user.id} className="flex items-center space-x-2">
                     <RadioGroupItem value={user.id.toString()} />
-                    <span>{user.username}</span>
+                    <span>{user.username} - {user.empleado?.nombre_1} {user.empleado?.nombre_2} {user.empleado?.apellido_1} {user.empleado?.apellido_2}</span>
                   </Label>
                 ))
               ) : (
