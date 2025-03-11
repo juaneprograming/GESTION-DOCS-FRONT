@@ -30,7 +30,14 @@ export function EditGestion() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [originalData, setOriginalData] = useState(null); // Guardar una copia inicial de los datos
+  const [originalData, setOriginalData] = useState(null);
+  const [userRole, setUserRole] = useState(null); // Estado para almacenar el rol del usuario
+
+  // Función para obtener el rol del usuario desde el localStorage
+  const fetchUserRole = useCallback(() => {
+    const role = localStorage.getItem("userRole");
+    setUserRole(role);
+  }, []);
 
   const fetchPQRSD = useCallback(async () => {
     try {
@@ -44,7 +51,7 @@ export function EditGestion() {
         }
       );
       setPqrsdData(response.data);
-      setOriginalData({ ...response.data }); // Guardar una copia inicial de los datos
+      setOriginalData({ ...response.data });
     } catch (err) {
       console.error("Error fetching PQRSD:", err);
       setError(err.message);
@@ -58,56 +65,54 @@ export function EditGestion() {
     else setLoading(false);
   }, [id, fetchPQRSD]);
 
+  useEffect(() => {
+    fetchUserRole(); // Obtener el rol del usuario al cargar el componente
+  }, [fetchUserRole]);
+
   const handleEditClick = () => {
-    setIsEditing(true); // Habilitar el modo edición
+    setIsEditing(true);
   };
 
   useEffect(() => {
     console.log("ID recibido:", id);
   }, [id]);
 
-
   const estadoAColor = {
-    'RADICADA': 'bg-green-500',
-    'EN DISTRIBUCION': 'bg-red-500',
-    'EN_TRAMITE': 'bg-gray-300',
-    'FINALIZADA': 'bg-blue-500', // o el color que desees
-    'EN_ESPERA': 'bg-yellow-500', // o el color que desees
+    RADICADA: "bg-green-500",
+    "EN DISTRIBUCION": "bg-red-500",
+    EN_TRAMITE: "bg-gray-300",
+    FINALIZADA: "bg-blue-500", // o el color que desees
+    EN_ESPERA: "bg-yellow-500", // o el color que desees
   };
-  
+
   const estadoAEtapa = {
-    'RADICADA': 'Radicación',
-    'EN DISTRIBUCION': 'TGN - Distribución',
-    'EN_TRAMITE': 'TGN - Trámite',
-    'FINALIZADA': 'Finalizada',
-    'EN_ESPERA': 'En Espera',
+    RADICADA: "Radicación",
+    "EN DISTRIBUCION": "TGN - Distribución",
+    EN_TRAMITE: "TGN - Trámite",
+    FINALIZADA: "Finalizada",
+    EN_ESPERA: "En Espera",
   };
-  
 
   const handleSave = async () => {
     try {
-      // Verificar que los datos originales y actuales estén disponibles
       if (!originalData || !pqrsdData) {
         console.error("Datos originales o actuales no están disponibles");
         toast.error("Ocurrió un error al comparar los datos.");
         return;
       }
 
-      // Comparar los datos originales con los datos actuales
       const hasChanges = Object.keys(originalData).some(
         (key) => originalData[key] !== pqrsdData[key]
       );
 
       if (!hasChanges) {
-        // Si no hay cambios, mostrar un mensaje informativo
         toast.info("No se ha modificado ningún campo.");
-        setIsEditing(false); // Desactivar el modo edición
+        setIsEditing(false);
         return;
       }
 
       const token = localStorage.getItem("token");
 
-      // Enviar solo los campos editables al backend
       const transformedData = {
         form_type: "solicitud",
         tipo_solicitud: pqrsdData.tipo_solicitud,
@@ -131,24 +136,59 @@ export function EditGestion() {
         }
       );
 
-      setIsEditing(false); // Desactivar el modo edición después de guardar
-      setOriginalData({ ...pqrsdData }); // Actualizar los datos originales
+      setIsEditing(false);
+      setOriginalData({ ...pqrsdData });
       toast.success("Datos actualizados correctamente");
-      fetchPQRSD(); // Refresh the data after a successful save
+      fetchPQRSD();
     } catch (err) {
       let errorMessage = "Ocurrió un error desconocido";
       if (err.response) {
-        // El servidor respondió con un código de estado fuera del rango 2xx
         errorMessage = err.response.data?.error || "Error en el servidor";
       } else if (err.request) {
-        // La solicitud fue hecha pero no se recibió respuesta
         errorMessage = "No se recibió respuesta del servidor";
       } else {
-        // Otro tipo de error
         errorMessage = err.message;
       }
       console.error("Error updating PQRSD data:", errorMessage);
       toast.error(errorMessage);
+    }
+  };
+
+  const handleGestionarDistribucion = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/pqrsd/${id}/gestionarDistribucion`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      toast.success("Gestion de distribucion  correctamente");
+      fetchPQRSD();
+    } catch (error) {
+      toast.error("Error al gestionar la  distribucion");
+    }
+  };
+
+  const handleGestionarTramite = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/pqrsd/${id}/gestionarTramite`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      toast.success("Gestion de tramite  correctamente");
+      fetchPQRSD();
+    } catch (error) {
+      toast.error("Error al gestionar el tramite");
     }
   };
 
@@ -201,43 +241,65 @@ export function EditGestion() {
               <span>Información PQRSD</span>
             </div>
           </div>
-
-                    {/* Status Indicators */}
-                    <div className="flex justify-center items-center gap-4 py-2">
+          {/* Status Indicators */}
+          <div className="flex justify-center items-center gap-4 py-2">
             <Tooltip>
               <TooltipTrigger>
                 <div className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full ${estadoAColor[pqrsdData?.estado] || 'bg-gray-200'}`}></div>
-                  <span>{estadoAEtapa[pqrsdData?.estado] || 'Desconocido'}</span>
+                  <div
+                    className={`w-3 h-3 rounded-full ${
+                      estadoAColor[pqrsdData?.estado] || "bg-gray-200"
+                    }`}
+                  ></div>
+                  <span>
+                    {estadoAEtapa[pqrsdData?.estado] || "Desconocido"}
+                  </span>
                 </div>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Estado actual de la solicitud: {pqrsdData?.estado || 'Desconocido'}</p>
+                <p>
+                  Estado actual de la solicitud:{" "}
+                  {pqrsdData?.estado || "Desconocido"}
+                </p>
               </TooltipContent>
             </Tooltip>
           </div>
-
-
-                    {/* Workflow Status */}
-                    <div className="flex justify-between items-center px-20">
+          {/* Workflow Status */}
+          <div className="flex justify-between items-center px-20">
             <div className="text-center">
-              <div className={`w-8 h-8 rounded-full ${pqrsdData?.estado === 'RADICADA' ? 'bg-green-500 animate-pulse' : 'bg-gray-300'} mx-auto mb-2`}></div>
+              <div
+                className={`w-8 h-8 rounded-full ${
+                  pqrsdData?.estado === "RADICADA"
+                    ? "bg-green-500 animate-pulse"
+                    : "bg-gray-300"
+                } mx-auto mb-2`}
+              ></div>
               <span>Radicación</span>
             </div>
             <div className="flex-1 h-1 bg-gray-200 mx-4"></div>
             <div className="text-center">
-              <div className={`w-8 h-8 rounded-full ${pqrsdData?.estado === 'EN_DISTRIBUCION' ? 'bg-red-500 animate-pulse' : 'bg-gray-300'} mx-auto mb-2`}></div>
+              <div
+                className={`w-8 h-8 rounded-full ${
+                  pqrsdData?.estado === "EN_DISTRIBUCION"
+                    ? "bg-red-500 animate-pulse"
+                    : "bg-gray-300"
+                } mx-auto mb-2`}
+              ></div>
               <span>TGN - Distribución</span>
             </div>
             <div className="flex-1 h-1 bg-gray-200 mx-4"></div>
             <div className="text-center">
-              <div className={`w-8 h-8 rounded-full ${pqrsdData?.estado === 'EN_TRAMITE' ? 'bg-blue-500 animate-pulse' : 'bg-gray-300'} mx-auto mb-2`}></div>
+              <div
+                className={`w-8 h-8 rounded-full ${
+                  pqrsdData?.estado === "EN_TRAMITE"
+                    ? "bg-blue-500 animate-pulse"
+                    : "bg-gray-300"
+                } mx-auto mb-2`}
+              ></div>
               <span>TGN - Trámite</span>
             </div>
-             {/* Agrega más etapas según sea necesario */}
+            {/* Agrega más etapas según sea necesario */}
           </div>
-
-
           {/* Main Content */}
           <Card>
             <CardContent className="p-4">
@@ -274,7 +336,14 @@ export function EditGestion() {
                           Editar Información
                         </Button>
                       )}
-                      <ActionMenu pqrsd={id} handleRefresh={handleRefresh} />
+                      <ActionMenu
+    pqrsd={id}
+    handleRefresh={handleRefresh}
+    userRole={userRole}
+    handleGestionarDistribucion={handleGestionarDistribucion}
+    handleGestionarTramite={handleGestionarTramite}
+/>
+
                     </div>
                   </div>
 
@@ -400,7 +469,13 @@ export function EditGestion() {
                 <TabsContent value="gestor" className="mt-6">
                   <div className="flex justify-between items-start mb-4">
                     <h2 className="text-xl font-semibold">Datos del Gestor</h2>
-                    <ActionMenu pqrsd={id} handleRefresh={handleRefresh} />
+                    <ActionMenu
+                      pqrsd={id}
+                      handleRefresh={handleRefresh}
+                      userRole={userRole}
+                      handleGestionarDistribucion={handleGestionarDistribucion}
+                      handleGestionarTramite={handleGestionarTramite}
+                    />
                   </div>
                   <GestorForm />
                 </TabsContent>
@@ -409,7 +484,13 @@ export function EditGestion() {
                     <h2 className="text-xl font-semibold">
                       Datos del Solicitante
                     </h2>
-                    <ActionMenu  pqrsd={id} handleRefresh={handleRefresh}/>
+                    <ActionMenu
+                      pqrsd={id}
+                      handleRefresh={handleRefresh}
+                      userRole={userRole}
+                      handleGestionarDistribucion={handleGestionarDistribucion}
+                      handleGestionarTramite={handleGestionarTramite}
+                    />
                   </div>
                   <SolicitanteForm />
                 </TabsContent>
