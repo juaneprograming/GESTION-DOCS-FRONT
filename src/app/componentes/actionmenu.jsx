@@ -68,6 +68,46 @@ export function ActionMenu({ handleRefresh, pqrsd }) {
     }
   };
 
+  const handlePrintRadicado = async () => {
+    try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/pqrsd/${pqrsd}/imprimir`,
+            {
+                headers: { Authorization: `Bearer ${token}` },
+                responseType: "blob",
+            }
+        );
+
+        // Verificar tipo de contenido
+        if (response.headers["content-type"] !== "application/pdf") {
+            throw new Error("Respuesta no es un PDF");
+        }
+
+        // Crear enlace de descarga
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `radicado-${pqrsd}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+    } catch (error) {
+        // Manejar errores de PDF
+        if (error.response && error.response.data instanceof Blob) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const errorData = JSON.parse(reader.result);
+                console.error("Error del servidor:", errorData.error);
+            };
+            reader.readAsText(error.response.data);
+        } else {
+            console.error("Error al imprimir radicado:", error.message);
+        }
+    }
+};
+
   const handleDownloadSticker = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -109,7 +149,7 @@ export function ActionMenu({ handleRefresh, pqrsd }) {
             <Download className="h-4 w-4 mr-2" />
             Imprimir Sticker
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={handlePrintRadicado}>
             <Printer className="h-4 w-4 mr-2" />
             Imprimir Radicado
           </DropdownMenuItem>

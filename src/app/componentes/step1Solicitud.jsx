@@ -108,8 +108,8 @@ export const Step1Solicitud = ({ formData, errors, onChange }) => {
                             <SelectValue placeholder="Seleccione" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="correo_electronico">Correo electrónico</SelectItem>
-                            <SelectItem value="direccion_correspondencia">Dirección de correspondencia</SelectItem>
+                            <SelectItem value="Correo electronico">Correo electrónico</SelectItem>
+                            <SelectItem value="Direccion correspondencia">Dirección de correspondencia</SelectItem>
                         </SelectContent>
                     </Select>
                     <div className="h-6">
