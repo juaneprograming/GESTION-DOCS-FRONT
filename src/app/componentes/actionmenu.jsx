@@ -17,54 +17,46 @@ export function ActionMenu({ handleRefresh, pqrsd }) {
   const [openObservaciones, setOpenObservaciones] = useState(false);
   const [openDistribucion, setOpenDistribucion] = useState(false);
   const [openTramite, setOpenTramite] = useState(false); // Estado para el modal de Trámite
+  const [openCierre, setOpenCierre] = useState(false); // Nuevo estado para el modal de Cierre
   const [usuarios, setUsuarios] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+  
 
-  const handleDistribucion = async (usuarioId = null) => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/pqrsds/${pqrsd}/gestionar-distribucion`,
-        usuarioId ? { usuario_id: usuarioId, estado: "EN_DISTRIBUCION" } : {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      if (!usuarioId) {
-        // Si no se envió usuarioId, solo obtenemos la lista de usuarios
-        setUsuarios(response.data.usuarios);
-      } else {
-        // Si se envió usuarioId, significa que se asignó la PQRSd
-        handleRefresh();
-        setOpenDistribucion(false);
-        alert("PQRSd asignada exitosamente a Distribución!");
-      }
-    } catch (error) {
-      console.error("Error en la gestión de distribución:", error);
-      alert("Ocurrió un error al procesar la solicitud de Distribución.");
+  const handleGestionPqrsd = async (rol, usuarioId = null) => {
+    if (!rol) {
+      console.error("Error: El rol no fue proporcionado");
+      return;
     }
-  };
 
-  const handleTramite = async (usuarioId = null) => {
     try {
+      console.log("Enviando rol:", rol);
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/pqrsds/${pqrsd}/gestionar-tramite`,
-        usuarioId ? { usuario_id: usuarioId, estado: "EN_TRAMITE" } : {},
+        `${process.env.NEXT_PUBLIC_API_URL}/pqrsd/${pqrsd}/gestionar/${rol}`,
+        usuarioId
+          ? { usuario_id: usuarioId, estado: rol === "Distribucion" ? "EN_DISTRIBUCION" : rol === "Tramitador" ? "EN_TRAMITE" : "EN_CIERRE" }
+          : {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (!usuarioId) {
-        // Si no se envió usuarioId, solo obtenemos la lista de usuarios
         setUsuarios(response.data.usuarios);
       } else {
-        // Si se envió usuarioId, significa que se asignó la PQRSd
         handleRefresh();
-        setOpenTramite(false);
-        alert("PQRSd asignada exitosamente a Trámite!");
+        if (rol === "Distribucion") {
+          setOpenDistribucion(false);
+          alert("PQRSd asignada exitosamente a Distribución!");
+        } else if (rol === "Tramitador") {
+          setOpenTramite(false);
+          alert("PQRSd asignada exitosamente a Trámite!");
+        } else if (rol === "Cierre PQRSD") {
+          setOpenCierre(false);
+          alert("PQRSd asignada exitosamente a Cierre!");
+        }
       }
     } catch (error) {
-      console.error("Error en la gestión de Trámite:", error);
-      alert("Ocurrió un error al procesar la solicitud de Trámite.");
+      console.error(`Error en la gestión de ${rol}:`, error);
+      alert(`Ocurrió un error al procesar la solicitud de ${rol}.`);
     }
   };
 
@@ -156,7 +148,7 @@ export function ActionMenu({ handleRefresh, pqrsd }) {
           <DropdownMenuItem
             onClick={() => {
               setOpenDistribucion(true);
-              handleDistribucion(); // Cargar usuarios al abrir modal
+              handleGestionPqrsd("Distribucion"); // Cargar usuarios al abrir modal
             }}
           >
             <Send className="h-4 w-4 mr-2" />
@@ -166,20 +158,30 @@ export function ActionMenu({ handleRefresh, pqrsd }) {
           <DropdownMenuItem
             onClick={() => {
               setOpenTramite(true);
-              handleTramite(); // Load users when modal opens
+              handleGestionPqrsd("Tramitador"); // Load users when modal opens
             }}
           >
             <Send className="h-4 w-4 mr-2" />
             Enviar a Trámite
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setOpenObservaciones(true)}>
+
+          <DropdownMenuItem
+            onClick={() => {
+              setOpenCierre(true);
+              handleGestionPqrsd("Cierre PQRSD"); // Load users when modal opens
+            }}
+          >
             <Send className="h-4 w-4 mr-2" />
+            Enviar a Cierre
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setOpenObservaciones(true)}>
+            <Plus  className="h-4 w-4 mr-2" />
             Nueva Observación
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Modal de Distribución */}
+     {/* Modal de Distribución */}
       <Dialog open={openDistribucion} onOpenChange={setOpenDistribucion}>
         <DialogContent>
           <DialogTitle>Asignar PQRSd a un usuario de Distribución</DialogTitle>
@@ -195,7 +197,7 @@ export function ActionMenu({ handleRefresh, pqrsd }) {
               <p>No hay usuarios disponibles.</p>
             )}
           </RadioGroup>
-          <Button onClick={() => handleDistribucion(selectedUser)} disabled={!selectedUser}>
+          <Button onClick={() => handleGestionPqrsd("Distribucion", selectedUser)} disabled={!selectedUser}>
             Enviar a Distribución
           </Button>
         </DialogContent>
@@ -217,11 +219,34 @@ export function ActionMenu({ handleRefresh, pqrsd }) {
               <p>No hay usuarios disponibles.</p>
             )}
           </RadioGroup>
-          <Button onClick={() => handleTramite(selectedUser)} disabled={!selectedUser}>
+          <Button onClick={() => handleGestionPqrsd("Tramitador", selectedUser)} disabled={!selectedUser}>
             Enviar a Trámite
           </Button>
         </DialogContent>
       </Dialog>
+
+      {/* Modal de Trámite */}
+      <Dialog open={openCierre} onOpenChange={setOpenCierre}>
+        <DialogContent>
+          <DialogTitle>Asignar PQRSd a un usuario de Cierre</DialogTitle>
+          <RadioGroup onValueChange={setSelectedUser}>
+            {usuarios.length > 0 ? (
+              usuarios.map((user) => (
+                <Label key={user.id} className="flex items-center space-x-2">
+                  <RadioGroupItem value={user.id.toString()} />
+                  <span>{user.username} - {user.empleado?.nombre_1} {user.empleado?.nombre_2} {user.empleado?.apellido_1} {user.empleado?.apellido_2}</span>
+                </Label>
+              ))
+            ) : (
+              <p>No hay usuarios disponibles.</p>
+            )}
+          </RadioGroup>
+          <Button onClick={() => handleGestionPqrsd("Cierre PQRSD", selectedUser)} disabled={!selectedUser}>
+            Enviar a Cierre
+          </Button>
+        </DialogContent>
+      </Dialog>
+
 
       {/* Modal de Observaciones */}
       {openObservaciones && (
