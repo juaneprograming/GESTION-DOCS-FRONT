@@ -8,50 +8,86 @@ import { Button } from "@/components/ui/button";
 import { Printer, Download, Plus, Send } from "lucide-react";
 import { Observaciones } from "../pqrsd/gestionpqrsd/observaciones/page";
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 
 export function ActionMenu({ handleRefresh, pqrsd }) {
+  const [userRole, setUserRole] = useState(null);
+  const [loadingRole, setLoadingRole] = useState(true);
   const [openObservaciones, setOpenObservaciones] = useState(false);
   const [openDistribucion, setOpenDistribucion] = useState(false);
-  const [openTramite, setOpenTramite] = useState(false); // Estado para el modal de Trámite
-  const [openCierre, setOpenCierre] = useState(false); // Nuevo estado para el modal de Cierre
+  const [openTramite, setOpenTramite] = useState(false);
+  const [openCierre, setOpenCierre] = useState(false);
   const [usuarios, setUsuarios] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
-  
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/user/role`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setUserRole(response.data.role);
+        console.log("User role:", response.data.role);
+      } catch (error) {
+        console.error("Error al obtener el rol:", error);
+      } finally {
+        setLoadingRole(false);
+      }
+    };
+    fetchUserRole();
+  }, []);
 
   const handleGestionPqrsd = async (rol, usuarioId = null) => {
     if (!rol) {
       console.error("Error: El rol no fue proporcionado");
       return;
     }
-
     try {
-      console.log("Enviando rol:", rol);
       const token = localStorage.getItem("token");
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/pqrsd/${pqrsd}/gestionar/${rol}`,
         usuarioId
-          ? { usuario_id: usuarioId, estado: rol === "Distribucion" ? "EN_DISTRIBUCION" : rol === "Tramitador" ? "EN_TRAMITE" : "EN_CIERRE" }
+          ? { 
+              usuario_id: usuarioId,
+              estado: rol === "Distribucion" 
+                ? "EN_DISTRIBUCION" 
+                : rol === "Tramitador" 
+                ? "EN_TRAMITE" 
+                : "EN_CIERRE" 
+            }
           : {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
+      
       if (!usuarioId) {
         setUsuarios(response.data.usuarios);
       } else {
         handleRefresh();
-        if (rol === "Distribucion") {
+  
+        const actionSuccess = (action) => {
           setOpenDistribucion(false);
-          alert("PQRSd asignada exitosamente a Distribución!");
-        } else if (rol === "Tramitador") {
           setOpenTramite(false);
-          alert("PQRSd asignada exitosamente a Trámite!");
-        } else if (rol === "Cierre PQRSD") {
           setOpenCierre(false);
-          alert("PQRSd asignada exitosamente a Cierre!");
+          alert(`PQRSd asignada exitosamente a ${action}!`);
+        };
+  
+        switch (rol) {
+          case "Pqr radicador":
+            actionSuccess("Distribucion");
+            break;
+          case "Distribucion":
+            actionSuccess("Tramite");
+            break;
+          case "Tramitador":
+            actionSuccess("Cierre PQRSD");
+            break;
+          default:
+            console.warn("Rol no reconocido:", rol);
         }
       }
     } catch (error) {
@@ -145,35 +181,42 @@ export function ActionMenu({ handleRefresh, pqrsd }) {
             <Printer className="h-4 w-4 mr-2" />
             Imprimir Radicado
           </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => {
-              setOpenDistribucion(true);
-              handleGestionPqrsd("Distribucion"); // Cargar usuarios al abrir modal
-            }}
-          >
-            <Send className="h-4 w-4 mr-2" />
-            Enviar a Distribución
-          </DropdownMenuItem>
-          {/* New "Enviar a Trámite" Menu Item */}
-          <DropdownMenuItem
-            onClick={() => {
-              setOpenTramite(true);
-              handleGestionPqrsd("Tramitador"); // Load users when modal opens
-            }}
-          >
-            <Send className="h-4 w-4 mr-2" />
-            Enviar a Trámite
-          </DropdownMenuItem>
+          {/* Botones condicionales */}
+          {(userRole === "admin" || userRole === "Pqr radicador") && (
+            <DropdownMenuItem
+              onClick={() => {
+                setOpenDistribucion(true);
+                handleGestionPqrsd("Distribucion");
+              }}
+            >
+              <Send className="h-4 w-4 mr-2" />
+              Enviar a Distribución
+            </DropdownMenuItem>
+          )}
 
-          <DropdownMenuItem
-            onClick={() => {
-              setOpenCierre(true);
-              handleGestionPqrsd("Cierre PQRSD"); // Load users when modal opens
-            }}
-          >
-            <Send className="h-4 w-4 mr-2" />
-            Enviar a Cierre
-          </DropdownMenuItem>
+          {(userRole === "admin" || userRole === "Distribucion") && (
+            <DropdownMenuItem
+              onClick={() => {
+                setOpenTramite(true);
+                handleGestionPqrsd("Tramitador");
+              }}
+            >
+              <Send className="h-4 w-4 mr-2" />
+              Enviar a Trámite
+            </DropdownMenuItem>
+          )}
+
+          {(userRole === "admin" || userRole === "Tramitador") && (
+            <DropdownMenuItem
+              onClick={() => {
+                setOpenCierre(true);
+                handleGestionPqrsd("Cierre PQRSD");
+              }}
+            >
+              <Send className="h-4 w-4 mr-2" />
+              Enviar a Cierre
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem onClick={() => setOpenObservaciones(true)}>
             <Plus  className="h-4 w-4 mr-2" />
             Nueva Observación
