@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { motion } from "framer-motion"
-import { FileText, Lock, Mail, FileCheck } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card } from "@/components/ui/card"
-import { toast } from "sonner"
-import api from "../api/axios"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { FileText, Lock, Mail, FileCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { toast } from "sonner";
+import api from "../api/axios";
 
 export default function Login() {
-  const [formData, setFormData] = useState({ username: '', password: '' });
-  const [error, setError] = useState('');
+  const [formData, setFormData] = useState({ username: "", password: "" });
+  const [error, setError] = useState("");
   const router = useRouter();
 
   const handleInputChange = (e) => {
@@ -24,28 +24,28 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      await api.get('/sanctum/csrf-cookie'); // Obtener el CSRF token si es necesario
-      const response = await api.post('/login', formData);
-      console.log('API Response:', response);
+      await api.get("/sanctum/csrf-cookie"); // Obtener el CSRF token si es necesario
+      const response = await api.post("/login", formData);
+      console.log("API Response:", response);
 
       // Almacenar el token en localStorage
-      localStorage.setItem('token', response.data.token);
+      localStorage.setItem("token", response.data.token);
 
       document.cookie = `token=${response.data.token}; path=/`;
 
-      console.log('Token almacenado:', response.data.token);
+      console.log("Token almacenado:", response.data.token);
 
-        // Establecer flag para mostrar la notificación después de la redirección
-        localStorage.setItem('showLoginSuccess', 'true');
+      // Establecer flag para mostrar la notificación después de la redirección
+      localStorage.setItem("showLoginSuccess", "true");
 
       // Redirigir al dashboard
-      router.push('/dashboard');
+      router.push("/dashboard");
     } catch (err) {
-      console.error('API Error:', err);
+      console.error("API Error:", err);
       if (err.response && err.response.data && err.response.data.message) {
         setError(err.response.data.message);
       } else {
-        setError('Credenciales inválidas, intenta de nuevo.');
+        setError("Credenciales inválidas, intenta de nuevo.");
       }
     }
   };
@@ -56,10 +56,10 @@ export default function Login() {
       opacity: 1,
       transition: {
         duration: 0.5,
-        staggerChildren: 0.1
-      }
-    }
-  }
+        staggerChildren: 0.1,
+      },
+    },
+  };
 
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
@@ -68,10 +68,10 @@ export default function Login() {
       opacity: 1,
       transition: {
         type: "spring",
-        stiffness: 100
-      }
-    }
-  }
+        stiffness: 100,
+      },
+    },
+  };
 
   const floatingAnimation = {
     y: [-5, 5],
@@ -80,28 +80,28 @@ export default function Login() {
         duration: 2,
         repeat: Infinity,
         repeatType: "reverse",
-        ease: "easeInOut"
-      }
-    }
-  }
+        ease: "easeInOut",
+      },
+    },
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-100 via-white to-green-100 relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden">
-        <motion.div 
+        <motion.div
           className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-green-200/30 to-pink-200/30 rounded-full filter blur-3xl"
           animate={{
             scale: [1, 1.2, 1],
             rotate: [0, 90, 0],
-            transition: { duration: 8, repeat: Infinity }
+            transition: { duration: 8, repeat: Infinity },
           }}
         />
-        <motion.div 
+        <motion.div
           className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-200/30 to-green-200/30 rounded-full filter blur-3xl"
           animate={{
             scale: [1.2, 1, 1.2],
             rotate: [90, 0, 90],
-            transition: { duration: 8, repeat: Infinity }
+            transition: { duration: 8, repeat: Infinity },
           }}
         />
       </div>
@@ -163,6 +163,17 @@ export default function Login() {
               <div className="mt-4 text-center text-green-500">
                 <a href="/login/forgot">¿Olvidaste tu Contraseña?</a>
               </div>
+
+              <div className="border-t border-gray-200 mt-8 pt-6">
+                <p className="text-gray-500 text-center text-sm">
+                  Software desarrollado por{" "}
+                  <span className="text-green-500">Enterprise Control</span>
+                </p>
+                <p className="text-gray-400 text-center text-xs mt-1">
+                  © {new Date().getFullYear()} Enterprise Control. Todos los
+                  derechos reservados.
+                </p>
+              </div>
             </div>
           </Card>
 
@@ -171,18 +182,26 @@ export default function Login() {
               <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-white rounded-2xl p-8">
                 <div className="relative w-full h-full">
                   <div className="absolute bottom-16 left-1/2 -translate-x-1/2 w-80">
-                    <motion.div 
+                    <motion.div
                       className="h-8 w-32 bg-green-200 rounded-t-lg mx-auto"
                       animate={{
                         rotateX: [-5, 5, -5],
-                        transition: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                        transition: {
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        },
                       }}
                     />
-                    <motion.div 
+                    <motion.div
                       className="w-full h-48 bg-gradient-to-br from-green-600 to-green-400 rounded-tr-lg rounded-b-lg p-4 shadow-lg"
                       animate={{
                         rotateX: [-2, 2, -2],
-                        transition: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                        transition: {
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        },
                       }}
                     >
                       <div className="grid grid-cols-2 gap-2 mt-2">
@@ -201,11 +220,11 @@ export default function Login() {
                     <motion.div
                       key={i}
                       className="absolute w-20 h-28 bg-white rounded-lg shadow-lg p-4 flex items-center justify-center"
-                      initial={{ 
-                        x: -50, 
+                      initial={{
+                        x: -50,
                         y: 100 + i * 30,
                         opacity: 0,
-                        scale: 0.8
+                        scale: 0.8,
                       }}
                       animate={{
                         x: [null, 20 + i * 50, 20 + i * 50],
@@ -219,7 +238,7 @@ export default function Login() {
                         repeatType: "reverse",
                         ease: "easeInOut",
                         times: [0, 0.5, 1],
-                        delay: i * 1
+                        delay: i * 1,
                       }}
                     >
                       <FileCheck className="w-8 h-8 text-green-600" />
@@ -232,5 +251,5 @@ export default function Login() {
         </div>
       </div>
     </div>
-  )
+  );
 }

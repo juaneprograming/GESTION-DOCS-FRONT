@@ -9,14 +9,15 @@ import {
   Settings,
   ChevronRight,
   FileText,
-  Users,
   Lock,
   Building2,
   Cog,
   PenSquare,
   X,
+  Copyright,
 } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useState, useEffect } from "react"
 
 const dashboardItem = {
@@ -112,16 +113,12 @@ const gestiondocumental = {
       subItems: [
         { name: "Informe de expedientes", url: "/gestiondocumental/informeexpediente" },
         { name: "Consulta de documentos", url: "" },
-        
       ],
     },
     {
       name: "Parametricas de actos",
       icon: Lock,
-      subItems: [
-        { name: "Plantilla de documentos", url: "" },
-        
-      ],
+      subItems: [{ name: "Plantilla de documentos", url: "" }],
     },
   ],
 }
@@ -186,6 +183,24 @@ const MenuItem = ({ item, level = 0, openItems, setOpenItems }) => {
   )
 }
 
+// Componente de Popover personalizado que se muestra al pasar el cursor
+const HoverPopover = ({ trigger, content }) => {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <div onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)} className="cursor-default">
+          {trigger}
+        </div>
+      </PopoverTrigger>
+      <PopoverContent onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)} className="w-60 p-0">
+        {content}
+      </PopoverContent>
+    </Popover>
+  )
+}
+
 export function Sidebar({ isOpen, onClose }) {
   const [openItems, setOpenItems] = useState({})
 
@@ -204,27 +219,51 @@ export function Sidebar({ isOpen, onClose }) {
     }
   }, [openItems])
 
+  const currentYear = new Date().getFullYear()
+
   return (
     <aside
       className={cn(
-        "fixed inset-y-0 left-0 z-50 w-64 bg-background border-r transform transition-transform duration-200 ease-in-out",
+        "fixed inset-y-0 left-0 z-50 w-64 bg-background border-r transform transition-transform duration-200 ease-in-out flex flex-col",
         isOpen ? "translate-x-0" : "-translate-x-full",
         "md:relative md:translate-x-0",
       )}
     >
-      <div className="flex justify-between items-center p-4 border-b">
-        <div className="font-bold text-xl text-foreground">DOCUMENT</div>
+      <div className="flex justify-center items-center p-4 border-b">
+        <div className="font-bold text-xl text-foreground">DOC MANAGER</div>
         <button onClick={onClose} className="md:hidden">
           <X className="h-6 w-6" />
         </button>
       </div>
 
-      <div className="p-2 space-y-2 overflow-y-auto h-[calc(100vh-60px)]">
+      <div className="p-2 space-y-2 overflow-y-auto flex-grow">
         <MenuItem item={dashboardItem} openItems={openItems} setOpenItems={setOpenItems} />
         <MenuItem item={pqrsdItems} openItems={openItems} setOpenItems={setOpenItems} />
         <MenuItem item={administracionItems} openItems={openItems} setOpenItems={setOpenItems} />
         <MenuItem item={gestiondocumental} openItems={openItems} setOpenItems={setOpenItems} />
       </div>
+
+      {/* Copyright section con popover */}
+      <HoverPopover
+        trigger={
+          <div className="mt-auto border-t py-2 px-4">
+            <div className="flex items-center justify-between text-xs text-foreground/60">
+              <div className="flex items-center">
+                <Copyright className="h-3 w-3 mr-1" />
+                <span>{currentYear}</span>
+              </div>
+              <div className="font-medium text-primary">Enterprise Control</div>
+            </div>
+          </div>
+        }
+        content={
+          <div className="bg-primary/5 p-3 text-center">
+            <p className="text-xs text-foreground/70">Software desarrollado por</p>
+            <p className="text-sm font-semibold text-primary">Enterprise Control</p>
+            <p className="text-xs text-foreground/70 mt-1">© {currentYear} Todos los derechos reservados</p>
+          </div>
+        }
+      />
     </aside>
   )
 }
