@@ -182,7 +182,7 @@ export function ActionMenu({ handleRefresh, pqrsd }) {
             Imprimir Radicado
           </DropdownMenuItem>
           {/* Botones condicionales */}
-          {(userRole === "admin" || userRole === "Pqr radicador") && (
+          {(userRole === "Admin" || userRole === "Pqr radicador") && (
             <DropdownMenuItem
               onClick={() => {
                 setOpenDistribucion(true);
@@ -194,7 +194,7 @@ export function ActionMenu({ handleRefresh, pqrsd }) {
             </DropdownMenuItem>
           )}
 
-          {(userRole === "admin" || userRole === "Distribucion") && (
+          {(userRole === "Admin" || userRole === "Distribucion") && (
             <DropdownMenuItem
               onClick={() => {
                 setOpenTramite(true);
@@ -206,7 +206,7 @@ export function ActionMenu({ handleRefresh, pqrsd }) {
             </DropdownMenuItem>
           )}
 
-          {(userRole === "admin" || userRole === "Tramitador") && (
+          {(userRole === "Admin" || userRole === "Tramitador") && (
             <DropdownMenuItem
               onClick={() => {
                 setOpenCierre(true);
