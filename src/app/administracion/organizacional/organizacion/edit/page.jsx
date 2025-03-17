@@ -191,7 +191,7 @@ export function EditEntidad({ entidadId, onEntidadActualizada }) {
                   value={formData.nombre}
                   onChange={(e) => handleChange("nombre", e.target.value)}
                   disabled={loading}
-                  onKeyPress={(e) => handleKeyPress(e, 'letter')}
+                 
                 />
                 {errors.nombre && (
                   <span className="text-red-500 text-sm">{errors.nombre[0]}</span>
@@ -233,7 +233,7 @@ export function EditEntidad({ entidadId, onEntidadActualizada }) {
                   value={formData.mision}
                   onChange={(e) => handleChange("mision", e.target.value)}
                   disabled={loading}
-                  onKeyPress={(e) => handleKeyPress(e, 'letter')}
+                 
                 />
                 {errors.mision && (
                   <span className="text-red-500 text-sm">{errors.mision[0]}</span>
@@ -247,7 +247,7 @@ export function EditEntidad({ entidadId, onEntidadActualizada }) {
                   value={formData.vision}
                   onChange={(e) => handleChange("vision", e.target.value)}
                   disabled={loading}
-                  onKeyPress={(e) => handleKeyPress(e, 'letter')}
+                 
                 />
                 {errors.vision && (
                   <span className="text-red-500 text-sm">{errors.vision[0]}</span>

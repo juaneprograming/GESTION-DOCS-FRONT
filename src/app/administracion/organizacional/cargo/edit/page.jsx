@@ -156,7 +156,7 @@ export function EditCargo({ cargoId, onSuccess }) {
                                 value={formData.nombre}
                                 onChange={(e) => handleChange("nombre", e.target.value)}
                                 disabled={loading}
-                                onKeyPress={(e) => handleKeyPress(e, 'letter')}
+                                
                             />
                             {errors.nombre && (
                                 <div className="text-red-500 text-sm">{errors.nombre[0]}</div>
@@ -171,7 +171,7 @@ export function EditCargo({ cargoId, onSuccess }) {
                                 value={formData.descripcion}
                                 onChange={(e) => handleChange("descripcion", e.target.value)}
                                 disabled={loading}
-                                onKeyPress={(e) => handleKeyPress(e, 'letter')}
+                                
                             />
                             {errors.descripcion && (
                                 <div className="text-red-500 text-sm">{errors.descripcion[0]}</div>

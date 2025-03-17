@@ -20,7 +20,6 @@ import Image from "next/image"
 export function CreateEmpleado({ onEmpleadoCreado }) {
   const [open, setOpen] = useState(false);
   const [areas, setAreas] = useState([]);
-  const [sedes, setSedes] = useState([]);
   const [cargos, setCargos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -36,7 +35,6 @@ export function CreateEmpleado({ onEmpleadoCreado }) {
     correo: "",
     telefono: "",
     cargo_id: "",
-    sede_id: "",
     area_id: "",
     foto: null,
   });
@@ -51,15 +49,15 @@ export function CreateEmpleado({ onEmpleadoCreado }) {
           },
         };
 
-        const [areasRes, cargosRes, sedesRes] = await Promise.all([
+        const [areasRes, cargosRes] = await Promise.all([
           axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/areas`, config),
           axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/cargos`, config),
-          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/administracion/sedes`, config),
+
         ]);
 
         setAreas(areasRes.data.data || []);
         setCargos(cargosRes.data.data || []);
-        setSedes(sedesRes.data.data || []);
+
       } catch (err) {
         console.error("Error fetching data:", err);
       }
@@ -146,7 +144,6 @@ export function CreateEmpleado({ onEmpleadoCreado }) {
         correo: "",
         telefono: "",
         cargo_id: "",
-        sede_id: "",
         area_id: "",
         foto: null,
       });
@@ -303,29 +300,6 @@ export function CreateEmpleado({ onEmpleadoCreado }) {
             value={formData.telefono || ""}
             onChange={(e) => handleNumberChange("telefono", e.target.value)}
           />
-        </div>
-
-        <div className="grid items-center gap-1 relative">
-          <Label className="mb-1 flex items-center">
-            Sede <span className="text-red-500 ml-1">*</span>
-          </Label>
-          <Select
-            value={formData.sede_id || ""}
-            onValueChange={(value) => handleChange("sede_id", value)}
-            className={errors.sede_id ? "border-red-500" : ""}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Seleccione una sede" />
-            </SelectTrigger>
-            <SelectContent>
-              {sedes.map((sede) => (
-                <SelectItem key={sede.id} value={sede.id.toString()}>
-                  {sede.nombre}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.sede_id && <span className="text-red-500 text-sm absolute -bottom-5">{errors.sede_id}</span>}
         </div>
 
         <div className="grid items-center gap-1 relative">

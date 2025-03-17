@@ -20,7 +20,6 @@ import { toast } from 'sonner';
 let globalCache = {
     cargos: { data: null, timestamp: 0, isFetching: false },
     areas: { data: null, timestamp: 0, isFetching: false },
-    sedes: { data: null, timestamp: 0, isFetching: false },
     CACHE_TTL: 5 * 60 * 1000 // 5 minutos
 };
 
@@ -32,9 +31,7 @@ export function EditEmpleado({ empleadoId, onEmpleadoActualizado }) {
     const [cargos, setCargos] = useState([]);
     const [isFetchingCargos, setIsFetchingCargos] = useState(false);
     const [isFetchingAreas, setIsFetchingAreas] = useState(false);
-    const [isFetchingSedes, setIsFetchingSedes] = useState(false);
     const [areas, setAreas] = useState([]);
-    const [sedes, setSedes] = useState([]);
     const [isEmployeeLoading, setIsEmployeeLoading] = useState(false);
     const [originalData, setOriginalData] = useState({});
 
@@ -48,7 +45,6 @@ export function EditEmpleado({ empleadoId, onEmpleadoActualizado }) {
         correo: "",
         telefono: "",
         cargo_id: "",
-        sede_id: "",
         area_id: "",
         foto:"",
     });
@@ -91,16 +87,12 @@ export function EditEmpleado({ empleadoId, onEmpleadoActualizado }) {
         setAreas(data);
     }, [fetchDataWithCache]);
 
-    const fetchSedes = useCallback(async () => {
-        const data = await fetchDataWithCache('sedes', 'sedes');
-        setSedes(data);
-    }, [fetchDataWithCache]);
 
     useEffect(() => {
         let isMounted = true; // Bandera para verificar si el componente está montado
 
         const loadInitialData = async () => {
-            await Promise.all([fetchCargos(), fetchAreas(), fetchSedes()]);
+            await Promise.all([fetchCargos(), fetchAreas()]);
         };
 
         if (isMounted) {
@@ -110,7 +102,7 @@ export function EditEmpleado({ empleadoId, onEmpleadoActualizado }) {
         return () => {
             isMounted = false; // Cleanup: cambia la bandera al desmontar
         };
-    }, [fetchCargos, fetchAreas, fetchSedes]);
+    }, [fetchCargos, fetchAreas]);
 
     const fetchEmployeeData = useCallback(async (background = false) => {
         const source = axios.CancelToken.source();
@@ -134,7 +126,6 @@ export function EditEmpleado({ empleadoId, onEmpleadoActualizado }) {
             const formattedEmployeeData = {
                 ...employeeData,
                 cargo_id: employeeData.cargo_id?.toString(),
-                sede_id: employeeData.sede_id?.toString(),
                 area_id: employeeData.area_id?.toString(),
             };
             setCache(prev => ({ ...prev, [empleadoId]: employeeData }));
@@ -295,7 +286,6 @@ export function EditEmpleado({ empleadoId, onEmpleadoActualizado }) {
                             id="nombre_1"
                             value={formData.nombre_1}
                             onChange={(e) => handleChange("nombre_1", e.target.value)}
-                            onKeyPress={(e) => handleKeyPress(e, 'letter')}
                             className={errors.nombre_1 ? "border-red-500" : ""}
                         />
                         {errors.nombre_1 && (
@@ -308,7 +298,6 @@ export function EditEmpleado({ empleadoId, onEmpleadoActualizado }) {
                             id="nombre_2"
                             value={formData.nombre_2}
                             onChange={(e) => handleChange("nombre_2", e.target.value)}
-                            onKeyPress={(e) => handleKeyPress(e, 'letter')}
                         />
                     </div>
                     <div className="grid items-center gap-4">
@@ -317,7 +306,6 @@ export function EditEmpleado({ empleadoId, onEmpleadoActualizado }) {
                             id="apellido_1"
                             value={formData.apellido_1}
                             onChange={(e) => handleChange("apellido_1", e.target.value)}
-                            onKeyPress={(e) => handleKeyPress(e, 'letter')}
                             className={errors.apellido_1 ? "border-red-500" : ""}
                         />
                         {errors.apellido_1 && <span className="text-red-500 text-sm">{errors.apellido_1}</span>}
@@ -328,7 +316,6 @@ export function EditEmpleado({ empleadoId, onEmpleadoActualizado }) {
                             id="apellido_2"
                             value={formData.apellido_2}
                             onChange={(e) => handleChange("apellido_2", e.target.value)}
-                            onKeyPress={(e) => handleKeyPress(e, 'letter')}
                         />
                     </div>
                     <div className="grid items-center gap-4">
@@ -395,33 +382,6 @@ export function EditEmpleado({ empleadoId, onEmpleadoActualizado }) {
                         </Select>
                         {errors.cargo_id && (
                             <span className="text-red-500 text-sm">{errors.cargo_id}</span>
-                        )}
-                    </div>
-                    {/* Select para Sede */}
-                    <div className="grid items-center gap-4">
-                        <Label htmlFor="sede_id">Sede *</Label>
-                        <Select
-                            value={formData.sede_id?.toString()}
-                            onValueChange={(value) => handleChange("sede_id", value)}
-                        >
-                            <SelectTrigger className={errors.sede_id ? "border-red-500" : ""}>
-                                <SelectValue placeholder={
-                                    isFetchingSedes ? "Cargando..." : "Selecciona una sede"
-                                } />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {sedes.map((sede) => (
-                                    <SelectItem
-                                        key={sede.id}
-                                        value={sede.id.toString()}
-                                    >
-                                        {sede.nombre}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        {errors.sede_id && (
-                            <span className="text-red-500 text-sm">{errors.sede_id}</span>
                         )}
                     </div>
                     {/* Select para Área */}

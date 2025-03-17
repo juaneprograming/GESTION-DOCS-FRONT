@@ -221,7 +221,7 @@ export function EditUsuario({ userId , onSuccess }) {
                 value={formData.username}
                 onChange={(e) => handleChange("username", e.target.value)}
                 className={errors.username ? "border-red-500" : ""}
-                onKeyPress={(e) => handleKeyPress(e, 'letter')}
+               
               />
               {errors.username && (
                 <span className="text-red-500 text-sm">{errors.username}</span>
