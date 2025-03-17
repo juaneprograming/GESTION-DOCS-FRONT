@@ -172,7 +172,7 @@ export function CreateEmpleado({ onEmpleadoCreado }) {
   };
 
   const validateForm = () => {
-    const requiredFields = ["nombre_1", "apellido_1", "tipo_identificacion", "numero_identificacion", "correo", "sede_id", "area_id", "cargo_id"];
+    const requiredFields = ["nombre_1", "apellido_1", "tipo_identificacion", "numero_identificacion", "correo", "area_id", "cargo_id"];
     const newErrors = {};
 
     requiredFields.forEach(field => {
