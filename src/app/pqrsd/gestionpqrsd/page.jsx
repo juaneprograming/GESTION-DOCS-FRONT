@@ -9,7 +9,6 @@ import { Download } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import DashboardLayout from "@/app/dashboard/layout"
 import { Breadcrumb } from "@/app/componentes/breadcrumb"
-import EditGestion from "./edit/page"
 import { useRouter } from "next/navigation"
 
 const GestionPqrsd = () => {
@@ -18,8 +17,38 @@ const GestionPqrsd = () => {
   const [error, setError] = useState(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [refreshFlag, setRefreshFlag] = useState(false)
+  const [userRole, setUserRole] = useState(null)
   const router = useRouter()
 
+  // Mapa de roles a estados permitidos
+  const roleStateMap = {
+    "Pqr radicador": ["RADICADA"],
+    "Distribucion": ["EN_DISTRIBUCION"],
+    "Tramitador": ["EN_TRAMITE"],
+    "Cierre": ["CIERRE"],
+  }
+
+  // Obtener rol del usuario desde la API
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const token = localStorage.getItem("token")
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/user/role`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+        setUserRole(response.data.role)
+        console.log("User role:", response.data.role)
+      } catch (error) {
+        console.error("Error al obtener el rol:", error)
+      } finally {
+
+      }
+    }
+    fetchUserRole()
+  }, [])
+
+  // Obtener lista de PQRSD
   useEffect(() => {
     const fetchPQRSD = async () => {
       try {
@@ -30,7 +59,6 @@ const GestionPqrsd = () => {
           },
         })
 
-        // Verificación corregida
         if (Array.isArray(response.data)) {
           setPqrsdList(response.data)
         } else {
@@ -54,25 +82,36 @@ const GestionPqrsd = () => {
     setRefreshFlag(prev => !prev)
   }
 
-  // Filtrado seguro con verificación de array
-  const filteredPQRSD = Array.isArray(pqrsdList)
-    ? pqrsdList.filter(pqrsd =>
-      Object.values(pqrsd).some(value =>
-        String(value).toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    )
+  // Filtrar PQRSD por rol (Admin ve todas)
+  const filteredByRole = Array.isArray(pqrsdList)
+    ? userRole === "Admin"
+      ? pqrsdList // Admin ve todas
+      : pqrsdList.filter(pqrsd =>
+          roleStateMap[userRole]?.includes(pqrsd.estado.toUpperCase())
+        )
     : []
 
+  // Aplicar búsqueda sobre los filtrados por rol
+  const finalFilteredPQRSD = filteredByRole.filter(pqrsd =>
+    Object.values(pqrsd).some(value =>
+      String(value).toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  )
+
+  // Mostrar badge según estado
   const getStatusBadge = (estado) => {
+    const normalizedEstado = estado.toUpperCase()
     const statusMap = {
-      radicado: { label: 'Radicado', variant: 'secondary' },
-      en_proceso: { label: 'En Proceso', variant: 'default' },
-      resuelto: { label: 'Resuelto', variant: 'success' },
-      cerrado: { label: 'Cerrado', variant: 'destructive' }
+      RADICADA: { label: 'Radicada', variant: 'secondary' },
+      EN_DISTRIBUCION: { label: 'En Distribución', variant: 'default' },
+      EN_TRAMITE: { label: 'En Trámite', variant: 'success' },
+      CIERRE: { label: 'Cierre', variant: 'destructive' }
     }
-    return <Badge variant={statusMap[estado]?.variant || 'outline'}>
-      {statusMap[estado]?.label || estado}
-    </Badge>
+    return (
+      <Badge variant={statusMap[normalizedEstado]?.variant || 'outline'}>
+        {statusMap[normalizedEstado]?.label || estado}
+      </Badge>
+    )
   }
 
   return (
@@ -130,14 +169,14 @@ const GestionPqrsd = () => {
                     Error: {error}
                   </TableCell>
                 </TableRow>
-              ) : filteredPQRSD.length === 0 ? (
+              ) : finalFilteredPQRSD.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-4 text-muted-foreground">
                     No se encontraron PQRSD
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredPQRSD.map((pqrsd) => (
+                finalFilteredPQRSD.map((pqrsd) => (
                   <TableRow key={pqrsd.id}>
                     <TableCell className="font-medium text-center">{pqrsd.numero_radicado}</TableCell>
                     <TableCell className="text-center">{pqrsd.tipo_solicitud}</TableCell>
