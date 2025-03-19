@@ -1,61 +1,59 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ChevronLeft, ChevronRight, Search } from "lucide-react"
+import axios from "axios"
+import { useSearchParams } from "next/navigation";
 
 export default function TraceTable() {
-  // Datos de la tabla extraídos de la imagen
-  const traceData = [
-    {
-      tarea: "TGN - Radicación Trámite General",
-      fecha: "06/03/2025 09:23:06 AM",
-      usuario: "Darys Johanna Padilla Sampayo",
-      traza: "Se registro una solicitud N°2025-01842",
-    },
-    // Añado más datos de ejemplo para demostrar la funcionalidad de filtrado
-    {
-      tarea: "TGN - Revisión Documentos",
-      fecha: "07/03/2025 10:15:30 AM",
-      usuario: "Carlos Rodríguez Méndez",
-      traza: "Se revisó la documentación N°2025-01842",
-    },
-    {
-      tarea: "TGN - Aprobación Trámite",
-      fecha: "08/03/2025 14:45:22 PM",
-      usuario: "Darys Johanna Padilla Sampayo",
-      traza: "Se aprobó la solicitud N°2025-01842",
-    },
-  ]
-
-  // Estados para los filtros
+  const [traceData, setTraceData] = useState([]);
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
   const [searchTerm, setSearchTerm] = useState("")
   const [tareaFilter, setTareaFilter] = useState("all-tareas")
   const [usuarioFilter, setUsuarioFilter] = useState("all-usuarios")
 
-  // Obtener valores únicos para los filtros
-  const uniqueTareas = [...new Set(traceData.map((item) => item.tarea))]
-  const uniqueUsuarios = [...new Set(traceData.map((item) => item.usuario))]
+  useEffect(() => {
+    const fetchTraceData = async () => {
+      try {
+        const token = localStorage.getItem("token")
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/traza/${id}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+        console.log("DATA:", response.data)
+        // Si necesitas acceder a data.data, cambia aquí
+        setTraceData(Array.isArray(response.data.data) ? response.data.data : [])
+      } catch (err) {
+        setError(err.message || "Error desconocido")
+      } finally {
+        setLoading(false)
+      }
+    }
+  
+    fetchTraceData()
+  }, [id])
+  
 
-  // Filtrar los datos según los criterios
+  const uniqueTareas = Array.isArray(traceData) ? [...new Set(traceData.map((item) => item.tarea))] : []
+  const uniqueUsuarios = Array.isArray(traceData) ? [...new Set(traceData.map((item) => item.usuario))] : []
+
   const filteredData = traceData.filter((item) => {
     const matchesSearch =
       searchTerm === "" || Object.values(item).some((val) => val.toLowerCase().includes(searchTerm.toLowerCase()))
-
     const matchesTarea = tareaFilter === "all-tareas" || item.tarea === tareaFilter
     const matchesUsuario = usuarioFilter === "all-usuarios" || item.usuario === usuarioFilter
-
     return matchesSearch && matchesTarea && matchesUsuario
   })
 
   return (
     <div className="p-4 text-muted-foreground">
-      
-
-      {/* Buscador y filtros */}
       <div className="mb-6 space-y-4">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
@@ -75,8 +73,8 @@ export default function TraceTable() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all-tareas">Todas las Tareas</SelectItem>
-                {uniqueTareas.map((tarea) => (
-                  <SelectItem key={tarea} value={tarea}>
+                {uniqueTareas.map((tarea, index) => (
+                  <SelectItem key={`tarea-${index}`} value={tarea}>
                     {tarea}
                   </SelectItem>
                 ))}
@@ -89,8 +87,8 @@ export default function TraceTable() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all-usuarios">Todos los Usuarios</SelectItem>
-                {uniqueUsuarios.map((usuario) => (
-                  <SelectItem key={usuario} value={usuario}>
+                {uniqueUsuarios.map((usuario, index) => (
+                  <SelectItem key={`usuario-${index}`} value={usuario}>
                     {usuario}
                   </SelectItem>
                 ))}
@@ -111,46 +109,50 @@ export default function TraceTable() {
         </div>
       </div>
 
-      {/* Tabla con estilos mejorados */}
       <div className="rounded-md border shadow-sm">
-        <Table>
-          <TableHeader className="bg-muted/50">
-            <TableRow>
-              <TableHead className="font-bold text-primary text-center">Tarea</TableHead>
-              <TableHead className="font-bold text-primary text-center">Fecha</TableHead>
-              <TableHead className="font-bold text-primary text-center">Usuario</TableHead>
-              <TableHead className="font-bold text-primary text-center">Traza</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredData.length > 0 ? (
-              filteredData.map((row, index) => (
-                <TableRow key={index} className="hover:bg-muted/30">
-                  <TableCell className="font-medium text-foreground">{row.tarea}</TableCell>
-                  <TableCell className="text-foreground">{row.fecha}</TableCell>
-                  <TableCell className="text-foreground">{row.usuario}</TableCell>
-                  <TableCell className="text-foreground">{row.traza}</TableCell>
-                </TableRow>
-              ))
-            ) : (
+        {loading ? (
+          <div className="p-4 text-center">Cargando datos...</div>
+        ) : error ? (
+          <div className="p-4 text-center text-red-500">{error}</div>
+        ) : (
+          <Table>
+            <TableHeader className="bg-muted/50">
               <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center">
-                  No se encontraron resultados.
-                </TableCell>
+                <TableHead className="font-bold text-primary text-center">Tarea</TableHead>
+                <TableHead className="font-bold text-primary text-center">Fecha</TableHead>
+                <TableHead className="font-bold text-primary text-center">Usuario</TableHead>
+                <TableHead className="font-bold text-primary text-center">Traza</TableHead>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {filteredData.length === 0 ?  (
+                <TableRow>
+                  <TableCell colSpan={4} className="h-24 text-center">
+                    No se encontraron resultados.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredData.map((traza, index) => (
+                  <TableRow key={`traza-${index}`} className="hover:bg-muted/30">
+                    <TableCell className="font-medium text-foreground">{traza.tarea_actual}</TableCell>
+                    <TableCell className="text-foreground">{traza.created_at}</TableCell>
+                    <TableCell className="text-foreground">{traza.usuario}</TableCell>
+                    <TableCell className="text-foreground">{traza.descripcion_flujo}</TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        )}
       </div>
 
-      {/* Paginación */}
       <div className="flex items-center justify-end space-x-2 py-4">
-        <Button variant="outline" size="sm" disabled={true}>
+        <Button variant="outline" size="sm" disabled>
           <ChevronLeft className="h-4 w-4 mr-2" />
           Anterior
         </Button>
         <div className="text-sm font-medium">{filteredData.length > 0 ? `1 - ${filteredData.length}` : "0 - 0"}</div>
-        <Button variant="outline" size="sm" disabled={true}>
+        <Button variant="outline" size="sm" disabled>
           Siguiente
           <ChevronRight className="h-4 w-4 ml-2" />
         </Button>
@@ -158,4 +160,3 @@ export default function TraceTable() {
     </div>
   )
 }
-
