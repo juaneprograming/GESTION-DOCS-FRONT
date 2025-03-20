@@ -54,7 +54,7 @@ export function ActionMenu({ handleRefresh, pqrsd }) {
         usuarioId
           ? { 
               usuario_id: usuarioId,
-              estado: rol === "Distribucion" 
+              estado: rol === "Distribuidor" 
                 ? "EN_DISTRIBUCION" 
                 : rol === "Tramitador" 
                 ? "EN_TRAMITE" 
@@ -77,14 +77,14 @@ export function ActionMenu({ handleRefresh, pqrsd }) {
         };
   
         switch (rol) {
-          case "Pqr radicador":
-            actionSuccess("Distribucion");
+          case "Radicador":
+            actionSuccess("Distribuidor");
             break;
-          case "Distribucion":
+          case "Distribuidor":
             actionSuccess("Tramite");
             break;
           case "Tramitador":
-            actionSuccess("Cierre PQRSD");
+            actionSuccess("Cerrador");
             break;
           default:
             console.warn("Rol no reconocido:", rol);
@@ -182,11 +182,11 @@ export function ActionMenu({ handleRefresh, pqrsd }) {
             Imprimir Radicado
           </DropdownMenuItem>
           {/* Botones condicionales */}
-          {(userRole === "Admin" || userRole === "Pqr radicador") && (
+          {(userRole === "Admin" || userRole === "Radicador") && (
             <DropdownMenuItem
               onClick={() => {
                 setOpenDistribucion(true);
-                handleGestionPqrsd("Distribucion");
+                handleGestionPqrsd("Distribuidor");
               }}
             >
               <Send className="h-4 w-4 mr-2" />
@@ -194,7 +194,7 @@ export function ActionMenu({ handleRefresh, pqrsd }) {
             </DropdownMenuItem>
           )}
 
-          {(userRole === "Admin" || userRole === "Distribucion") && (
+          {(userRole === "Admin" || userRole === "Distribuidor") && (
             <DropdownMenuItem
               onClick={() => {
                 setOpenTramite(true);
@@ -210,7 +210,7 @@ export function ActionMenu({ handleRefresh, pqrsd }) {
             <DropdownMenuItem
               onClick={() => {
                 setOpenCierre(true);
-                handleGestionPqrsd("Cierre PQRSD");
+                handleGestionPqrsd("Cerrador");
               }}
             >
               <Send className="h-4 w-4 mr-2" />
@@ -240,7 +240,7 @@ export function ActionMenu({ handleRefresh, pqrsd }) {
               <p>No hay usuarios disponibles.</p>
             )}
           </RadioGroup>
-          <Button onClick={() => handleGestionPqrsd("Distribucion", selectedUser)} disabled={!selectedUser}>
+          <Button onClick={() => handleGestionPqrsd("Distribuidor", selectedUser)} disabled={!selectedUser}>
             Enviar a Distribución
           </Button>
         </DialogContent>
@@ -284,7 +284,7 @@ export function ActionMenu({ handleRefresh, pqrsd }) {
               <p>No hay usuarios disponibles.</p>
             )}
           </RadioGroup>
-          <Button onClick={() => handleGestionPqrsd("Cierre PQRSD", selectedUser)} disabled={!selectedUser}>
+          <Button onClick={() => handleGestionPqrsd("Cerrador", selectedUser)} disabled={!selectedUser}>
             Enviar a Cierre
           </Button>
         </DialogContent>

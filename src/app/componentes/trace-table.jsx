@@ -29,7 +29,9 @@ export default function TraceTable() {
         )
         console.log("DATA:", response.data)
         // Si necesitas acceder a data.data, cambia aquí
-        setTraceData(Array.isArray(response.data.data) ? response.data.data : [])
+        const data = response.data.data;
+        setTraceData(Array.isArray(data) ? data : data ? [data] : []);
+
       } catch (err) {
         setError(err.message || "Error desconocido")
       } finally {
@@ -134,10 +136,10 @@ export default function TraceTable() {
               ) : (
                 filteredData.map((traza, index) => (
                   <TableRow key={`traza-${index}`} className="hover:bg-muted/30">
-                    <TableCell className="font-medium text-foreground">{traza.tarea_actual}</TableCell>
-                    <TableCell className="text-foreground">{new Date(traza.created_at).toLocaleDateString()}</TableCell>
-                    <TableCell className="text-foreground">{traza.usuario}</TableCell>
-                    <TableCell className="text-foreground">{traza.descripcion_flujo}</TableCell>
+                    <TableCell className="font-medium text-foreground text-center">{traza.tarea_actual}</TableCell>
+                    <TableCell className="text-foreground text-center">{new Date(traza.created_at).toLocaleDateString()}</TableCell>
+                    <TableCell className="text-foreground text-center">{traza.tramitador_actual}</TableCell>
+                    <TableCell className="text-foreground text-center">{traza.descripcion_flujo}</TableCell>
                   </TableRow>
                 ))
               )}

@@ -22,8 +22,8 @@ const GestionPqrsd = () => {
 
   // Mapa de roles a estados permitidos
   const roleStateMap = {
-    "Pqr radicador": ["RADICADA"],
-    "Distribucion": ["EN_DISTRIBUCION"],
+    "Radicador": ["RADICADA"],
+    "Distribuidor": ["EN_DISTRIBUCION"],
     "Tramitador": ["EN_TRAMITE"],
     "Cierre": ["CIERRE"],
   }
