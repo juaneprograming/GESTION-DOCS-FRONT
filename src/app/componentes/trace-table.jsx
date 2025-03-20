@@ -46,7 +46,7 @@ export default function TraceTable() {
 
   const filteredData = traceData.filter((item) => {
     const matchesSearch =
-      searchTerm === "" || Object.values(item).some((val) => val.toLowerCase().includes(searchTerm.toLowerCase()))
+      searchTerm === "" || Object.values(item).some((val) => typeof val === "string" && val.toLowerCase().includes(searchTerm.toLowerCase()))
     const matchesTarea = tareaFilter === "all-tareas" || item.tarea === tareaFilter
     const matchesUsuario = usuarioFilter === "all-usuarios" || item.usuario === usuarioFilter
     return matchesSearch && matchesTarea && matchesUsuario
@@ -116,7 +116,7 @@ export default function TraceTable() {
           <div className="p-4 text-center text-red-500">{error}</div>
         ) : (
           <Table>
-            <TableHeader className="bg-muted/50">
+            <TableHeader>
               <TableRow>
                 <TableHead className="font-bold text-primary text-center">Tarea</TableHead>
                 <TableHead className="font-bold text-primary text-center">Fecha</TableHead>
@@ -135,7 +135,7 @@ export default function TraceTable() {
                 filteredData.map((traza, index) => (
                   <TableRow key={`traza-${index}`} className="hover:bg-muted/30">
                     <TableCell className="font-medium text-foreground">{traza.tarea_actual}</TableCell>
-                    <TableCell className="text-foreground">{traza.created_at}</TableCell>
+                    <TableCell className="text-foreground">{new Date(traza.created_at).toLocaleDateString()}</TableCell>
                     <TableCell className="text-foreground">{traza.usuario}</TableCell>
                     <TableCell className="text-foreground">{traza.descripcion_flujo}</TableCell>
                   </TableRow>
