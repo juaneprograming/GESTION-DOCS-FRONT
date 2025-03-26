@@ -10,10 +10,10 @@ import axios from "axios";
 export default function DocumentUpload() {
     const searchParams = useSearchParams();
     const id = searchParams.get('id');
-    const entidad = searchParams.get('entidad') || "pqrsd"; // Default a "pqrsd" si no se proporciona
+    const entidad = searchParams.get('entidad') || "pqrsd";
     const [selectedFile, setSelectedFile] = useState(null);
     const [documents, setDocuments] = useState([]);
-    const [nombreDocumento, setNombreDocumento] = useState(""); // Reemplaza documentType
+    const [nombreDocumento, setNombreDocumento] = useState("");
     const [observation, setObservation] = useState("");
 
     const loadDocuments = async () => {
@@ -21,11 +21,7 @@ export default function DocumentUpload() {
             const token = localStorage.getItem("token");
             const response = await axios.get(
                 `${process.env.NEXT_PUBLIC_API_URL}/${entidad}/${id}/documentos`,
-                {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                }
+                { headers: { 'Authorization': `Bearer ${token}` }}
             );
             setDocuments(response.data.documentos);
         } catch (error) {
@@ -35,9 +31,7 @@ export default function DocumentUpload() {
     };
 
     useEffect(() => {
-        if (id && entidad) {
-            loadDocuments();
-        }
+        if (id && entidad) loadDocuments();
     }, [id, entidad]);
 
     const handleFileChange = (e) => {
@@ -56,45 +50,36 @@ export default function DocumentUpload() {
     };
 
     const handleAddDocument = async () => {
-        // Validación del nombre del documento
         if (!nombreDocumento) {
             alert("Por favor ingrese el nombre del documento.");
             return;
         }
-
-        // Validación del archivo
         if (!selectedFile) {
             alert("Por favor seleccione un archivo PDF.");
             return;
         }
 
         const formData = new FormData();
-        formData.append('nombre_documento', nombreDocumento); // Campo obligatorio
-        formData.append('observacion', observation || ''); // Campo opcional
-        formData.append('archivo', selectedFile); // Archivo obligatorio
+        formData.append('nombre_documento', nombreDocumento);
+        formData.append('observacion', observation || '');
+        formData.append('archivo', selectedFile);
 
         try {
             const token = localStorage.getItem("token");
             await axios.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/${entidad}/${id}/documentos`,
                 formData,
-                {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                        'Authorization': `Bearer ${token}`
-                    }
-                }
+                { headers: { 
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}`
+                }}
             );
-
-            // Limpiar campos después de guardar exitosamente
             setNombreDocumento("");
             setObservation("");
             setSelectedFile(null);
-
-            // Recargar la lista de documentos
             loadDocuments();
         } catch (error) {
-            if (error.response && error.response.data && error.response.data.errors) {
+            if (error.response?.data?.errors) {
                 const errors = Object.values(error.response.data.errors).flat();
                 alert(errors.join("\n"));
             } else {
@@ -103,10 +88,48 @@ export default function DocumentUpload() {
         }
     };
 
-    const handleDelete = (index) => {
-        const newDocuments = documents.filter((_, i) => i !== index);
-        setDocuments(newDocuments);
+    const handlePreview = async (document) => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await axios.get(
+                `${process.env.NEXT_PUBLIC_API_URL}/${entidad}/${id}/documentos/${document.nombre_original}`,
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                    responseType: 'blob',
+                }
+            );
+    
+            const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+            window.open(url, '_blank');
+            window.URL.revokeObjectURL(url);
+    
+        } catch (error) {
+            console.error('Error al previsualizar:', error);
+            alert('Error al previsualizar el documento.');
+        }
     };
+    
+
+    const handleDownload = async (document) => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await axios.get(
+                `${process.env.NEXT_PUBLIC_API_URL}/${entidad}/${id}/documentos/${document.nombre_original}`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+    
+            if (response.data.url) {
+                window.open(response.data.url, "_blank");
+            } else {
+                alert("Error al obtener la URL del documento.");
+            }
+        } catch (error) {
+            console.error("Error al descargar:", error);
+            alert("Error al descargar el documento.");
+        }
+    };
+    
+    
 
     return (
         <div className="space-y-6 p-6">
@@ -126,6 +149,8 @@ export default function DocumentUpload() {
                     </Button>
                 </div>
             </div>
+            
+            {/* Formulario de carga */}
             <div className="space-y-6">
                 <div className="space-y-2">
                     <Label htmlFor="nombreDocumento">
@@ -140,6 +165,7 @@ export default function DocumentUpload() {
                         onChange={(e) => setNombreDocumento(e.target.value)}
                     />
                 </div>
+                
                 <div className="space-y-2">
                     <Label htmlFor="observation">Observación</Label>
                     <Textarea
@@ -150,6 +176,7 @@ export default function DocumentUpload() {
                         onChange={(e) => setObservation(e.target.value)}
                     />
                 </div>
+                
                 <div className="space-y-2">
                     <Label>Seleccionar Archivo</Label>
                     <div className="flex items-center gap-4">
@@ -172,7 +199,8 @@ export default function DocumentUpload() {
                         />
                     </div>
                 </div>
-                <div className="overflow-x-auto"></div>
+                
+                {/* Lista de documentos */}
                 {documents.length > 0 ? (
                     <div className="overflow-x-auto">
                         <table className="table-auto w-full border-collapse">
@@ -193,8 +221,8 @@ export default function DocumentUpload() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {documents.map((document, index) => (
-                                    <tr key={index} className="hover:bg-gray-50 dark:hover:bg-slate-600">
+                                {documents.map((document) => (
+                                    <tr key={document.id} className="hover:bg-gray-50 dark:hover:bg-slate-600">
                                         <td className="px-4 py-2 border-b dark:border-slate-700">
                                             {document.nombre_documento}
                                         </td>
@@ -205,13 +233,22 @@ export default function DocumentUpload() {
                                             {document.nombre_original}
                                         </td>
                                         <td className="px-4 py-2 border-b dark:border-slate-700">
-                                            <Button
-                                                variant="destructive"
-                                                size="sm"
-                                                onClick={() => handleDelete(index)}
-                                            >
-                                                Eliminar
-                                            </Button>
+                                            <div className="flex gap-2">
+                                                <Button
+                                                    variant="outline"
+                                                    className="bg-blue-500 text-white hover:bg-blue-600"
+                                                    onClick={() => handlePreview(document)}
+                                                >
+                                                    Previsualizar
+                                                </Button>
+                                                <Button
+                                                    variant="outline"
+                                                    className="bg-green-500 text-white hover:bg-green-600"
+                                                    onClick={() => handleDownload(document)}
+                                                >
+                                                    Descargar
+                                                </Button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
