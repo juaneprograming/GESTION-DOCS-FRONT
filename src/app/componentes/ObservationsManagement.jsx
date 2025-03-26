@@ -121,10 +121,6 @@ export default function ObservationsManagement({ pqrsdId }) {
 
     return (
         <div className="space-y-6 p-6">
-            <div className="flex justify-between items-start mb-4">
-                <h2 className="text-xl font-semibold">Observaciones</h2>
-                <ActionMenu pqrsd={{ id: pqrsdId }} handleRefresh={fetchObservaciones} />
-            </div>
             <Card>
                 <CardHeader>
                     <CardTitle>Lista de Observaciones</CardTitle>

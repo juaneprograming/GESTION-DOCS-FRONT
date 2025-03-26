@@ -498,6 +498,18 @@ export function EditGestion() {
                   <Formdocument />
                 </TabsContent>
                 <TabsContent value="observaciones" className="mt-6">
+                <div className="flex justify-between items-start mb-4">
+                    <h2 className="text-xl font-semibold">
+                      Observaciones
+                    </h2>
+                    <ActionMenu
+                      pqrsd={id}
+                      handleRefresh={handleRefresh}
+                      userRole={userRole}
+                      handleGestionarDistribucion={handleGestionarDistribucion}
+                      handleGestionarTramite={handleGestionarTramite}
+                    />
+                  </div>
                   <Observationsmanagment />
                 </TabsContent>
                 <TabsContent value="traza" className="mt-6">
