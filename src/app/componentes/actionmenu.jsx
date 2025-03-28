@@ -173,10 +173,12 @@ export function ActionMenu({ handleRefresh, pqrsd }) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={handleDownloadSticker}>
-            <Download className="h-4 w-4 mr-2" />
-            Imprimir Sticker
-          </DropdownMenuItem>
+          {(userRole === "Admin" || userRole === "Radicador") && (
+            <DropdownMenuItem onClick={handleDownloadSticker}>
+              <Download className="h-4 w-4 mr-2" />
+              Imprimir Sticker
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem onClick={handlePrintRadicado}>
             <Printer className="h-4 w-4 mr-2" />
             Imprimir Radicado
