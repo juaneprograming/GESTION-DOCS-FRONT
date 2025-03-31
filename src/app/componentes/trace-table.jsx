@@ -122,12 +122,13 @@ export default function TraceTable() {
               <TableRow>
                 <TableHead className="font-bold text-primary text-center">Tarea</TableHead>
                 <TableHead className="font-bold text-primary text-center">Fecha</TableHead>
+                <TableHead className="font-bold text-primary text-center">Hora</TableHead>
                 <TableHead className="font-bold text-primary text-center">Usuario</TableHead>
                 <TableHead className="font-bold text-primary text-center">Traza</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredData.length === 0 ?  (
+              {filteredData.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={4} className="h-24 text-center">
                     No se encontraron resultados.
@@ -137,7 +138,12 @@ export default function TraceTable() {
                 filteredData.map((traza, index) => (
                   <TableRow key={`traza-${index}`} className="hover:bg-muted/30">
                     <TableCell className="font-medium text-foreground text-center">{traza.tarea_actual}</TableCell>
-                    <TableCell className="text-foreground text-center">{new Date(traza.created_at).toLocaleDateString()}</TableCell>
+                    <TableCell className="text-foreground text-center">
+                      {new Date(traza.created_at).toLocaleDateString()} 
+                    </TableCell>
+                    <TableCell className="text-foreground text-center">
+                     {new Date(traza.created_at).toLocaleTimeString()}
+                    </TableCell>
                     <TableCell className="text-foreground text-center">{traza.tramitador_actual}</TableCell>
                     <TableCell className="text-foreground text-center">{traza.descripcion_flujo}</TableCell>
                   </TableRow>

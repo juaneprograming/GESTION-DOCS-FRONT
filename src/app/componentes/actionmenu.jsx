@@ -235,7 +235,7 @@ export function ActionMenu({ handleRefresh, pqrsd }) {
               usuarios.map((user) => (
                 <Label key={user.id} className="flex items-center space-x-2">
                   <RadioGroupItem value={user.id.toString()} />
-                  <span>{user.username} - {user.empleado?.nombre_1} {user.empleado?.nombre_2} {user.empleado?.apellido_1} {user.empleado?.apellido_2}</span>
+                  <span>{user.empleado?.nombre_1} {user.empleado?.nombre_2} {user.empleado?.apellido_1} {user.empleado?.apellido_2}</span>
                 </Label>
               ))
             ) : (
@@ -257,7 +257,7 @@ export function ActionMenu({ handleRefresh, pqrsd }) {
               usuarios.map((user) => (
                 <Label key={user.id} className="flex items-center space-x-2">
                   <RadioGroupItem value={user.id.toString()} />
-                  <span>{user.username} - {user.empleado?.nombre_1} {user.empleado?.nombre_2} {user.empleado?.apellido_1} {user.empleado?.apellido_2}</span>
+                  <span>{user.empleado?.nombre_1} {user.empleado?.nombre_2} {user.empleado?.apellido_1} {user.empleado?.apellido_2}</span>
                 </Label>
               ))
             ) : (
@@ -279,7 +279,7 @@ export function ActionMenu({ handleRefresh, pqrsd }) {
               usuarios.map((user) => (
                 <Label key={user.id} className="flex items-center space-x-2">
                   <RadioGroupItem value={user.id.toString()} />
-                  <span>{user.username} - {user.empleado?.nombre_1} {user.empleado?.nombre_2} {user.empleado?.apellido_1} {user.empleado?.apellido_2}</span>
+                  <span>{user.empleado?.nombre_1} {user.empleado?.nombre_2} {user.empleado?.apellido_1} {user.empleado?.apellido_2}</span>
                 </Label>
               ))
             ) : (
