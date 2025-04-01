@@ -85,7 +85,7 @@ const GestionPqrsd = () => {
   // Filtrar PQRSD por rol (Admin ve todas)
   const filteredByRole = Array.isArray(pqrsdList)
     ? userRole === "Admin"
-      ? pqrsdList // Admin ve todas
+      ? pqrsdList 
       : pqrsdList.filter(pqrsd =>
           roleStateMap[userRole]?.includes(pqrsd.estado.toUpperCase())
         )
@@ -105,7 +105,7 @@ const GestionPqrsd = () => {
       RADICADA: { label: 'Radicada', variant: 'secondary' },
       EN_DISTRIBUCION: { label: 'En Distribución', variant: 'default' },
       EN_TRAMITE: { label: 'En Trámite', variant: 'success' },
-      CIERRE: { label: 'Cierre', variant: 'destructive' }
+      EN_CIERRE: { label: 'Cerrada', variant: 'destructive' }
     }
     return (
       <Badge variant={statusMap[normalizedEstado]?.variant || 'outline'}>
