@@ -70,12 +70,12 @@ export function ActionMenu({ handleRefresh, pqrsd }) {
         handleRefresh();
   
         const actionSuccess = (action) => {
-          setOpenDistribucion(false);
-          setOpenTramite(false);
-          setOpenCierre(false);
+          setOpenDistribucion('Distribucion' === action);
+          setOpenTramite('Tramite' === action);
+          setOpenCierre('Cierre' === action);
           alert(`PQRSd asignada exitosamente a ${action}!`);
         };
-  
+        
         switch (rol) {
           case "Radicador":
             actionSuccess("Distribuidor");
@@ -85,6 +85,9 @@ export function ActionMenu({ handleRefresh, pqrsd }) {
             break;
           case "Tramitador":
             actionSuccess("Cerrador");
+            break;
+          case "Cerrador":
+            actionSuccess("");
             break;
           default:
             console.warn("Rol no reconocido:", rol);
