@@ -92,11 +92,13 @@ const GestionPqrsd = () => {
     : []
 
   // Aplicar búsqueda sobre los filtrados por rol
-  const finalFilteredPQRSD = filteredByRole.filter(pqrsd =>
-    Object.values(pqrsd).some(value =>
-      String(value).toLowerCase().includes(searchTerm.toLowerCase())
+  const finalFilteredPQRSD = filteredByRole
+    .filter(pqrsd => pqrsd.estado.toUpperCase() !== "EN_CIERRE")
+    .filter(pqrsd =>
+      Object.values(pqrsd).some(value =>
+        String(value).toLowerCase().includes(searchTerm.toLowerCase())
+      )
     )
-  )
 
   // Mostrar badge según estado
   const getStatusBadge = (estado) => {
@@ -105,7 +107,6 @@ const GestionPqrsd = () => {
       RADICADA: { label: 'Radicada', variant: 'secondary' },
       EN_DISTRIBUCION: { label: 'En Distribución', variant: 'default' },
       EN_TRAMITE: { label: 'En Trámite', variant: 'success' },
-      EN_CIERRE: { label: 'Cerrada', variant: 'destructive' }
     }
     return (
       <Badge variant={statusMap[normalizedEstado]?.variant || 'outline'}>

@@ -66,10 +66,10 @@ const Consulta = () => {
 
   const getStatusBadge = (estado) => {
     const statusMap = {
-      radicado: { label: 'Radicado', variant: 'secondary' },
-      en_proceso: { label: 'En Proceso', variant: 'default' },
-      resuelto: { label: 'Resuelto', variant: 'success' },
-      cerrado: { label: 'Cerrado', variant: 'destructive' }
+      RADICADA: { label: 'Radicada', variant: 'secondary' },
+      EN_DISTRIBUCION: { label: 'En Distribución', variant: 'default' },
+      EN_TRAMITE: { label: 'En Trámite', variant: 'success' },
+      EN_CIERRE: { label: 'Cerrada', variant: 'destructive' }
     }
     return <Badge variant={statusMap[estado]?.variant || 'outline'}>
       {statusMap[estado]?.label || estado}
