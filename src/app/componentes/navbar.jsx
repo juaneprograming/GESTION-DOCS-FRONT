@@ -79,7 +79,7 @@ export function Navbar({ onToggleSidebar }) {
     if (api.defaults.headers.common["Authorization"]) {
       delete api.defaults.headers.common["Authorization"];
     }
-    router.push("/login");
+    router.push("/");
   };
 
   const handleProfileModalClose = (updated) => {

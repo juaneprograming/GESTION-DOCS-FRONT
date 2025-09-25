@@ -13,9 +13,8 @@ export function middleware(request) {
     return NextResponse.next();
   }
 
-  // Proteger todas las demás rutas
-  // Si el usuario no está autenticado, redirigir a /login
-  if (!isAuthenticated) {
+
+  if (!isAuthenticated && pathname !== '/') {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
