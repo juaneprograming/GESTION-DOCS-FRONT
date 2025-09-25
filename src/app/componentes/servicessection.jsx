@@ -1,62 +1,85 @@
-import Link from "next/link"
-import { FileText, Users, Workflow, Lock } from "lucide-react"
+import Link from "next/link";
+import { FileText, Users, Workflow, Lock } from "lucide-react";
 
 const services = [
   {
+    icon: Lock,
+    title: "PQRSD",
+    description: "Radicación, distribución, trazabilidad y respuesta a solicitudes.",
+    url: "/login",
+    active: true,
+  },
+  {
     icon: FileText,
     title: "Gestión Documental",
-    description: "Servicios integrales de almacenamiento y organización de documentos",
-    url: "http://localhost:3000/login",
+    description: "Archivo, versiones, metadatos y permisos.",
+    url: "#",
+    active: false,
   },
   {
     icon: Users,
     title: "Portal Ciudadano",
-    description: "Plataformas interactivas para mejorar la comunicación con los ciudadanos",
-    url: "https://portal-five-sepia.vercel.app",
+    description: "Interacción y consulta pública.",
+    url: "https://portal-five-sepia.vercel.app/#inicio",
+    active: true,
   },
   {
     icon: Workflow,
     title: "Automatización de Workflow",
-    description: "Procesos automatizados para mejorar la eficiencia organizacional",
-    url: "/services/workflow-automation",
-  },
-  {
-    icon: Lock,
-    title: "Consulta tu PQRSD",
-    description: "Gestión segura y eficiente de peticiones, quejas, reclamos, sugerencias y denuncias",
-    url: "/services/pqrsd",
+    description: "Flujos, aprobaciones y alertas.",
+    url: "#",
+    active: false,
   },
 ];
 
 export function ServicesSection() {
   return (
-    <section id="services" className="h-screen py-8 md:py-16 px-4 md:px-8">
-      <div className="text-center mb-8 md:mb-12 px-4">
-        <p className="text-blue-500 font-medium mb-2">Nuestros Servicios</p>
-        <h2 className="text-2xl md:text-4xl font-bold mb-4">Soluciones Especializadas</h2>
-        <p className="text-muted-foreground">
-          Descubre nuestros servicios diseñados para optimizar procesos y mejorar la eficiencia en diversas áreas:
-          <br className="hidden md:block" />
-          Gestión Documental, Portal Ciudadano, Automatización de Workflow y PQRSD.
+    <section id="services" className="py-14 md:py-20 px-4 md:px-8">
+      <div className="text-center mb-10 md:mb-14">
+        <p className="text-sky-700 font-medium mb-2">Servicios</p>
+        <h2 className="text-2xl md:text-4xl font-bold mb-4">Soluciones para gestión documental</h2>
+        <p className="text-slate-600">
+          Nuestro módulo disponible es <span className="font-semibold text-slate-900">PQRSD</span>. 
+          Próximamente habilitaremos más capacidades del gestor documental.
         </p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {services.map((service, index) => (
-          <Link 
-            href={service.url || "#"} 
+          <div
             key={index}
-            className="block group transition-all duration-300 ease-in-out bg-background border p-4 md:p-6 rounded-lg hover:bg-blue-500 hover:text-blue-500-foreground"
+            className={[
+              "relative group rounded-xl border bg-white p-6 transition-all duration-300",
+              service.active
+                ? "hover:shadow-xl hover:border-sky-300"
+                : "opacity-80",
+            ].join(" ")}
           >
-            <service.icon className="h-8 w-8 md:h-10 md:w-10 mb-4 group-hover:text-white" />
-            <h3 className="text-base md:text-lg font-semibold mb-2 group-hover:text-white">
-              {service.title}
-            </h3>
-            <p className="text-sm group-hover:text-white/80">
-              {service.description}
-            </p>
-          </Link>
+            <service.icon className={["mb-4 h-10 w-10",
+              service.active ? "text-sky-700" : "text-slate-400"
+            ].join(" ")} />
+            <h3 className="text-lg font-semibold mb-1 text-slate-900">{service.title}</h3>
+            <p className="text-slate-600 mb-4">{service.description}</p>
+
+            {service.active ? (
+              <Link href={service.url} className="inline-flex">
+                <span className="text-sky-700 font-medium group-hover:underline">Ingresar</span>
+              </Link>
+            ) : (
+              <span
+                aria-disabled
+                className="inline-flex items-center text-xs font-medium rounded-full bg-slate-100 text-slate-500 px-2 py-1"
+              >
+                Próximamente
+              </span>
+            )}
+
+            {!service.active && (
+              <div className="pointer-events-none absolute inset-0 rounded-xl bg-slate-50/40" />
+            )}
+          </div>
         ))}
       </div>
     </section>
-  )
+  );
 }

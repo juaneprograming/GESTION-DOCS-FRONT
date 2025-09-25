@@ -1,12 +1,12 @@
-import { HeroCarousel } from "@/app/componentes/herocarousel"
-import { ServicesSection } from "@/app/componentes/servicessection"
-import { ArticlesSection } from "@/app/componentes/articlessection"
-import { SiteHeader } from "@/app/componentes/siteheader"
-import { SiteFooter } from "@/app/componentes/sitefooter"
+import { HeroCarousel } from "@/app/componentes/herocarousel";
+import { ServicesSection } from "@/app/componentes/servicessection";
+import { ArticlesSection } from "@/app/componentes/articlessection";
+import { SiteHeader } from "@/app/componentes/siteheader";
+import { SiteFooter } from "@/app/componentes/sitefooter";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col bg-gray-100 overflow-x-hidden">
+    <main className="flex min-h-screen flex-col bg-gradient-to-br from-sky-50 via-white to-emerald-50 overflow-x-hidden">
       <SiteHeader />
       <div className="flex-1 w-full">
         <HeroCarousel />
@@ -15,5 +15,5 @@ export default function Home() {
       </div>
       <SiteFooter />
     </main>
-  )
+  );
 }
